@@ -6,6 +6,11 @@
   padding: 20px;
   height: wrap-content;
   width: 400px;
+
+  background-color: rgba(108, 108, 108, 0.532);
+    @media (prefers-color-scheme: dark) {
+      background-color: gray;
+    }
 }
 
 .center-button {
@@ -32,15 +37,9 @@
   font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: aquamarine;
+  color: #0355fa;
 }
 
-.join-button-enabled {
-  background-color: aqua !important;
-  color: black !important;
-
-  // Don't remove the !important, it's necessary to override the default color.
-}
 
 .input-container {
   display: flex;
@@ -56,4 +55,21 @@
     }
     margin-bottom: 20px;
   }
+}
+
+/* ::ng-deep .mat-raised-button:not([disabled]) {
+  background-color: #00ccff !important;
+  color: black !important;
+}
+
+::ng-deep .mat-raised-button[disabled] {
+  background-color: gray !important;
+  color: black !important;
+} */
+
+.join-button-enabled {
+  background-color: #00ccff !important;
+  color: black !important;
+
+  // Don't remove the !important, it's necessary to override the default color.
 }

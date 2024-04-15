@@ -44,6 +44,9 @@ export class HunterViewComponent implements OnInit, OnDestroy {
       takeUntil(this.ngUnsubscribe)
       ).subscribe({
         next: startedHunt => {
+          for (const task of startedHunt.completeHunt.tasks) {
+            task.photos = [];
+          }
           this.startedHunt = startedHunt;
           return;
         },
@@ -63,18 +66,62 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   }
 
   onFileSelected(event, task: Task): void {
-    const fileType = event.target.files[0].type;
+    const file: File = event.target.files[0];
+    const fileType = file.type;
     if (fileType.match(/image\/*/)) {
       if (this.imageUrls[task._id] && !window.confirm('An image has already been uploaded for this task. Are you sure you want to replace it?')) {
         return;
       }
 
       const reader = new FileReader();
-      reader.readAsDataURL(event.target.files[0]);
+      reader.readAsDataURL(file);
       reader.onload = (event: ProgressEvent<FileReader>) => {
         this.imageUrls[task._id] = event.target.result.toString();
       };
+
+      if (file) {
+        if (task.photos.length > 0) {
+          this.replacePhoto(file, task, this.startedHunt._id);
+        }
+        else {
+          this.submitPhoto(file, task, this.startedHunt._id);
+        }
+      }
     }
   }
 
+  submitPhoto(file: File, task: Task, startedHuntId: string): void {
+    this.hostService.submitPhoto(startedHuntId, task._id, file).subscribe({
+      next: (photoId: string) => {
+        task.status = true;
+        task.photos.push(photoId);
+        this.snackBar.open('Photo uploaded successfully', 'Close', {
+          duration: 3000
+        });
+      },
+      error: (error: Error) => {
+        console.error('Error uploading photo', error);
+        this.snackBar.open('Error uploading photo. Please try again', 'Close', {
+          duration: 3000
+        });
+      },
+    });
+  }
+
+  replacePhoto(file: File, task: Task, startedHuntId: string): void {
+    this.hostService.replacePhoto(startedHuntId, task._id, task.photos[0], file).subscribe({
+      next: (photoId: string) => {
+        task.photos[0] = photoId;
+        this.snackBar.open('Photo replaced successfully', 'Close', {
+          duration: 3000
+        });
+      },
+      error: (error: Error) => {
+        console.error('Error replacing photo', error);
+        this.snackBar.open('Error replacing photo. Please try again', 'Close', {
+          duration: 3000
+        });
+      },
+    });
+  }
 }

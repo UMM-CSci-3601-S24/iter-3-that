@@ -13,12 +13,35 @@ describe('Hunt Profile', () => {
   });
 
   it('should display the title', () => {
-    page.getHuntCard().contains('Default Hunt 1');
+    page.getHuntCardTitle().should('exist');
   });
+
+  it('should display the description', () => {
+    page.getHuntCardDescription().should('exist');
+  })
 
   it('should display a task', () => {
     page.getTasks().contains('Take a picture of');
   });
+
+  it('should click home button and go back to host page', () => {
+    page.getHomeButton().should('exist').click();
+    cy.url().should('match', /\//);
+  })
+
+  it('should display the return to hunts button and click it go back to host page', () => {
+    page.getHuntCardReturnToHuntsButton().should('exist');
+    page.getHuntCardReturnToHuntsButton().click();
+    cy.url().should('match', /\/hosts/);
+  })
+
+  it('should display the Begin Hunt button and click it go to the started hunt page', () => {
+    page.getHuntCardBeginHuntButton().should('exist');
+    page.getHuntCardBeginHuntButton().click();
+    page.getAccessCode().then((accessCode) => {
+      cy.url().should('eq', `http://localhost:4200/startedHunts/${accessCode}`);
+    });
+  })
 
   describe('Adding a new task and deleting hunts and tasks', () => {
 
@@ -41,7 +64,5 @@ describe('Hunt Profile', () => {
         .should('match', /\/hosts/)
         .should('not.match', /\/hunts\/[0-9a-fA-F]{24}$/);
     });
-
   });
-
 });

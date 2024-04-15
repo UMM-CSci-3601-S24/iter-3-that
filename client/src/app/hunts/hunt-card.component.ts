@@ -1,4 +1,4 @@
-import { Component, input, } from '@angular/core';
+import { Component, input, Input} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,9 +16,12 @@ import { HostService } from '../hosts/host.service';
     imports: [CommonModule, MatCardModule, MatButtonModule, MatListModule, MatIconModule, RouterLink]
 })
 export class HuntCardComponent {
+
+
   hunt = input.required<Hunt>();
   simple = input(true);
   math = Math;
+  @Input() context: 'host-profile' | 'hunt-profile' = 'hunt-profile';
 
   constructor(private hostService: HostService, private router: Router) {}
 

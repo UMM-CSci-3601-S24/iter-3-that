@@ -21,6 +21,7 @@ import { HostService } from "./host.service";
 import { MockHostService } from "src/testing/host.service.mock";
 import { throwError } from "rxjs";
 import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { Router } from "@angular/router";
 
 const COMMON_IMPORTS: unknown[] = [
   FormsModule,
@@ -121,6 +122,89 @@ describe('Misbehaving Hunt List', () => {
 
     expect(component.errMsg).toBe(`Problem contacting the server – Error Code: ${error.status}\nMessage: ${error.message}`);
     expect(snackBar.open).toHaveBeenCalledWith(component.errMsg, 'OK', { duration: 6000 });
+  });
+});
+
+describe('Ended Hunt List', () => {
+  let startedHuntList: HostProfileComponent;
+  let fixture: ComponentFixture<HostProfileComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [COMMON_IMPORTS, HostProfileComponent, HuntCardComponent],
+      providers: [{ provide: HostService, useValue: new MockHostService() }]
+    });
+  });
+
+  beforeEach(waitForAsync(() => {
+    TestBed.compileComponents().then(() => {
+      fixture = TestBed.createComponent(HostProfileComponent);
+      startedHuntList = fixture.componentInstance;
+      startedHuntList.serverEndedHunts = []; // Initialize serverEndedHunts
+      fixture.detectChanges();
+    });
+  }));
+
+  it('contains all the ended hunts', () => {
+    expect(startedHuntList.serverEndedHunts.length).toBe(4);
+  });
+
+});
+
+describe('Misbehaving Ended Hunt List', () => {
+  let component: HostProfileComponent;
+  let hostService: HostService;
+  let snackBar: MatSnackBar;
+
+  beforeEach(() => {
+    hostService = jasmine.createSpyObj('HostService', ['getEndedHunts']);
+    snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+    component = new HostProfileComponent(hostService, snackBar, null);
+  });
+
+  it('should set errMsg and call snackBar.open when getEndedHunts throws a client error', () => {
+    const errorEvent = new ErrorEvent('Test Error');
+    (hostService.getEndedHunts as jasmine.Spy).and.returnValue(throwError({ error: errorEvent }));
+
+    component.getEndedHunts();
+
+    expect(component.errMsg).toBe(`Problem in the client – Error: ${errorEvent.message}`);
+    expect(snackBar.open).toHaveBeenCalledWith(component.errMsg, 'OK', { duration: 6000 });
+  });
+
+  it('should set errMsg and call snackBar.open when getEndedHunts throws a server error', () => {
+    const error = { status: 500, message: 'Server Error' };
+    (hostService.getEndedHunts as jasmine.Spy).and.returnValue(throwError(error));
+
+    component.getEndedHunts();
+
+    expect(component.errMsg).toBe(`Problem contacting the server – Error Code: ${error.status}\nMessage: ${error.message}`);
+    expect(snackBar.open).toHaveBeenCalledWith(component.errMsg, 'OK', { duration: 6000 });
+  });
+});
+
+describe('When onHuntDeleted() is called', () => {
+  let component: HostProfileComponent;
+  let mockHostService: jasmine.SpyObj<HostService>;
+  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let mockRouter: jasmine.SpyObj<Router>;
+
+  beforeEach(() => {
+    mockHostService = jasmine.createSpyObj('HostService', ['getHunts', 'getEndedHunts']);
+    mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+
+    component = new HostProfileComponent(mockHostService, mockSnackBar, mockRouter);
+    component.serverEndedHunts = MockHostService.testStartedHunts;
+  });
+
+  it('should remove the hunt with the given id from serverEndedHunts when onHuntDeleted is called', () => {
+    const huntIdToDelete = 'ann_id';
+
+    component.onHuntDeleted(huntIdToDelete);
+
+    expect(component.serverEndedHunts).toEqual(MockHostService.testStartedHunts.filter(hunt => hunt._id !== huntIdToDelete));
   });
 });
 

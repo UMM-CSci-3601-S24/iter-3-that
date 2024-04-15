@@ -31,12 +31,20 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .background {
   background-color: 70, 70, 70;
   padding: 20px;
   padding-bottom: 50px;
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .remove-hunt-fab {
@@ -74,3 +82,12 @@
   align-items: center;
   justify-content: space-between;
 }
+
+.task-line:hover {
+  background-color: #D3D3D3;
+}
+
+.task-line:hover .remove-task-fab {
+  visibility: visible;
+}
+

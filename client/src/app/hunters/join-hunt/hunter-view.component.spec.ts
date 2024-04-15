@@ -1,7 +1,7 @@
 import { of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
 import { HunterViewComponent } from './hunter-view.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { StartedHunt } from 'src/app/startHunt/startedHunt'
@@ -15,7 +15,7 @@ describe('HunterViewComponent', () => {
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    mockHostService = jasmine.createSpyObj('HostService', ['getStartedHunt']);
+    mockHostService = jasmine.createSpyObj('HostService', ['getStartedHunt', 'submitPhoto', 'replacePhoto']);
     mockRoute = {
       paramMap: new Subject<ParamMap>()
     };
@@ -71,7 +71,8 @@ describe('HunterViewComponent', () => {
             _id: '1',
             huntId: '1',
             name: 'Task 1',
-            status: true
+            status: true,
+            photos: []
           }
         ]
       },
@@ -99,30 +100,31 @@ describe('HunterViewComponent', () => {
   });
 
   it('should handle file selected event', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
     const event = {
       target: {
         files: [
-          {
-            type: 'image/png',
-            result: 'data:image/png;base64,'
-          }
+          new File([''], 'photo.jpg', { type: 'image/jpeg' })
         ]
       }
     };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL', 'onload']);
+    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
+    reader.onload = null;
     spyOn(window, 'FileReader').and.returnValue(reader);
+
+    mockHostService.submitPhoto.and.returnValue(of(undefined));
 
     component.onFileSelected(event, task);
 
     expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
 
-    reader.onload({ target: { result: event.target.files[0].result } });
-    expect(component.imageUrls[task._id]).toBe(event.target.files[0].result);
+    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
+
+    expect(component.imageUrls[task._id]).toBe('data:image/jpeg;base64,');
   });
 
   it('should not replace image if user choose cancel', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
     const event = {
       target: {
         files: [
@@ -145,29 +147,112 @@ describe('HunterViewComponent', () => {
   });
 
   it('should replace image if user choose ok', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
     const event = {
       target: {
         files: [
-          {
-            type: 'image/png',
-            result: 'data:image/png;base64,'
-          }
+          new File([''], 'photo.jpg', { type: 'image/jpeg' })
         ]
       }
     };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL', 'onload']);
+    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
+    reader.onload = null;
     spyOn(window, 'FileReader').and.returnValue(reader);
 
     component.imageUrls[task._id] = 'data:image/png;base64,';
     spyOn(window, 'confirm').and.returnValue(true);
 
+    mockHostService.submitPhoto.and.returnValue(of(undefined));
+
     component.onFileSelected(event, task);
 
     expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
 
-    reader.onload({ target: { result: event.target.files[0].result } });
-    expect(component.imageUrls[task._id]).toBe(event.target.files[0].result);
+    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
+
+    expect(component.imageUrls[task._id]).toBe('data:image/jpeg;base64,');
+  });
+
+  it('should handle error when submitting photo', fakeAsync(() => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
+    const event = {
+      target: {
+        files: [
+          new File([''], 'photo.jpg', { type: 'image/jpeg' })
+        ]
+      }
+    };
+    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
+    reader.onload = null;
+    spyOn(window, 'FileReader').and.returnValue(reader);
+
+    mockHostService.submitPhoto.and.returnValue(throwError(() => new Error('Error')));
+
+    component.onFileSelected(event, task);
+
+    expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
+
+    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
+
+    tick();
+
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', {
+      duration: 3000
+    });
+  }));
+
+  describe('submitPhoto and replacePhoto', () => {
+    let task: Task;
+    let file: File;
+    let startedHuntId: string;
+
+    beforeEach(() => {
+      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId']};
+      file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+      startedHuntId = '';
+    });
+
+    it('should call replacePhoto when task has photos', () => {
+      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId']};
+      spyOn(component, 'replacePhoto');
+      component.onFileSelected({ target: { files: [file] } }, task);
+      expect(component.replacePhoto).toHaveBeenCalledWith(file, task, startedHuntId);
+    });
+
+    it('should call submitPhoto when task does not have photos', () => {
+      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
+      spyOn(component, 'submitPhoto');
+      component.onFileSelected({ target: { files: [file] } }, task);
+      expect(component.submitPhoto).toHaveBeenCalledWith(file, task, startedHuntId);
+    });
+
+    it('should display success message and update task when photo is uploaded successfully', () => {
+      const newPhotoId = 'newPhotoId';
+      mockHostService.submitPhoto.and.returnValue(of(newPhotoId));
+      component.submitPhoto(file, task, startedHuntId);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Photo uploaded successfully', 'Close', { duration: 3000 });
+      expect(task.status).toBeTrue();
+      expect(task.photos).toContain(newPhotoId);
+    });
+
+    it('should display error message when photo upload fails', () => {
+      mockHostService.submitPhoto.and.returnValue(throwError('Error message'));
+      component.submitPhoto(file, task, startedHuntId);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', { duration: 3000 });
+    });
+
+    it('should display success message when photo is replaced successfully', () => {
+      mockHostService.replacePhoto.and.returnValue(of('newPhotoId'));
+      component.replacePhoto(file, task, startedHuntId);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Photo replaced successfully', 'Close', { duration: 3000 });
+      expect(task.photos[0]).toEqual('newPhotoId');
+    });
+
+    it('should display error message when photo replacement fails', () => {
+      mockHostService.replacePhoto.and.returnValue(throwError('Error message'));
+      component.replacePhoto(file, task, startedHuntId);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error replacing photo. Please try again', 'Close', { duration: 3000 });
+    });
   });
 });
 

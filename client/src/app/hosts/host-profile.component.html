@@ -15,8 +15,7 @@
       <div>
         <div class="hunt-cards-container">
           @for (hunt of serverHunts; track hunt._id) {
-            <app-hunt-card [simple]="true" class="hunt-card" [hunt]="hunt" ></app-hunt-card>
-          }
+            <app-hunt-card [context]="'host-profile'" [hunt]="hunt"></app-hunt-card>          }
           </div>
       </div>
     </div>
@@ -33,6 +32,38 @@
   }
 
 </div>
+
+@if (serverEndedHunts && serverEndedHunts.length > 0) {
+  <mat-card class="search-card">
+    <mat-card-header class="header-content">
+      <mat-card-title class="hunt-list-title">Ended Hunts</mat-card-title>
+    </mat-card-header>
+  </mat-card>
+}
+
+<div class="flex-row">
+
+  @if (serverEndedHunts) {
+    <div class="flex-1" >
+      <div>
+        <div class="hunt-cards-container">
+          @for (startedHunt of serverEndedHunts; track startedHunt._id) {
+            <app-ended-hunt-card [simple]="true" class="hunt-card" [startedHunt]="startedHunt" (huntDeleted)="onHuntDeleted($event)"></app-ended-hunt-card>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="flex-1" class="hunt-error">
+      <mat-error>
+        There was a problem loading the hunts. Possibly the server is down or perhaps there are network
+        issues.
+      </mat-error>
+      <mat-error>
+        Please wait a bit and try again or start the server.
+      </mat-error>
+    </div>
+  }
 
 <button mat-fab class="add-hunt-fab" matTooltip="Add Hunt" matTooltipPosition="left" routerLink="/hunts/new" data-test="addHuntButton">
   <mat-icon class="md-24" aria-label="Add Hunt">add</mat-icon>

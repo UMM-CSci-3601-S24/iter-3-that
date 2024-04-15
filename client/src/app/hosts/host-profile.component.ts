@@ -17,6 +17,8 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { HostService } from "./host.service";
 import { HuntCardComponent } from "../hunts/hunt-card.component";
 import { Router } from "@angular/router";
+import { StartedHunt } from "../startHunt/startedHunt";
+import { EndedHuntCardComponent } from "../endedHunts/ended-hunt-card.component";
 
 @Component({
   selector: 'app-host-profile-component',
@@ -24,7 +26,7 @@ import { Router } from "@angular/router";
   styleUrls: ['./host-profile.component.scss'],
   providers: [],
   standalone: true,
-  imports: [MatCardModule, MatFormFieldModule, MatInputModule, FormsModule, MatSelectModule, MatOptionModule, MatRadioModule, MatListModule, RouterLink, MatButtonModule, MatTooltipModule, MatIconModule, HuntCardComponent]
+  imports: [EndedHuntCardComponent, MatCardModule, MatFormFieldModule, MatInputModule, FormsModule, MatSelectModule, MatOptionModule, MatRadioModule, MatListModule, RouterLink, MatButtonModule, MatTooltipModule, MatIconModule, HuntCardComponent]
 })
 
 export class HostProfileComponent implements OnInit, OnDestroy {
@@ -33,6 +35,7 @@ export class HostProfileComponent implements OnInit, OnDestroy {
   public name: string;
   public hostId: "588945f57546a2daea44de7c";
   public viewType: 'card'
+  public serverEndedHunts: StartedHunt[];
 
   errMsg = '';
   private ngUnsubscribe = new Subject<void>();
@@ -61,8 +64,34 @@ export class HostProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  getEndedHunts(): void {
+    this.hostService.getEndedHunts(this.hostId).pipe(
+      takeUntil(this.ngUnsubscribe)
+    ).subscribe({
+      next: (returnedEndedHunts) => {
+        this.serverEndedHunts = returnedEndedHunts;
+      },
+      error: (err) => {
+        if (err.error instanceof ErrorEvent) {
+          this.errMsg = `Problem in the client – Error: ${err.error.message}`;
+        } else {
+          this.errMsg = `Problem contacting the server – Error Code: ${err.status}\nMessage: ${err.message}`;
+        }
+        this.snackBar.open(
+          this.errMsg,
+          'OK',
+          { duration: 6000 });
+      },
+    });
+  }
+
+  onHuntDeleted(deletedHuntId: string) {
+    this.serverEndedHunts = this.serverEndedHunts.filter(hunt => hunt._id !== deletedHuntId);
+  }
+
   ngOnInit(): void {
     this.getHuntsFromServer();
+    this.getEndedHunts();
   }
 
   ngOnDestroy() {

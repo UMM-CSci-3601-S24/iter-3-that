@@ -4,4 +4,5 @@ export interface StartedHunt {
   _id: string;
   completeHunt: CompleteHunt;
   accessCode: string;
+  endDate?: Date;
 }

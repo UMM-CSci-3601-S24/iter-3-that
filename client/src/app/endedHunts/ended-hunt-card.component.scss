@@ -1,0 +1,111 @@
+.mat-mdc-list-item {
+  &-title,
+  &-line {
+    font-size: 1rem;
+  }
+}
+
+.ended-hunt-card {
+  position:relative;
+  min-width:280px;
+  width: 100%;
+  height: 200px;
+  margin: 8px;
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 2px 0 rgb(0, 112, 250);
+  background-color: #badffd2d;
+  color: #0056b3;
+
+  @media (prefers-color-scheme: dark) {
+    color: #00ccff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: #00ccff;
+  }
+}
+
+.ended-profile-button {
+  background-color: #007bff7c;
+  position: absolute;
+  bottom: 10px;
+  left: 30px;
+  transition: background-color 0.3s ease;
+  @media (prefers-color-scheme: dark) {
+    background-color: #00ccff;
+  }
+}
+.ended-profile-button:hover {
+  background-color: #007bff;
+  color: white;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #00ccff;
+  }
+}
+
+.ended-profile-button:visited {
+  color: white;
+}
+
+
+
+.remove-hunt-fab {
+  position:absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: transparent;
+  color: red;
+}
+
+.remove-hunt-fab:hover {
+  background-color: red;
+  color: white;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ended-hunt-card-name {
+  color: #0056b3;
+
+  @media (prefers-color-scheme: dark) {
+    color: #0056b3;
+  }
+}
+
+.ended-hunt-card-description {
+    margin-right: 60px;
+    color: #0056b3;
+    word-wrap: break-word;
+
+
+  @media (prefers-color-scheme: dark) {
+    color: #0056b3;
+  }
+}
+
+.card-date {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.ended-hunt-card-endDate {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  color: #0056b3;
+  max-width: 180px;
+  word-wrap: break-word;
+
+  @media (prefers-color-scheme: dark) {
+    color: #0056b3;
+  }
+}

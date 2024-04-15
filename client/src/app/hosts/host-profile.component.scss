@@ -39,9 +39,13 @@
   gap: 8px;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: space-between;
+
+  background-color: #a0c8ff;
+  @media (prefers-color-scheme: dark) {
+    background-color: #00ccff;
+  }
 }
 .header-content {
   display: flex;
@@ -50,4 +54,12 @@
 
 .username-content {
   text-align: right;
+}
+
+.username {
+  color: #0056b3;
+}
+
+.header-content {
+  color: #0056b3;
 }

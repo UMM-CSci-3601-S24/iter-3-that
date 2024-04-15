@@ -1,7 +1,5 @@
 <mat-card class="hunt-information-card">
     <mat-card-title class="hunt-title">You are in {{ startedHunt?.completeHunt?.hunt?.name }}</mat-card-title>
-    <mat-card-title class="hunt"> <mat-icon matListItemIcon>av_timer</mat-icon> {{ startedHunt?.completeHunt?.hunt?.est }} min </mat-card-title>
-    <mat-card-title class="hunt"> <mat-icon matListItemIcon>checklist</mat-icon> {{ startedHunt?.completeHunt?.hunt?.numberOfTasks }} tasks </mat-card-title>
 </mat-card>
 
 <div class="task-table">
@@ -11,7 +9,7 @@
   </div>
   <div class="flex-row" *ngFor="let task of startedHunt?.completeHunt?.tasks">
     <div class="image-upload">
-      <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Profile Picture" title="Profile Picture" height="100px" width="100px" />
+      <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Upload Picture" title="Upload Picture" height="100px" width="100px" />
       <input
         type="file"
         id="img-{{task._id}}"
@@ -21,6 +19,6 @@
       />
       <label for="img-{{task._id}}">Upload Image</label>
     </div>
-    <div class="task-list">{{ task.name }}</div>
+    <div class="task-list" [ngClass]="{'task-completed': task.status}">{{ task.name }}</div>
   </div>
 </div>

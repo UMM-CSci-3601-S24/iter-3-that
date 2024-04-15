@@ -1,0 +1,26 @@
+@if (this.startedHunt()) {
+  <mat-card class="ended-hunt-card">
+    <div class="card-container">
+      <mat-card-header>
+        <mat-card-title class="ended-hunt-card-name">{{ this.startedHunt().completeHunt.hunt.name }}</mat-card-title>
+        <mat-card-subtitle class="ended-hunt-card-description">{{ this.startedHunt().completeHunt.hunt.description }}</mat-card-subtitle>
+      </mat-card-header>
+      <div class="card-date">
+        <mat-card-subtitle class="ended-hunt-card-endDate">End Date: {{ this.startedHunt().endDate | date:'short' }}</mat-card-subtitle>
+      </div>
+    </div>
+
+    <mat-card-actions class="actions-container">
+      <div>
+        @if (this.simple()) {
+          <mat-card-actions>
+            <button mat-fab class="remove-hunt-fab" matTooltip="Delete Hunt" matTooltipPosition="left" (click)="deleteEndedHunt(startedHunt()._id)" data-test="deleteStartedHuntButton">
+              <mat-icon class="md-24" aria-label="Delete Hunt">delete</mat-icon>
+            </button>
+            <button mat-raised-button data-test=viewProfileButton [routerLink]="['/endedHunts', this.startedHunt()._id]" class="ended-profile-button">Hunt Details</button>
+          </mat-card-actions>
+        }
+      </div>
+    </mat-card-actions>
+  </mat-card>
+}

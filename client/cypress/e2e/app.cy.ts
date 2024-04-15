@@ -15,4 +15,9 @@ describe('App', () => {
     cy.get('[name=home-button]').click();
   });
 
+  it('should navigate to join hunt page by clicking Hunter and back', () => {
+    cy.get('[name=hunter-button]').click();
+    cy.url().should('include', '/hunter');
+    cy.get('[name=home-button]').click();
+  })
 });

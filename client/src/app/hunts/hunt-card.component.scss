@@ -6,14 +6,16 @@
   }
 
   .hunt-card {
+    position: relative;
+    min-width:280px;
     width: 100%;
-    height: 100%;
+    height: 200px;
     margin: 8px;
     display: flex;
     gap: 8px;
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 0 8px 0 rgb(0, 158, 250);
+    box-shadow: 0 0 2px 0 rgb(0, 112, 250);
     background-color: #badffd2d;
     color: #0056b3;
 
@@ -23,6 +25,12 @@
 
     @media (prefers-color-scheme: dark) {
       box-shadow: #00ccff;
+    }
+
+    .view-profile {
+      position: absolute;
+      bottom: 10px;
+      left: 30px;
     }
   }
 
@@ -66,7 +74,8 @@
   }
 
   .profile-button:hover {
-    background-color: #0056b3;
+    background-color: #007bff;
+    color: white;
 
     @media (prefers-color-scheme: dark) {
       background-color: #00ccff;
@@ -87,7 +96,8 @@
   }
 
   .return-to-hunts:hover {
-    background-color: #0056b3;
+    background-color: #007bff;
+    color: white;
 
     @media (prefers-color-scheme: dark) {
       background-color: #00ccff;
@@ -108,7 +118,8 @@
   }
 
   .begin-hunt:hover {
-    background-color: #0056b3;
+    background-color: #007bff;
+    color: white;
 
     @media (prefers-color-scheme: dark) {
       background-color: #00ccff;
@@ -134,10 +145,17 @@
 
   .hunt-card-description {
     margin-right: 60px;
+    color: #0056b3;
+    word-wrap: break-word;
+  }
+
+  .hunt-card-description.host-profile {
+    max-width: 160px;
   }
 
   .hunt-card-name {
     margin-right: 60px;
+    color: #0056b3;
   }
 
   .button-container {

@@ -94,7 +94,7 @@ describe('AddTaskComponent', () => {
     it('should return the correct error message', () => {
       const controlName: keyof typeof addTaskComponent.addTaskValidationMessages = 'name';
       addTaskComponent.addTaskForm.get(controlName).setErrors({'required': true});
-      expect(addTaskComponent.getErrorMessage(controlName)).toEqual('Name is required');
+      expect(addTaskComponent.getErrorMessage(controlName)).toEqual('Task name is required');
     });
 
     it('should return "Unknown error" if no error message is found', () => {

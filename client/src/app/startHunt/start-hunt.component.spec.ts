@@ -69,6 +69,11 @@ describe('StartHuntComponent', () => {
     expect(component.startedHunt).toBeNull();
   });
 
+  it('should set beginHunt to true when beginHunt() is called', () => {
+    component.beginHunt();
+    expect(component.huntBegun).toBeTrue();
+  });
+
   it('should set error data on observable error', () => {
     activatedRoute.setParamMap({ accessCode: accessCode });
 
@@ -149,4 +154,4 @@ describe('StartHuntComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/hosts']);
     expect(snackBarSpy).toHaveBeenCalledWith('Hunt ended successfully', 'Close', { duration: 2000 });
   });
-  });
+});
