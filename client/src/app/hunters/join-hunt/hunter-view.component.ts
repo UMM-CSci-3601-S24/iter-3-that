@@ -11,15 +11,18 @@ import { HuntCardComponent } from 'src/app/hunts/hunt-card.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { WebcamImage, WebcamModule } from 'ngx-webcam';
+import { Observable } from 'rxjs';
 
 
 @Component({
   selector: 'app-hunter-view',
   standalone: true,
-  imports: [HuntCardComponent, CommonModule, MatCardModule, MatIconModule],
+  imports: [HuntCardComponent, CommonModule, MatCardModule, MatIconModule, WebcamModule],
   templateUrl: './hunter-view.component.html',
   styleUrl: './hunter-view.component.scss'
 })
+
 export class HunterViewComponent implements OnInit, OnDestroy {
   startedHunt: StartedHunt;
   tasks: Task[] = [];
@@ -35,6 +38,17 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     private router: Router,
     public dialog: MatDialog,
   ) { }
+
+  stream = null;
+  status = null;
+  trigger: Subject<void> = new Subject<void>();
+  previewImage: string = '';
+  btnLabel: string = 'Capture image';
+  showWebcam: boolean = false;
+
+  get $trigger(): Observable<void> {
+    return this.trigger.asObservable();
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -123,5 +137,42 @@ export class HunterViewComponent implements OnInit, OnDestroy {
         });
       },
     });
+  }
+
+  snapshot(event: WebcamImage) {
+    console.log(event);
+    this.previewImage = event.imageAsDataUrl;
+    this.btnLabel = 'Re capture image'
+    this.showWebcam = false;
+  }
+
+  checkPermissions() {
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        width: 500,
+        height: 500
+      }
+    }).then((res) => {
+      console.log("response", res);
+      this.stream = res;
+      this.status = 'My camera is accessing';
+      this.btnLabel = 'Capture image';
+      this.showWebcam = true;
+    }).catch(err => {
+      console.log(err);
+      if(err?.message === 'Permission denied') {
+        this.status = 'Permission denied please try again by approving the access';
+      } else {
+        this.status = 'You may not having camera system, Please try again ...';
+      }
+    })
+  }
+
+  captureImage() {
+    this.trigger.next();
+  }
+
+  proceed() {
+    console.log(this.previewImage);
   }
 }
