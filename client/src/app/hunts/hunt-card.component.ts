@@ -18,6 +18,7 @@ import { HostService } from '../hosts/host.service';
 export class HuntCardComponent {
   hunt = input.required<Hunt>();
   simple = input(true);
+  math = Math;
 
   constructor(private hostService: HostService, private router: Router) {}
 
