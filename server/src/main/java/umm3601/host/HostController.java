@@ -6,10 +6,8 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
-import umm3601.hunt.Hunt;
 import umm3601.hunt.Task;
 
-import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 import java.io.File;
@@ -23,29 +21,18 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 
-import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
 import java.util.Base64;
 
 public class HostController implements Controller {
 
-  private static final String API_HOST = "/api/hosts/{id}";
-  private static final String API_HUNT = "/api/hunts/{id}";
-  private static final String API_HUNTS = "/api/hunts";
-  private static final String API_TASK = "/api/tasks/{id}";
-  private static final String API_TASKS = "/api/tasks";
-  private static final String API_START_HUNT = "/api/startHunt/{id}";
   private static final String API_STARTED_HUNT = "/api/startedHunts/{accessCode}";
   private static final String API_END_HUNT = "/api/endHunt/{id}";
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
@@ -59,17 +46,12 @@ public class HostController implements Controller {
 
   static final int REASONABLE_NAME_LENGTH_HUNT = 50;
   static final int REASONABLE_DESCRIPTION_LENGTH_HUNT = 200;
-  private static final int REASONABLE_EST_LENGTH_HUNT = 240;
 
   static final int REASONABLE_NAME_LENGTH_TASK = 150;
 
-  private static final int ACCESS_CODE_MIN = 100000;
-  private static final int ACCESS_CODE_RANGE = 900000;
   private static final int ACCESS_CODE_LENGTH = 6;
 
   private final JacksonMongoCollection<Host> hostCollection;
-  private final JacksonMongoCollection<Hunt> huntCollection;
-  private final JacksonMongoCollection<Task> taskCollection;
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
 
   public HostController(MongoDatabase database) {
@@ -77,18 +59,6 @@ public class HostController implements Controller {
         database,
         "hosts",
         Host.class,
-        UuidRepresentation.STANDARD);
-
-    huntCollection = JacksonMongoCollection.builder().build(
-        database,
-        "hunts",
-        Hunt.class,
-        UuidRepresentation.STANDARD);
-
-    taskCollection = JacksonMongoCollection.builder().build(
-        database,
-        "tasks",
-        Task.class,
         UuidRepresentation.STANDARD);
 
     startedHuntCollection = JacksonMongoCollection.builder().build(
