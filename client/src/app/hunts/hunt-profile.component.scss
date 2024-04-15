@@ -83,3 +83,11 @@
   justify-content: space-between;
 }
 
+.task-line:hover {
+  background-color: #D3D3D3;
+}
+
+.task-line:hover .remove-task-fab {
+  visibility: visible;
+}
+
