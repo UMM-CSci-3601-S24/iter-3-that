@@ -30,6 +30,7 @@
        <!-- web cam image will be shown here -->
        <webcam [trigger]="$trigger" (imageCapture)="snapshot($event)" [imageQuality]="1"></webcam>
        <button (click)="captureImage()" >{{btnLabel}}</button>
+       <button (click)="cancelCapture()">X</button>
   </div>
 
   <!-- Preview section -->

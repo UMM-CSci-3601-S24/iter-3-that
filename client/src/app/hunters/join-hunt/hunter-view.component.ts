@@ -168,6 +168,15 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     })
   }
 
+  cancelCapture() {
+    this.showWebcam = false;
+    this.status = null;
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+  }
+
   captureImage() {
     this.trigger.next();
   }
