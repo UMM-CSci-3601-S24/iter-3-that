@@ -90,7 +90,7 @@ public class HuntController implements Controller {
   }
 
   public void getHunts(Context ctx) {
-    String targetHost = ctx.queryParamAsClass(HOST_KEY, String.class).get();
+    String targetHost = ctx.pathParam("id");
     Bson combinedFilter = eq(HOST_KEY, targetHost);
     Bson sortingOrder = constructSortingOrderHunts(ctx);
 
