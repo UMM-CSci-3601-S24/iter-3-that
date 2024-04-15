@@ -44,7 +44,7 @@ export class HostProfileComponent implements OnInit, OnDestroy {
   }
 
   getHuntsFromServer(): void {
-    this.hostService.getHunts(this.hostId).pipe(
+    this.hostService.getHunts().pipe(
       takeUntil(this.ngUnsubscribe)
     ).subscribe({
       next: (returnedHunts) => {
