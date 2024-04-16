@@ -24,8 +24,8 @@ export class HostService {
   constructor(private httpClient: HttpClient){
   }
 
-  getHunts(hostId: string): Observable<Hunt[]> {
-    return this.httpClient.get<Hunt[]>(`${this.hostUrl}/${hostId}`);
+  getHunts(): Observable<Hunt[]> {
+    return this.httpClient.get<Hunt[]>(`${this.hostUrl}/588945f57546a2daea44de7c`);
   }
 
   getHuntById(id: string): Observable<CompleteHunt> {

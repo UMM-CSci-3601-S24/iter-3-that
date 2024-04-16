@@ -1,4 +1,4 @@
-package umm3601.host;
+package umm3601.startedHunt;
 
 import java.util.List;
 
