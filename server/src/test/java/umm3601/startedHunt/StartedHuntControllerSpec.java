@@ -52,13 +52,9 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UploadedFile;
-import io.javalin.json.JavalinJackson;
 import umm3601.hunt.CompleteHunt;
 import umm3601.hunt.Hunt;
 import umm3601.hunt.Task;
-import umm3601.startedHunt.EndedHunt;
-import umm3601.startedHunt.FinishedTask;
-import umm3601.startedHunt.StartedHunt;
 
 @SuppressWarnings({ "MagicNumber" })
 class StartedHuntControllerSpec {
@@ -70,7 +66,6 @@ class StartedHuntControllerSpec {
 
   private static MongoClient mongoClient;
   private static MongoDatabase db;
-  private static JavalinJackson javalinJackson = new JavalinJackson();
 
   @Mock
   private Context ctx;
