@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase;
 
 import umm3601.host.HostController;
 import umm3601.hunt.HuntController;
+import umm3601.startedHunt.StartedHuntController;
 
 public class Main {
 
@@ -62,7 +63,8 @@ public class Main {
       //
       // You can also remove this UserController once you don't need it.
       new HostController(database),
-      new HuntController(database)
+      new HuntController(database),
+      new StartedHuntController(database)
     };
     return controllers;
   }
