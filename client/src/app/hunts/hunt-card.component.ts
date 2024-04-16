@@ -20,8 +20,8 @@ export class HuntCardComponent {
 
   hunt = input.required<Hunt>();
   simple = input(true);
+  math = Math;
   @Input() context: 'host-profile' | 'hunt-profile' = 'hunt-profile';
-
 
   constructor(private hostService: HostService, private router: Router) {}
 
@@ -29,6 +29,10 @@ export class HuntCardComponent {
     this.hostService.startHunt(id).subscribe((accessCode) => {
       this.router.navigate(['/startedHunts/', accessCode]);
     });
+  }
+
+  estHours(minutes: number): number {
+    return Math.floor(minutes / 60);
   }
 }
 

@@ -47,6 +47,10 @@
   }
 }
 
+.ended-profile-button:visited {
+  color: white;
+}
+
 
 
 .remove-hunt-fab {
@@ -99,7 +103,7 @@
   right: 10px;
   color: #0056b3;
   max-width: 180px;
-  word-wrap: break-word;
+  white-space: nowrap;
 
   @media (prefers-color-scheme: dark) {
     color: #0056b3;
