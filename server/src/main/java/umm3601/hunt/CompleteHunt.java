@@ -1,9 +1,6 @@
-package umm3601.host;
+package umm3601.hunt;
 
 import java.util.ArrayList;
-
-import umm3601.hunt.Hunt;
-import umm3601.hunt.Task;
 
 @SuppressWarnings({"VisibilityModifier"})
 public class CompleteHunt {

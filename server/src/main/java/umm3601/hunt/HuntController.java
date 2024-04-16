@@ -6,8 +6,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
-import umm3601.host.CompleteHunt;
-import umm3601.host.StartedHunt;
+import umm3601.startedHunt.StartedHunt;
 
 import static com.mongodb.client.model.Filters.eq;
 
