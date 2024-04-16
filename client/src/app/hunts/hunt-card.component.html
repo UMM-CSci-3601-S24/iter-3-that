@@ -17,6 +17,7 @@
       <mat-card-actions class="button-container">
         <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
         <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
+        <button mat-button (click)="editHunt(hunt()._id)" class="edit-hunt">Edit Hunt</button>
       </mat-card-actions>
       }
       <mat-card-title class="hunt-card-task icon-center bot-right">

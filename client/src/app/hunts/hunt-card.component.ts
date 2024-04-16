@@ -31,6 +31,10 @@ export class HuntCardComponent {
     });
   }
 
+  editHunt(id: string): void {
+    this.router.navigate(['/editHunt/', id]);
+  }
+
   estHours(minutes: number): number {
     return Math.floor(minutes / 60);
   }
