@@ -11,33 +11,18 @@
   <div class="flex-row" *ngFor="let task of startedHunt?.completeHunt?.tasks">
     <div class="image-upload">
       <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Upload Picture" title="Upload Picture" height="100px" width="100px" />
-      <input
-        type="file"
-        id="img-{{task._id}}"
-        style="display:none"
-        accept="image/*"
-        (change)="onFileSelected($event, task)"
-      />
-      <label for="img-{{task._id}}">Upload Image</label>
+
+      <div *ngIf="!previewImage">
+        <button (click)="checkPermissions()">Upload Image</button>
+      </div>
+
+      <div *ngIf="stream" class="modal">
+        <!-- web cam image will be shown here -->
+        <webcam [trigger]="$trigger" (imageCapture)="snapshot($event, task)" [imageQuality]="1"></webcam>
+        <button (click)="captureImage()" >Capture Image</button>
+        <button (click)="cancelCapture()">X</button>
+      </div>
     </div>
-
-    <div>
-      <button (click)="checkPermissions()">Check the webcam permissions</button>
-      <p *ngIf="status">Status here: {{status}}</p>
-    </div>
-
-  <div *ngIf="stream" class="modal">
-       <!-- web cam image will be shown here -->
-       <webcam [trigger]="$trigger" (imageCapture)="snapshot($event)" [imageQuality]="1"></webcam>
-       <button (click)="captureImage()" >{{btnLabel}}</button>
-       <button (click)="cancelCapture()">X</button>
-  </div>
-
-  <!-- Preview section -->
-<div *ngIf="previewImage">
-  <img [src]="previewImage" alt="Preview Image" height="250" width="250">
-  <button (click)="proceed()">Proceed</button>
-</div>
 
     <div class="task-list" [ngClass]="{'task-completed': task.status}">{{ task.name }}</div>
   </div>
