@@ -110,7 +110,7 @@ describe('When getHunts() is called', () => {
 
     const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(testHunts));
 
-    hostService.getHunts("575").subscribe(() => {
+    hostService.getHunts().subscribe(() => {
 
      expect(mockedMethod)
       .withContext('one call')
@@ -118,7 +118,7 @@ describe('When getHunts() is called', () => {
 
      expect(mockedMethod)
       .withContext('talks to the correct endpoint')
-      .toHaveBeenCalledWith(`${hostService.hostUrl}/575`);
+      .toHaveBeenCalledWith(`${hostService.hostUrl}/588945f57546a2daea44de7c`);
     });
   }));
  });
