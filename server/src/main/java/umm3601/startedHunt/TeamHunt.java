@@ -1,4 +1,4 @@
-package umm3601.host;
+package umm3601.startedHunt;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.mongojack.Id;
 import org.mongojack.ObjectId;
 
 @SuppressWarnings({"VisibilityModifier"})
-public class Team {
+public class TeamHunt {
 
     @ObjectId @Id
     @SuppressWarnings({"MemberName"})
@@ -14,4 +14,5 @@ public class Team {
 
     public String teamName;
     public List<String> members;
+    public StartedHunt startedHunt;
 }

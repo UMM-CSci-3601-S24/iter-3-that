@@ -7,6 +7,7 @@ import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
 import umm3601.hunt.Task;
+import umm3601.team.Team;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -46,7 +47,7 @@ public class StartedHuntController implements Controller {
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
 
   public StartedHuntController(MongoDatabase database) {
-
+    teamCollection = JacksonMongoCollection.builder().build(database, "teams", TeamHunt.class); // Add this line
     startedHuntCollection = JacksonMongoCollection.builder().build(
         database,
         "startedHunts",
@@ -123,6 +124,10 @@ public class StartedHuntController implements Controller {
         deletePhoto(photo, ctx);
       }
     }
+  }
+
+  public void makeTeamHunt(Context ctx) {
+
   }
 
   public void addPhoto(Context ctx) {
