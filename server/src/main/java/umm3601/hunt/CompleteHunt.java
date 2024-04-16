@@ -1,4 +1,4 @@
-package umm3601.host;
+package umm3601.hunt;
 
 import java.util.ArrayList;
 
