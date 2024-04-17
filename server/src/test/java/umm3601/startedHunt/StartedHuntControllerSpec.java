@@ -226,7 +226,8 @@ class StartedHuntControllerSpec {
             .append("hunt", testHunts.get(2))
             .append("tasks", testTasks.subList(0, 3)))
         .append("status", true)
-        .append("endDate", null);
+        .append("endDate", null)
+        .append("teamsLeft", 2);
 
     startedHuntsDocuments.insertMany(startedHunts);
     startedHuntsDocuments.insertOne(startedHunt);
@@ -824,13 +825,18 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.CREATED);
 
     Document addedTeamHunt = db.getCollection("teamHunts")
-        .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
+      .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
 
     assertNotEquals("", addedTeamHunt.get("_id"));
     assertEquals("New Hunt", addedTeamHunt.get("teamName"));
     assertEquals(startedHuntIdHex, addedTeamHunt.get("startedHuntId"));
     assertEquals(3, ((List<String>) addedTeamHunt.get("members")).size());
     assertEquals(3, ((List<Document>) addedTeamHunt.get("tasks")).size());
+
+    Document updatedStartedHunt = db.getCollection("startedHunts")
+      .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
+
+    assertEquals(1, updatedStartedHunt.get("teamsLeft"));
   }
 
   @Test

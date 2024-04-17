@@ -147,6 +147,18 @@ public class StartedHuntController implements Controller {
       throw new BadRequestResponse("StartedHunt with ID " + newTeamHunt.startedHuntId + " does not exist");
     }
 
+    if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt has already ended");
+    }
+
+    if (startedHunt.teamsLeft == 0) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt is full");
+    }
+
+    startedHunt.teamsLeft--;
+    startedHuntCollection.save(startedHunt);
     newTeamHunt.tasks = startedHunt.completeHunt.tasks;
 
     teamCollection.insertOne(newTeamHunt);
