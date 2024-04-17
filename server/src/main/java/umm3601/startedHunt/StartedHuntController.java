@@ -145,6 +145,22 @@ public class StartedHuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
+  public TeamHunt getTeam(Context ctx) {
+    String id = ctx.pathParam("id");
+    TeamHunt teamHunt;
+
+    try {
+      teamHunt = teamCollection.find(eq("_id", new ObjectId(id))).first();
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
+    }
+    if (teamHunt == null) {
+      throw new NotFoundResponse("The requested team was not found");
+    } else {
+      return teamHunt;
+    }
+  }
+
   public void addPhoto(Context ctx) {
     String id = uploadPhoto(ctx);
     addPhotoPathToTask(ctx, id);
