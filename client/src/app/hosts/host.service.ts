@@ -7,6 +7,7 @@ import { Task } from '../hunts/task';
 import { StartedHunt } from '../startHunt/startedHunt';
 import { EndedHunt } from '../endedHunts/endedHunt';
 import { TeamHunt } from '../hunters/join-hunt/teamHunt';
+import { CompleteHunt } from '../hunts/completeHunt';
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +30,13 @@ export class HostService {
     return this.httpClient.get<Hunt[]>(`${this.hostUrl}/588945f57546a2daea44de7c`);
   }
 
-  getTeam(id: string): Observable<TeamHunt> {
-    return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
+  getHuntById(id: string): Observable<CompleteHunt> {
+    return this.httpClient.get<CompleteHunt>(`${this.huntUrl}/${id}`);
+  }
+
+  addHunt(newHunt: Partial<Hunt>): Observable<string> {
+    newHunt.hostId = "588945f57546a2daea44de7c";
+    return this.httpClient.post<{id: string}>(this.huntUrl, newHunt).pipe(map(result => result.id));
   }
 
   addTask(newTask: Partial<Task>): Observable<string> {
@@ -51,6 +57,10 @@ export class HostService {
 
   getStartedHunt(accessCode: string): Observable<StartedHunt> {
     return this.httpClient.get<StartedHunt>(`${this.startedHuntUrl}/${accessCode}`);
+  }
+
+  getTeamHunt(id: string): Observable<TeamHunt> {
+    return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
   }
 
   // This is a put request that ends the hunt by setting its status to false
