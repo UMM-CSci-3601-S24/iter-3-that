@@ -153,7 +153,7 @@ public class StartedHuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
-  public TeamHunt getTeam(Context ctx) {
+  public TeamHunt getTeamHunt(Context ctx) {
     String id = ctx.pathParam("id");
     TeamHunt teamHunt;
 
@@ -163,7 +163,7 @@ public class StartedHuntController implements Controller {
       throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
     }
     if (teamHunt == null) {
-      throw new NotFoundResponse("The requested team was not found");
+      throw new NotFoundResponse("The requested team hunt was not found");
     } else {
       return teamHunt;
     }

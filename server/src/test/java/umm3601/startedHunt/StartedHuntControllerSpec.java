@@ -968,4 +968,41 @@ class StartedHuntControllerSpec {
     });
   }
 
+  @Test
+  void getTeamHuntById() throws IOException {
+    String id = teamHuntId.toHexString();
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    TeamHunt teamHunt = startedHuntController.getTeamHunt(ctx);
+
+    assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
+    assertEquals(teamHuntId.toHexString(), teamHunt._id);
+    assertEquals(2, teamHunt.tasks.size());
+    assertEquals(3, teamHunt.members.size());
+    assertEquals("Team 1", teamHunt.teamName);
+  }
+
+  @Test
+  void getHuntWithBadId() throws IOException {
+    when(ctx.pathParam("id")).thenReturn("bad");
+
+    Throwable exception = assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.getTeamHunt(ctx);
+    });
+
+    assertEquals("The requested team id wasn't a legal Mongo Object ID.", exception.getMessage());
+  }
+
+  @Test
+  void getHuntWithNonexistentId() throws IOException {
+    String id = "588935f5c668650dc77df581";
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    Throwable exception = assertThrows(NotFoundResponse.class, () -> {
+      startedHuntController.getTeamHunt(ctx);
+    });
+
+    assertEquals("The requested team hunt was not found", exception.getMessage());
+  }
+
 }
