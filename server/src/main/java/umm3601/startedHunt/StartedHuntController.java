@@ -7,7 +7,6 @@ import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
 import umm3601.hunt.Task;
-import umm3601.team.Team;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -43,11 +42,19 @@ public class StartedHuntController implements Controller {
   private static final String API_PHOTO_REPLACE = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo/{photoId}";
 
   private static final int ACCESS_CODE_LENGTH = 6;
+  private static final int REASONABLE_TEAM_NAME_LENGTH = 50;
+  private static final int REASONABLE_AMOUNT_OF_MEMBERS = 20;
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
+  private final JacksonMongoCollection<TeamHunt> teamCollection;
 
   public StartedHuntController(MongoDatabase database) {
-    teamCollection = JacksonMongoCollection.builder().build(database, "teams", TeamHunt.class); // Add this line
+    teamCollection = JacksonMongoCollection.builder().build(
+      database,
+      "teamHunts",
+      TeamHunt.class,
+      UuidRepresentation.STANDARD);
+
     startedHuntCollection = JacksonMongoCollection.builder().build(
         database,
         "startedHunts",
@@ -58,8 +65,6 @@ public class StartedHuntController implements Controller {
     if (!directory.exists()) {
         directory.mkdir();
     }
-        // If you require it to make the entire directory path including parents,
-        // use directory.mkdirs(); here instead.
 
   }
 
@@ -127,7 +132,17 @@ public class StartedHuntController implements Controller {
   }
 
   public void makeTeamHunt(Context ctx) {
+    TeamHunt newTeam = ctx.bodyValidator(TeamHunt.class)
+        .check(teamHunt -> teamHunt._id != null && teamHunt._id.length() > 0, "Invalid ID")
+        .check(teamHunt -> teamHunt.teamName.length() <= REASONABLE_TEAM_NAME_LENGTH, "Team name must be less than 50 characters")
+        .check(teamHunt -> teamHunt.teamName.length() > 0, "Team name must be at least 1 character")
+        .check(teamHunt -> teamHunt.members.size() <= REASONABLE_AMOUNT_OF_MEMBERS, "Too many members")
+        .check(teamHunt -> teamHunt.members.size() > 0, "Must have at least one member")
+        .get();
 
+    teamCollection.insertOne(newTeam);
+    ctx.json(Map.of("id", newTeam._id));
+    ctx.status(HttpStatus.CREATED);
   }
 
   public void addPhoto(Context ctx) {
