@@ -19,11 +19,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +56,6 @@ import io.javalin.validation.BodyValidator;
 import io.javalin.validation.ValidationException;
 import umm3601.hunt.CompleteHunt;
 import umm3601.hunt.Hunt;
-import umm3601.hunt.HuntController;
 import umm3601.hunt.Task;
 
 @SuppressWarnings({ "MagicNumber" })
@@ -154,13 +151,6 @@ class StartedHuntControllerSpec {
             .append("description", "Fry's hunt for money")
             .append("est", 40)
             .append("numberOfTasks", 1));
-    testHunts.add(
-        new Document()
-            .append("hostId", "differentId")
-            .append("name", "Different's Hunt")
-            .append("description", "Different's hunt for money")
-            .append("est", 60)
-            .append("numberOfTasks", 10));
 
     huntId = new ObjectId();
     Document hunt = new Document()
@@ -195,12 +185,6 @@ class StartedHuntControllerSpec {
             .append("name", "Take a picture of a park")
             .append("status", true)
             .append("photos", new ArrayList<String>()));
-    testTasks.add(
-        new Document()
-            .append("huntId", "differentId")
-            .append("name", "Take a picture of a moose")
-            .append("status", true)
-            .append("photos", new ArrayList<String>()));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -216,9 +200,6 @@ class StartedHuntControllerSpec {
     MongoCollection<Document> startedHuntsDocuments = db.getCollection("startedHunts");
     startedHuntsDocuments.drop();
     List<Document> startedHunts = new ArrayList<>();
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2024, Calendar.MAY, 2, 12, 0, 0);
-    Date date = calendar.getTime();
     startedHunts.add(
         new Document()
             .append("accessCode", "123456")
@@ -235,15 +216,6 @@ class StartedHuntControllerSpec {
                 .append("hunt", testHunts.get(1))
                 .append("tasks", testTasks.subList(2, 3)))
             .append("status", false)
-            .append("endDate", date));
-
-    startedHunts.add(
-        new Document()
-            .append("accessCode", "123459")
-            .append("completeHunt", new Document()
-                .append("hunt", testHunts.get(2))
-                .append("tasks", testTasks.subList(0, 3)))
-            .append("status", true)
             .append("endDate", null));
 
     startedHuntId = new ObjectId();
@@ -275,13 +247,6 @@ class StartedHuntControllerSpec {
             .append("teamName", "Team 2")
             .append("members", Arrays.asList("fry", "bender", "leela"))
             .append("tasks", testTasks.subList(2, 3)));
-
-    teamHunts.add(
-        new Document()
-            .append("startedHuntId", startedHuntId.toHexString())
-            .append("teamName", "Team 3")
-            .append("members", Arrays.asList("fry", "bender", "leela"))
-            .append("tasks", testTasks.subList(0, 3)));
 
     teamHuntId = new ObjectId();
     Document teamHunt = new Document()

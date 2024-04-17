@@ -134,7 +134,8 @@ public class StartedHuntController implements Controller {
   public void makeTeamHunt(Context ctx) {
     TeamHunt newTeamHunt = ctx.bodyValidator(TeamHunt.class)
         .check(teamHunt -> teamHunt.startedHuntId != null && teamHunt.startedHuntId.length() > 0, "Invalid ID")
-        .check(teamHunt -> teamHunt.teamName.length() <= REASONABLE_TEAM_NAME_LENGTH, "Team name must be 50 characters or less")
+        .check(teamHunt -> teamHunt.teamName.length() <= REASONABLE_TEAM_NAME_LENGTH,
+          "Team name must be 50 characters or less")
         .check(teamHunt -> teamHunt.teamName.length() > 0, "Team name must be at least 1 character")
         .check(teamHunt -> teamHunt.members.size() <= REASONABLE_AMOUNT_OF_MEMBERS, "Too many members")
         .check(teamHunt -> teamHunt.members.size() > 0, "Must have at least one member")
