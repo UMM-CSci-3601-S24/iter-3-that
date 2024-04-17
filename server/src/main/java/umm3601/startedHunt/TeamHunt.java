@@ -5,6 +5,8 @@ import java.util.List;
 import org.mongojack.Id;
 import org.mongojack.ObjectId;
 
+import umm3601.hunt.Task;
+
 @SuppressWarnings({"VisibilityModifier"})
 public class TeamHunt {
 
@@ -12,7 +14,8 @@ public class TeamHunt {
     @SuppressWarnings({"MemberName"})
     public String _id;
 
+    public String startedHuntId;
     public String teamName;
     public List<String> members;
-    public StartedHunt startedHunt;
+    public List<Task> tasks;
 }
