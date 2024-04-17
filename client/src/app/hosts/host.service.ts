@@ -6,6 +6,7 @@ import { Hunt } from '../hunts/hunt';
 import { Task } from '../hunts/task';
 import { StartedHunt } from '../startHunt/startedHunt';
 import { EndedHunt } from '../endedHunts/endedHunt';
+import { TeamHunt } from '../hunters/join-hunt/teamHunt';
 
 @Injectable({
   providedIn: 'root'
