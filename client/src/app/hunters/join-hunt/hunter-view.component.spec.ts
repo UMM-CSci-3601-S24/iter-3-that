@@ -214,6 +214,30 @@ describe('HunterViewComponent', () => {
 
   });
 
+  it('should set stream to true when camera is available and authorized', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve({} as MediaStream));
+
+    component.checkPermission();
+
+    setTimeout(() => {
+      expect(component['stream']).toBeTruthy();
+      done();
+    }, 0);
+  });
+
+  it('should set stream to null and log error when camera is not available or not authorized', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject(new Error('Not authorized')));
+    spyOn(console, 'error');
+
+    component.checkPermission();
+
+    setTimeout(() => {
+      expect(component['stream']).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(new Error('Not authorized'));
+      done();
+    }, 0);
+  });
+
   // it('should replace image if user choose ok', () => {
   //   const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
   //   const event = {
