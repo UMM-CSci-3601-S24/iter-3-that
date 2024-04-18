@@ -478,7 +478,7 @@ class StartedHuntControllerSpec {
       startedHuntController.uploadPhoto(ctx);
       fail("Expected BadRequestResponse");
     } catch (BadRequestResponse e) {
-      assertEquals("Unexpected error during photo upload: No photo uploaded", e.getMessage());
+      assertEquals("No photo uploaded", e.getMessage());
     }
   }
 
@@ -495,7 +495,7 @@ class StartedHuntControllerSpec {
       startedHuntController.uploadPhoto(ctx);
       fail("Expected BadRequestResponse");
     } catch (BadRequestResponse e) {
-      assertEquals("Unexpected error during photo upload: Test Exception", e.getMessage());
+      assertEquals("Error handling the uploaded file: Test Exception", e.getMessage());
     }
   }
 
