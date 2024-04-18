@@ -118,9 +118,8 @@ export class HunterViewComponent implements OnInit, OnDestroy {
 
   currentTaskId: string;
 
-  startCapture(taskId: string) {
+  startCapture() {
     this.checkPermission();
-    this.currentTaskId = taskId;
     this.status = 'Camera is getting accessed';
     this.btnLabel = 'Capture image';
     this.showWebcam = true;
@@ -156,10 +155,6 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   cancelCapture() {
     this.showWebcam = false;
     this.status = null;
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
     this.currentTaskId = null;
   }
 
@@ -167,19 +162,10 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     this.trigger.next();
     this.showWebcam = false;
     this.status = null;
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
     this.currentTaskId = null;
   }
 
   checkPermission() {
-    if (this.stream) {
-      // If camera is already authorized, stop the stream and reset the permission
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         // Camera is available and authorized

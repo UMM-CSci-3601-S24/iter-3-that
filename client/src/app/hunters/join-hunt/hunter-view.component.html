@@ -12,7 +12,7 @@
     <div class="image-upload">
       <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Upload Picture" title="Upload Picture" height="100px" width="100px" />
 
-      <button (click)="startCapture(task._id)">Upload Image</button>
+      <button (click)="startCapture()">Upload Image</button>
 
       <div *ngIf="currentTaskId === task._id" class="modal">
         <!-- web cam image will be shown here -->
