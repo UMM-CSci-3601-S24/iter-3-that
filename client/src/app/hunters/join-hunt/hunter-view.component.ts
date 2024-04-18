@@ -81,31 +81,6 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  // onFileSelected(event, task: Task): void {
-  //   const file: File = event.target.files[0];
-  //   const fileType = file.type;
-  //   if (fileType.match(/image\/*/)) {
-  //     if (this.imageUrls[task._id] && !window.confirm('An image has already been uploaded for this task. Are you sure you want to replace it?')) {
-  //       return;
-  //     }
-
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(file);
-  //     reader.onload = (event: ProgressEvent<FileReader>) => {
-  //       this.imageUrls[task._id] = event.target.result.toString();
-  //     };
-
-  //     if (file) {
-  //       if (task.photos.length > 0) {
-  //         this.replacePhoto(file, task, this.startedHunt._id);
-  //       }
-  //       else {
-  //         this.submitPhoto(file, task, this.startedHunt._id);
-  //       }
-  //     }
-  //   }
-  // }
-
   submitPhoto(file: File, task: Task, startedHuntId: string): void {
     this.hostService.submitPhoto(startedHuntId, task._id, file).subscribe({
       next: (photoId: string) => {
@@ -166,6 +141,7 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Transform the image data into the blob format to save into the database.
   private dataURItoBlob(dataURI: string): Blob {
     const byteString = atob(dataURI.split(',')[1]);
     const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
