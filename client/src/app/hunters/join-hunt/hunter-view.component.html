@@ -12,11 +12,9 @@
     <div class="image-upload">
       <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Upload Picture" title="Upload Picture" height="100px" width="100px" />
 
-      <div *ngIf="!previewImage">
-        <button (click)="checkPermissions()">Upload Image</button>
-      </div>
+      <button (click)="startCapture(task._id)">Upload Image</button>
 
-      <div *ngIf="stream" class="modal">
+      <div *ngIf="currentTaskId === task._id" class="modal">
         <!-- web cam image will be shown here -->
         <webcam [trigger]="$trigger" (imageCapture)="snapshot($event, task)" [imageQuality]="1"></webcam>
         <button (click)="captureImage()" >Capture Image</button>

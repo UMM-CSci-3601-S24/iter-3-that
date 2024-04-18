@@ -72,6 +72,8 @@ export class HunterViewComponent implements OnInit, OnDestroy {
           };
         }
       });
+
+    this.checkPermission();
   }
 
   ngOnDestroy(): void {
@@ -104,68 +106,63 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  // submitPhoto(file: File, task: Task, startedHuntId: string): void {
-  //   this.hostService.submitPhoto(startedHuntId, task._id, file).subscribe({
-  //     next: (photoId: string) => {
-  //       task.status = true;
-  //       task.photos.push(photoId);
-  //       this.snackBar.open('Photo uploaded successfully', 'Close', {
-  //         duration: 3000
-  //       });
-  //     },
-  //     error: (error: Error) => {
-  //       console.error('Error uploading photo', error);
-  //       this.snackBar.open('Error uploading photo. Please try again', 'Close', {
-  //         duration: 3000
-  //       });
-  //     },
-  //   });
-  // }
+  submitPhoto(file: File, task: Task, startedHuntId: string): void {
+    this.hostService.submitPhoto(startedHuntId, task._id, file).subscribe({
+      next: (photoId: string) => {
+        task.status = true;
+        task.photos.push(photoId);
+        this.snackBar.open('Photo uploaded successfully', 'Close', {
+          duration: 3000
+        });
+      },
+      error: (error: Error) => {
+        console.error('Error uploading photo', error);
+        this.snackBar.open('Error uploading photo. Please try again', 'Close', {
+          duration: 3000
+        });
+      },
+    });
+  }
 
-  // replacePhoto(file: File, task: Task, startedHuntId: string): void {
-  //   this.hostService.replacePhoto(startedHuntId, task._id, task.photos[0], file).subscribe({
-  //     next: (photoId: string) => {
-  //       task.photos[0] = photoId;
-  //       this.snackBar.open('Photo replaced successfully', 'Close', {
-  //         duration: 3000
-  //       });
-  //     },
-  //     error: (error: Error) => {
-  //       console.error('Error replacing photo', error);
-  //       this.snackBar.open('Error replacing photo. Please try again', 'Close', {
-  //         duration: 3000
-  //       });
-  //     },
-  //   });
-  // }
+  replacePhoto(file: File, task: Task, startedHuntId: string): void {
+    this.hostService.replacePhoto(startedHuntId, task._id, task.photos[0], file).subscribe({
+      next: (photoId: string) => {
+        task.photos[0] = photoId;
+        this.snackBar.open('Photo replaced successfully', 'Close', {
+          duration: 3000
+        });
+      },
+      error: (error: Error) => {
+        console.error('Error replacing photo', error);
+        this.snackBar.open('Error replacing photo. Please try again', 'Close', {
+          duration: 3000
+        });
+      },
+    });
+  }
+
+  currentTaskId: string;
+
+  startCapture(taskId: string) {
+    this.checkPermission();
+    this.currentTaskId = taskId;
+    this.status = 'Camera is getting accessed';
+    this.btnLabel = 'Capture image';
+    this.showWebcam = true;
+  }
 
   snapshot(event: WebcamImage, task: Task) {
     console.log(event);
     this.imageUrls[task._id] = event.imageAsDataUrl;
-    this.btnLabel = 'Re capture image'
-    this.showWebcam = false;
-  }
-
-  checkPermissions() {
-    navigator.mediaDevices.getUserMedia({
-      video: {
-        width: 500,
-        height: 500
+    const photo: File = new File([event.imageAsDataUrl], 'photo.jpg', { type: 'image/jpeg' });
+    if (photo) {
+      if (task.photos.length > 0) {
+        this.replacePhoto(photo, task, this.startedHunt._id);
       }
-    }).then((res) => {
-      console.log("response", res);
-      this.stream = res;
-      this.status = 'My camera is accessing';
-      this.btnLabel = 'Capture image';
-      this.showWebcam = true;
-    }).catch(err => {
-      console.log(err);
-      if(err?.message === 'Permission denied') {
-        this.status = 'Permission denied please approve camera access to continue.';
-      } else {
-        this.status = 'You may not having camera system, Please try again ...';
+      else {
+        this.submitPhoto(photo, task, this.startedHunt._id);
       }
-    })
+    }
   }
 
   cancelCapture() {
@@ -175,9 +172,35 @@ export class HunterViewComponent implements OnInit, OnDestroy {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
+    this.currentTaskId = null;
   }
 
   captureImage() {
     this.trigger.next();
+    this.showWebcam = false;
+    this.status = null;
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+    this.currentTaskId = null;
+  }
+
+  checkPermission() {
+    if (this.stream) {
+      // If camera is already authorized, stop the stream and reset the permission
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        // Camera is available and authorized
+        this.stream = stream;
+      })
+      .catch(err => {
+        // Camera is not available or not authorized
+        console.error(err);
+        this.stream = null;
+      });
   }
 }
