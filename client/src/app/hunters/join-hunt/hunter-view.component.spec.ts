@@ -1,7 +1,7 @@
 import { of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TestBed, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HunterViewComponent } from './hunter-view.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { StartedHunt } from 'src/app/startHunt/startedHunt'
