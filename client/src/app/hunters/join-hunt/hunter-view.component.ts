@@ -154,7 +154,8 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   snapshot(event: WebcamImage, task: Task) {
     console.log(event);
     this.imageUrls[task._id] = event.imageAsDataUrl;
-    const photo: File = new File([event.imageAsDataUrl], 'photo.jpg', { type: 'image/jpeg' });
+    const photo: File = new File([this.dataURItoBlob(event.imageAsDataUrl)], 'photo.jpg');
+
     if (photo) {
       if (task.photos.length > 0) {
         this.replacePhoto(photo, task, this.startedHunt._id);
@@ -163,6 +164,17 @@ export class HunterViewComponent implements OnInit, OnDestroy {
         this.submitPhoto(photo, task, this.startedHunt._id);
       }
     }
+  }
+
+  private dataURItoBlob(dataURI: string): Blob {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
   }
 
   cancelCapture() {
