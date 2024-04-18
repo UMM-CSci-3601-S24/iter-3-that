@@ -1,0 +1,36 @@
+<div class="flex-1">
+  <form [formGroup]="teamForm" (ngSubmit)="submitForm();">
+    <mat-card class="add-team-card">
+      <mat-card-header>
+        <mat-card-title class="add-team-title">New Team</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="flex-col">
+          <mat-form-field>
+            <mat-label>Team Name</mat-label>
+            <input matInput formControlName="teamName" required>
+            <mat-error *ngIf="teamForm.get('teamName').invalid && teamForm.get('teamName').touched">
+              Team name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Member Names</mat-label>
+            <input matInput formControlName="memberNames" required>
+            <mat-error *ngIf="teamForm.get('memberNames').invalid && teamForm.get('memberNames').touched">
+              Member names are required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button type="button" color="warn" [routerLink]="['/hosts']">
+          CANCEL
+        </button>
+        <button mat-button type="submit" color="primary" [disabled]="!teamForm.valid">
+          CREATE TEAM
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
+</div>
