@@ -1,60 +1,48 @@
-.create-team-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  box-sizing: border-box;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .add-team-title {
-  font-size: 2rem;
-  text-align: center;
+  font-size: 1.5rem;
   padding-bottom: 10px;
-  color: #0056b3;
+  padding: 5px;
 }
 
-.form-group {
-  width: 100%;
-  margin-bottom: 20px;
+.add-team-card {
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  mat-form-field .mat-input-element {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-underline {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-label {
+    color: black;
+  }
+
+  .mat-form-field-ripple {
+    background-color: black;
+  }
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+::ng-deep .submit-button {
+  color: #0056b3 !important;
+  @media (prefers-color-scheme: dark) {
+    color: #0056b3 !important;
+  }
 }
 
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.members-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-}
-
-button[type="submit"] {
-  background-color: #0056b3;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: block;
-  width: 100%;
-}
-
-button[type="submit"]:disabled {
-  background-color: gray;
+::ng-deep .submit-button:disabled {
+  color: gray !important;
+  @media (prefers-color-scheme: dark) {
+    color: gray !important;
+  }
 }
