@@ -169,30 +169,27 @@ describe('HunterViewComponent', () => {
     expect(component['currentTaskId']).toBeNull();
   });
 
+  it('should submitted photo successfully', () => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: [] };
+    const photoId = 'photoId';
+    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+    mockHostService.submitPhoto.and.returnValue(of(photoId));
 
+    component.submitPhoto(file, task, '1');
 
-  // it('should not replace image if user choose cancel', () => {
-  //   const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-  //   const event = {
-  //     target: {
-  //       files: [
-  //         {
-  //           type: 'image/png',
-  //           result: 'data:image/png;base64,'
-  //         }
-  //       ]
-  //     }
-  //   };
-  //   const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL', 'onload']);
-  //   spyOn(window, 'FileReader').and.returnValue(reader);
+    expect(task.photos).toContain(photoId);
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Photo uploaded successfully', 'Close', { duration: 3000 });
+  });
 
-  //   component.imageUrls[task._id] = 'data:image/png;base64,';
-  //   spyOn(window, 'confirm').and.returnValue(false);
+  it('should handle error when fail to submit photo', () => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: [] };
+    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+    mockHostService.submitPhoto.and.returnValue(throwError('Error message'));
 
-  //   component.onFileSelected(event, task);
+    component.submitPhoto(file, task, '1');
 
-  //   expect(reader.readAsDataURL).not.toHaveBeenCalled();
-  // });
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', { duration: 3000 });
+  });
 
   // it('should replace image if user choose ok', () => {
   //   const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
