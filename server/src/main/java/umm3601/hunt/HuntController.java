@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
 import umm3601.startedHunt.StartedHunt;
@@ -46,7 +47,7 @@ public class HuntController implements Controller {
   private static final int ACCESS_CODE_MIN = 100000;
   private static final int ACCESS_CODE_RANGE = 900000;
 
-  private final JacksonMongoCollection<Hunt> huntCollection;
+  private static JacksonMongoCollection<Hunt> huntCollection = null;
   private final JacksonMongoCollection<Task> taskCollection;
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
 
@@ -239,6 +240,31 @@ public class HuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
+  public static void updateHunt(Context ctx) {
+  String id = ctx.pathParam("id");
+  Hunt updatedHunt = ctx.bodyAsClass(Hunt.class);
+  Hunt hunt;
+
+  try {
+    hunt = huntCollection.findOne(eq("_id", new ObjectId(id)));
+  } catch (IllegalArgumentException e) {
+    throw new BadRequestResponse("The requested hunt id wasn't a legal Mongo Object ID.");
+  }
+
+  if (hunt == null) {
+    throw new NotFoundResponse("The requested hunt was not found");
+  } else {
+try {
+  hunt = huntCollection.findOneAndReplace(eq("_id", new ObjectId(id)), updatedHunt);
+  ctx.json(hunt);
+  ctx.status(HttpStatus.OK);
+} catch (Exception e) {
+  e.printStackTrace(); // This will print the stack trace of the exception to the console
+  throw new InternalServerErrorResponse("Error updating the hunt.");
+}
+  }
+}
+
   @Override
   public void addRoutes(Javalin server) {
     server.get(API_HOST, this::getHunts);
@@ -249,5 +275,6 @@ public class HuntController implements Controller {
     server.delete(API_HUNT, this::deleteHunt);
     server.delete(API_TASK, this::deleteTask);
     server.get(API_START_HUNT, this::startHunt);
+    server.put(API_HUNT, HuntController::updateHunt); // Access the updateHunt method in a static way
   }
 }
