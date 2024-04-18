@@ -1,0 +1,25 @@
+<div class="create-team-container">
+  <form [formGroup]="teamForm" (ngSubmit)="submitForm()">
+    <h2 class="add-team-title">Create Team</h2>
+
+    <div class="form-group">
+      <label for="teamName">Team Name:</label>
+      <input id="teamName" type="text" formControlName="teamName" required>
+      <div *ngIf="teamForm.get('teamName').invalid && teamForm.get('teamName').touched">
+        Team name is required
+      </div>
+    </div>
+
+    <div class="members-container">
+      <div class="form-group" *ngFor="let member of members">
+        <label for="memberNames">Member Name:</label>
+        <input id="memberNames" type="text" formControlName="memberNames" required>
+        <div *ngIf="teamForm.get('memberNames').invalid && teamForm.get('memberNames').touched">
+          Member name is required
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="!teamForm.valid">Create Team</button>
+  </form>
+</div>
