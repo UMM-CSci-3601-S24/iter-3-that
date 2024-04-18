@@ -19,6 +19,21 @@ import { HostService } from "src/app/hosts/host.service";
 })
 export class CreateTeamComponent {
   teamForm: FormGroup;
+  members: { name: string }[] = [{ name: '' }];
+
+
+  readonly createTeamValidationMessages = {
+    name: [
+      { type: 'required', message: 'Team name is required' },
+      { type: 'minlength', message: 'Team name must be at least 1 character long' },
+      { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
+    ],
+    member: [
+      { type: 'required', message: 'At least one member is required' },
+      { type: 'minlength', message: 'Team name must be at least 1 character long' },
+      { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
+    ],
+  };
 
   constructor(private hostService: HostService, private fb: FormBuilder, private router: Router, private snackBar: MatSnackBar) {
     this.teamForm = this.fb.group({
@@ -38,6 +53,20 @@ export class CreateTeamComponent {
         console.error('Error creating team:', error);
       });
     }
+  }
+
+  formControlHasError(controlName: string): boolean {
+    return this.teamForm.get(controlName).invalid &&
+      (this.teamForm.get(controlName).dirty || this.teamForm.get(controlName).touched);
+  }
+
+  getErrorMessage(name: keyof typeof this.createTeamValidationMessages): string {
+    for(const {type, message} of this.createTeamValidationMessages[name]) {
+      if (this.teamForm.get(name).hasError(type)) {
+        return message;
+      }
+    }
+    return 'Unknown error';
   }
 
   submitForm(): void {
@@ -64,4 +93,13 @@ export class CreateTeamComponent {
       });
     }
   }
+
+  addMember() {
+    this.members.push({ name: '' });
+  }
+
+  removeMember(index: number) {
+    this.members.splice(index, 1);
+  }
+
 }

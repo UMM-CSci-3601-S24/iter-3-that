@@ -1,25 +1,59 @@
-<div class="create-team-container">
-  <form [formGroup]="teamForm" (ngSubmit)="submitForm()">
-    <h2 class="add-team-title">Create Team</h2>
+<div class="flex-row">
+  <div class="flex-1">
+    <form [formGroup]="teamForm" (ngSubmit)="submitForm();">
+      <mat-card class="add-team-card">
+        <mat-card-header>
+          <mat-card-title class="add-team-title">Create Team</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flex-col">
+            <mat-form-field>
+              <mat-label>Team Name</mat-label>
+              <input matInput formControlName="name"
+                required>
+              @if (formControlHasError('name')) {
+                <mat-error data-test="nameError">
+                  {{getErrorMessage('name')}}
+                </mat-error>
+              }
+            </mat-form-field>
 
-    <div class="form-group">
-      <label for="teamName">Team Name:</label>
-      <input id="teamName" type="text" formControlName="teamName" required>
-      <div *ngIf="teamForm.get('teamName').invalid && teamForm.get('teamName').touched">
-        Team name is required
-      </div>
-    </div>
+            <mat-form-field>
+              <mat-label>Team Member</mat-label>
+              <input matInput formControlName="member"
+                required>
+              @if (formControlHasError('member')) {
+                <mat-error data-test="memberError">
+                  {{getErrorMessage('member')}}
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
 
-    <div class="members-container">
-      <div class="form-group" *ngFor="let member of members">
-        <label for="memberNames">Member Name:</label>
-        <input id="memberNames" type="text" formControlName="memberNames" required>
-        <div *ngIf="teamForm.get('memberNames').invalid && teamForm.get('memberNames').touched">
-          Member name is required
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" [disabled]="!teamForm.valid">Create Team</button>
-  </form>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button
+            mat-button
+            type="button"
+            color="warn"
+            [routerLink]="['/hunters']"
+            data-test="cancelAddHuntButton"
+            >
+            CANCEL
+           </button>
+          <button
+            mat-button
+            type="button"
+            color="primary"
+            [disabled]="!teamForm.valid"
+            type="submit"
+            data-test="confirmAddHuntButton"
+            class="submit-button"
+            >
+            ADD HUNT
+           </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </div>
 </div>
