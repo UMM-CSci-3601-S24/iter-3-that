@@ -30,8 +30,8 @@ export class CreateTeamComponent {
       const teamName = this.teamForm.get('teamName').value;
       const memberNames = this.teamForm.get('memberNames').value.split(',').map(name => name.trim());
 
-      this.hostService.getTeam(teamName, memberNames).subscribe(response => {
-        this.router.navigate(['/team', response.teamId]);
+      this.hostService.createTeam(teamName, memberNames).subscribe(response => {
+        this.router.navigate(['/team', response._id]);
       }, error => {
         console.error('Error creating team:', error);
       });

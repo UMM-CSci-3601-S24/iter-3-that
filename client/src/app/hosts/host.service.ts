@@ -63,6 +63,10 @@ export class HostService {
     return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
   }
 
+  createTeam(teamName: string, memberNames: string[]): Observable<TeamHunt> {
+    return this.httpClient.post<TeamHunt>(this.teamUrl, { teamName, memberNames });
+  }
+
   // This is a put request that ends the hunt by setting its status to false
   endStartedHunt(id: string): Observable<void> {
     return this.httpClient.put<void>(`${this.endHuntUrl}/${id}`, null);
