@@ -7,6 +7,8 @@ import { Router, RouterLink } from '@angular/router';
 import { Hunt } from './hunt';
 import { CommonModule } from '@angular/common';
 import { HostService } from '../hosts/host.service';
+import { MatDialog } from '@angular/material/dialog';
+import { EditHuntDialogComponent } from './edit-hunt-dialog.component';
 
 @Component({
     selector: 'app-hunt-card',
@@ -23,7 +25,7 @@ export class HuntCardComponent {
   math = Math;
   @Input() context: 'host-profile' | 'hunt-profile' = 'hunt-profile';
 
-  constructor(private hostService: HostService, private router: Router) {}
+  constructor(private hostService: HostService, private router: Router, private dialog: MatDialog) {}
 
   startHunt(id: string): void {
     this.hostService.startHunt(id).subscribe((accessCode) => {
@@ -31,9 +33,19 @@ export class HuntCardComponent {
     });
   }
 
-  estHours(minutes: number): number {
-    return Math.floor(minutes / 60);
-  }
+  // ...
+
+    openEditDialog(): void {
+      const dialogRef = this.dialog.open(EditHuntDialogComponent, {
+        width: '250px',
+        data: this.hunt
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The dialog was closed');
+        this.hunt = result;
+      });
+    }
 }
 
 
