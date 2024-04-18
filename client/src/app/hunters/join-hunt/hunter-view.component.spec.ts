@@ -1,4 +1,4 @@
-import { of, Subject, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
@@ -236,6 +236,10 @@ describe('HunterViewComponent', () => {
       expect(console.error).toHaveBeenCalledWith(new Error('Not authorized'));
       done();
     }, 0);
+  });
+
+  it('should get the trigger observable', () => {
+    expect(component.$trigger).toBeInstanceOf(Observable);
   });
 
   // it('should replace image if user choose ok', () => {
