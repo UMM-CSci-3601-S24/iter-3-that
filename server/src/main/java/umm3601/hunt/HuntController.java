@@ -233,7 +233,11 @@ public class HuntController implements Controller {
     startedHunt.status = true; // true means the hunt is active
     startedHunt.endDate = null; // null endDate until the hunt is ended
     // Insert the StartedHunt into the startedHunt collection
-    startedHunt.teamsLeft = Integer.parseInt(ctx.pathParam("teamsLeft"));
+    try {
+      startedHunt.teamsLeft = Integer.parseInt(ctx.pathParam("teamsLeft"));
+    } catch (NumberFormatException e) {
+      throw new BadRequestResponse("The number of teams left must be a valid integer.");
+    }
     startedHuntCollection.insertOne(startedHunt);
 
     ctx.json(startedHunt.accessCode);
