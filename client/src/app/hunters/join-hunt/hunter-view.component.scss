@@ -34,6 +34,24 @@
   justify-content: center;
 }
 
+.image-upload img {
+  width: 100px;
+  height: 100px;
+
+  @media (max-width: 600px) {
+    width: 50px; // Smaller image size for small screens
+    height: 50px;
+  }
+}
+
+.image-upload button {
+  // Your existing button styles here...
+
+  @media (max-width: 600px) {
+    font-size: 12px; // Smaller text for small screens
+  }
+}
+
 .flex-2 {
   flex: 5;
   font-size: 20px;
