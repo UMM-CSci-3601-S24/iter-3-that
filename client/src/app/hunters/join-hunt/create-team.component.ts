@@ -1,13 +1,16 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatError, MatFormField, MatLabel } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatListModule } from "@angular/material/list";
+import { MatOptionModule } from "@angular/material/core";
+import { MatFormFieldModule } from "@angular/material/form-field";
+//import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+//import { MatListModule } from "@angular/material/list";
+import { MatSelectModule } from "@angular/material/select";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Router, RouterModule } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { HostService } from "src/app/hosts/host.service";
 
 @Component({
@@ -15,12 +18,26 @@ import { HostService } from "src/app/hosts/host.service";
   templateUrl: './create-team.component.html',
   styleUrls: ['./create-team.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatListModule, MatIconModule, RouterModule, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError],
+  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class CreateTeamComponent {
-  teamForm: FormGroup;
+  //teamForm: FormGroup;
   members: { name: string }[] = [{ name: '' }];
 
+  teamForm = new FormGroup({
+    name: new FormControl('', Validators.compose([
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(50)
+    ])),
+
+    member: new FormControl('', Validators.compose([
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(85)
+    ])),
+
+  });
 
   readonly createTeamValidationMessages = {
     name: [
@@ -36,16 +53,12 @@ export class CreateTeamComponent {
   };
 
   constructor(private hostService: HostService, private fb: FormBuilder, private router: Router, private snackBar: MatSnackBar) {
-    this.teamForm = this.fb.group({
-      teamName: ['', Validators.required],
-      memberNames: ['', Validators.required]
-    });
   }
 
   createTeam(): void {
     if (this.teamForm.valid) {
-      const teamName = this.teamForm.get('teamName').value;
-      const memberNames = this.teamForm.get('memberNames').value.split(',').map(name => name.trim());
+      const teamName = this.teamForm.get('name').value;
+      const memberNames = this.teamForm.get('member').value.split(',').map(name => name.trim());
 
       this.hostService.createTeam(teamName, memberNames).subscribe(response => {
         this.router.navigate(['/team', response._id]);
@@ -71,8 +84,8 @@ export class CreateTeamComponent {
 
   submitForm(): void {
     if (this.teamForm.valid) {
-      const teamName = this.teamForm.get('teamName').value;
-      const memberNames = this.teamForm.get('memberNames').value.split(',').map(name => name.trim());
+      const teamName = this.teamForm.get('name').value;
+      const memberNames = this.teamForm.get('member').value.split(',').map(name => name.trim());
 
       this.hostService.createTeam(teamName, memberNames).subscribe({
         next: (newTeam) => {
