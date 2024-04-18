@@ -42,7 +42,6 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   stream = null;
   status = null;
   trigger: Subject<void> = new Subject<void>();
-  previewImage: string = '';
   btnLabel: string = 'Capture image';
   showWebcam: boolean = false;
 
@@ -118,8 +117,8 @@ export class HunterViewComponent implements OnInit, OnDestroy {
 
   currentTaskId: string;
 
-  startCapture() {
-    this.checkPermission();
+  startCapture(taskId: string) {
+    this.currentTaskId = taskId;
     this.status = 'Camera is getting accessed';
     this.btnLabel = 'Capture image';
     this.showWebcam = true;
@@ -164,6 +163,8 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     this.status = null;
     this.currentTaskId = null;
   }
+
+  private permissionChecked = false;
 
   checkPermission() {
     navigator.mediaDevices.getUserMedia({ video: true })

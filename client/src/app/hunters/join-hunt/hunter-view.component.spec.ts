@@ -21,7 +21,6 @@ describe('HunterViewComponent', () => {
       paramMap: new Subject<ParamMap>()
     };
     mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
-
     await TestBed.configureTestingModule({
       imports: [HunterViewComponent],
       providers: [
@@ -101,11 +100,11 @@ describe('HunterViewComponent', () => {
   });
 
   it('should start capture', () => {
-    const checkPermissionSpy = spyOn(component, 'checkPermission');
+    const taskId = '123';
 
-    component.startCapture();
+    component.startCapture(taskId);
 
-    expect(checkPermissionSpy).toHaveBeenCalled();
+    expect(component['currentTaskId']).toBe(taskId);
     expect(component['status']).toBe('Camera is getting accessed');
     expect(component['btnLabel']).toBe('Capture image');
     expect(component['showWebcam']).toBe(true);
@@ -169,6 +168,8 @@ describe('HunterViewComponent', () => {
     expect(component['status']).toBeNull();
     expect(component['currentTaskId']).toBeNull();
   });
+
+
 
   // it('should not replace image if user choose cancel', () => {
   //   const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
