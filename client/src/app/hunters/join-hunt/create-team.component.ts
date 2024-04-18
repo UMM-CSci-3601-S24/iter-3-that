@@ -1,4 +1,4 @@
-//import { CommonModule } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,7 +18,7 @@ import { HostService } from "src/app/hosts/host.service";
   templateUrl: './create-team.component.html',
   styleUrls: ['./create-team.component.scss'],
   standalone: true,
-  imports: [RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
+  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class CreateTeamComponent {
   //teamForm: FormGroup;
