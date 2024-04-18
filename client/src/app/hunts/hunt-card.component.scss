@@ -128,8 +128,9 @@
 
   .edit-hunt {
     background-color: #007bff6e;
+    width: 1px;
+    padding: 5px, 5px;
     border-radius: 5px;
-    padding: 10px 10px;
     font-weight: bold;
     transition: background-color 0.3s ease;
     margin-right: 10px;
@@ -137,14 +138,10 @@
     @media (prefers-color-scheme: dark) {
       background-color: #00ccff;
     }
-  }
-
-  .edit-hunt:hover {
-    background-color: #007bff;
-    color: white;
-
-    @media (prefers-color-scheme: dark) {
-      background-color: #00ccff;
+    // Style the pencil icon
+    .fa-pencil-alt {
+        font-size: 1.2rem; // Example font size
+        // margin-right: 0.5rem; // Example margin to separate icon from text (if any)
     }
   }
 
