@@ -14,21 +14,21 @@
       </mat-card-actions>
       }
       @else {
-      <mat-card-actions class="button-container">
-        <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
-        <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
-        <form [formGroup]="NumberofTeamsForm">
-        <mat-form-field>
-          <mat-label>Number of Teams</mat-label>
-          <input matInput formControlName="numTeam">
-          @if (formControlHasError('numTeam')) {
-            <mat-error data-test="numTeamError">
-              {{getErrorMessage('numTeam')}}
-            </mat-error>
-          }
-        </mat-form-field>
-      </form>
-      </mat-card-actions>
+        <mat-card-actions class="button-container">
+          <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
+          <form [formGroup]="NumberofTeamsForm">
+            <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
+            <mat-form-field class="team-form-field">
+              <mat-label>Number of Teams</mat-label>
+              <input matInput formControlName="numTeam">
+              @if (formControlHasError('numTeam')) {
+                <mat-error data-test="numTeamError">
+                  {{getErrorMessage('numTeam')}}
+                </mat-error>
+              }
+            </mat-form-field>
+          </form>
+        </mat-card-actions>
       }
       <mat-card-title class="hunt-card-task icon-center bot-right">
         <div>
