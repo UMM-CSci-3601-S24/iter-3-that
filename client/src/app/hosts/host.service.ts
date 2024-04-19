@@ -51,8 +51,8 @@ export class HostService {
     return this.httpClient.delete<void>(`/api/tasks/${id}`);
   }
 
-  startHunt(id: string): Observable<string> {
-    return this.httpClient.get<string>(`${this.startHuntUrl}/${id}`);
+  startHunt(id: string, numTeams: number): Observable<string> {
+    return this.httpClient.get<string>(`${this.startHuntUrl}/${id}/teams/${numTeams}`);
   }
 
   getStartedHunt(accessCode: string): Observable<StartedHunt> {
