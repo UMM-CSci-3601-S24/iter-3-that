@@ -241,5 +241,24 @@ describe('HunterViewComponent', () => {
   it('should get the trigger observable', () => {
     expect(component.$trigger).toBeInstanceOf(Observable);
   });
+
+  it('should open image in a new tab if image exists', () => {
+    const spy = spyOn(window, 'open').and.callFake(() => window);
+    const taskId = 'testTaskId';
+    component.imageUrls[taskId] = 'data:image/jpeg;base64,';
+
+    component.openImage(taskId);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should not open image in a new tab if image does not exist', () => {
+    const spy = spyOn(window, 'open').and.callFake(() => window);
+    const taskId = 'testTaskId';
+
+    component.openImage(taskId);
+
+    expect(spy).not.toHaveBeenCalled();
+  });
 });
 
