@@ -14,11 +14,13 @@
 
     <div class="image-upload">
       <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'"
-        alt="Upload Picture"
-        title="Upload Picture"
-        height="300px"
-        width="300px"/>
-
+           alt="Upload Picture"
+           title="Upload Picture"
+           height="300px"
+           width="300px"
+           (click)="openImage(task._id)"
+           (keydown.enter)="openImage(task._id)"
+           tabindex="0"/>
       <button class="take-picture" (click)="startCapture(task._id)">Take Picture</button>
     </div>
 

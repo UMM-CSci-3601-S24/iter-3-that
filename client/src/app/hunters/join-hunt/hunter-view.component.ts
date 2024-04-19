@@ -178,4 +178,13 @@ export class HunterViewComponent implements OnInit, OnDestroy {
         this.stream = null;
       });
   }
+
+  openImage(taskId: string) {
+    const image = this.imageUrls[taskId];
+    if (image) {
+      const imageBlob = this.dataURItoBlob(image);
+      const imageUrl = URL.createObjectURL(imageBlob);
+      window.open(imageUrl, '_blank');
+    }
+  }
 }
