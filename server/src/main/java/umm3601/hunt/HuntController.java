@@ -32,7 +32,7 @@ public class HuntController implements Controller {
   private static final String API_HUNTS = "/api/hunts";
   private static final String API_TASK = "/api/tasks/{id}";
   private static final String API_TASKS = "/api/tasks";
-  private static final String API_START_HUNT = "/api/startHunt/{id}";
+  private static final String API_START_HUNT = "/api/startHunt/{id}/teams/{teamsLeft}";
 
   static final String HUNT_KEY = "huntId";
   static final String HOST_KEY = "hostId";
