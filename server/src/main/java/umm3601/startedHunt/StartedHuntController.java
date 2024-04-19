@@ -38,7 +38,7 @@ public class StartedHuntController implements Controller {
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
   private static final String API_ENDED_HUNTS = "/api/hosts/{id}/endedHunts";
   private static final String API_DELETE_HUNT = "/api/endedHunts/{id}";
-  private static final String API_PHOTO_UPLOAD = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo";
+  private static final String API_PHOTO_UPLOAD = "/api/teamHunt/{teamHuntId}/tasks/{taskId}/photo";
   private static final String API_PHOTO_REPLACE = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo/{photoId}";
 
   private static final int ACCESS_CODE_LENGTH = 6;
@@ -46,10 +46,10 @@ public class StartedHuntController implements Controller {
   private static final int REASONABLE_AMOUNT_OF_MEMBERS = 20;
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
-  private final JacksonMongoCollection<TeamHunt> teamCollection;
+  private final JacksonMongoCollection<TeamHunt> teamHuntCollection;
 
   public StartedHuntController(MongoDatabase database) {
-    teamCollection = JacksonMongoCollection.builder().build(
+    teamHuntCollection = JacksonMongoCollection.builder().build(
         database,
         "teamHunts",
         TeamHunt.class,
@@ -161,7 +161,7 @@ public class StartedHuntController implements Controller {
     startedHuntCollection.save(startedHunt);
     newTeamHunt.tasks = startedHunt.completeHunt.tasks;
 
-    teamCollection.insertOne(newTeamHunt);
+    teamHuntCollection.insertOne(newTeamHunt);
     ctx.json(Map.of("id", newTeamHunt._id));
     ctx.status(HttpStatus.CREATED);
   }
@@ -171,7 +171,7 @@ public class StartedHuntController implements Controller {
     TeamHunt teamHunt;
 
     try {
-      teamHunt = teamCollection.find(eq("_id", new ObjectId(id))).first();
+      teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(id))).first();
     } catch (IllegalArgumentException e) {
       throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
     }
@@ -222,14 +222,14 @@ public class StartedHuntController implements Controller {
 
   public void addPhotoPathToTask(Context ctx, String photoPath) {
     String taskId = ctx.pathParam("taskId");
-    String startedHuntId = ctx.pathParam("startedHuntId");
-    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(startedHuntId))).first();
-    if (startedHunt == null) {
+    String teamHuntId = ctx.pathParam("teamHuntId");
+    TeamHunt teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(teamHuntId))).first();
+    if (teamHunt == null) {
       ctx.status(HttpStatus.NOT_FOUND);
-      throw new BadRequestResponse("StartedHunt with ID " + startedHuntId + " does not exist");
+      throw new BadRequestResponse("StartedHunt with ID " + teamHuntId + " does not exist");
     }
 
-    Task task = startedHunt.completeHunt.tasks.stream().filter(t -> t._id.equals(taskId)).findFirst().orElse(null);
+    Task task = teamHunt.tasks.stream().filter(t -> t._id.equals(taskId)).findFirst().orElse(null);
 
     if (task == null) {
       ctx.status(HttpStatus.NOT_FOUND);
@@ -237,8 +237,8 @@ public class StartedHuntController implements Controller {
     }
 
     task.photos.add(photoPath);
-    startedHunt.completeHunt.tasks.set(startedHunt.completeHunt.tasks.indexOf(task), task);
-    startedHuntCollection.save(startedHunt);
+    teamHunt.tasks.set(teamHunt.tasks.indexOf(task), task);
+    teamHuntCollection.save(teamHunt);
   }
 
   public void replacePhoto(Context ctx) {
