@@ -29,7 +29,7 @@ export class CreateTeamComponent {
     ])),
 
     member: new FormControl('', Validators.compose([
-      Validators.required,
+      //Validators.required,
       Validators.minLength(1),
       Validators.maxLength(85)
     ])),
