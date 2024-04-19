@@ -11,9 +11,15 @@
   </div>
 
   <div class="flex-row" *ngFor="let task of startedHunt?.completeHunt?.tasks">
+
     <div class="image-upload">
-      <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'" alt="Upload Picture" title="Upload Picture" height="100px" width="100px" />
-      <button (click)="startCapture(task._id)">Upload Image</button>
+      <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'"
+        alt="Upload Picture"
+        title="Upload Picture"
+        height="300px"
+        width="300px"/>
+
+      <button class="take-picture" (click)="startCapture(task._id)">Take Picture</button>
     </div>
 
     <div *ngIf="currentTaskId === task._id" class="modal">
