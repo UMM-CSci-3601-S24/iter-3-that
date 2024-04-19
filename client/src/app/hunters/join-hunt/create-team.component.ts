@@ -1,13 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatOptionModule } from "@angular/material/core";
 import { MatFormFieldModule } from "@angular/material/form-field";
-//import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-//import { MatListModule } from "@angular/material/list";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router, RouterLink } from "@angular/router";
@@ -21,7 +19,6 @@ import { HostService } from "src/app/hosts/host.service";
   imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class CreateTeamComponent {
-  //teamForm: FormGroup;
   members: { name: string }[] = [{ name: '' }];
 
   teamForm = new FormGroup({
@@ -52,7 +49,7 @@ export class CreateTeamComponent {
     ],
   };
 
-  constructor(private hostService: HostService, private fb: FormBuilder, private router: Router, private snackBar: MatSnackBar) {
+  constructor(private hostService: HostService, private fb: FormBuilder, private router: Router, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) {
   }
 
   createTeam(): void {
@@ -109,6 +106,7 @@ export class CreateTeamComponent {
 
   addMember() {
     this.members.push({ name: '' });
+    this.cdr.detectChanges();
   }
 
   removeMember(index: number) {

@@ -10,6 +10,39 @@
     background-color: white;
   }
 
+
+
+  mat-form-field .mat-input-element {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-underline {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-label {
+    color: black;
+  }
+
+  .mat-form-field-ripple {
+    background-color: black;
+  }
+}
+
+.create-team-card {
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+
+
   mat-form-field .mat-input-element {
     background-color: white;
     @media (prefers-color-scheme: dark) {
