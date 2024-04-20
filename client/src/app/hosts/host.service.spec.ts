@@ -229,14 +229,14 @@ describe('When getHunts() is called', () => {
 
       const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetStartedHunt.accessCode));
 
-        hostService.startHunt(targetId).subscribe(() => {
+        hostService.startHunt(targetId, 1).subscribe(() => {
           expect(mockedMethod)
             .withContext('one call')
             .toHaveBeenCalledTimes(1);
 
           expect(mockedMethod)
             .withContext('talks to the correct endpoint')
-            .toHaveBeenCalledWith(`${hostService.startHuntUrl}/${targetId}`);
+            .toHaveBeenCalledWith(`${hostService.startHuntUrl}/${targetId}/teams/1`);
         });
       }));
     });
