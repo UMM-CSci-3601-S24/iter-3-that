@@ -24,6 +24,14 @@ export class StartHuntComponent implements OnInit, OnDestroy {
   startedHunt: StartedHunt;
   huntBegun = false;
   error: { help: string, httpResponse: string, message: string };
+  teams = [
+    { name: 'Team Duran', progress: 80 },
+    { name: 'Team Dussan', progress: 30 },
+    { name: 'Team BB', progress: 60 },
+    { name: 'Team Gurl', progress: 50 },
+    { name: 'Team Cutie', progress: 90 },
+    { name: 'Team Patootie', progress: 25 },
+  ];
 
   private ngUnsubscribe = new Subject<void>();
 

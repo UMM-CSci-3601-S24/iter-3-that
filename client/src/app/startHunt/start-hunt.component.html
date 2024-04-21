@@ -29,22 +29,15 @@
       </div>
 
       <div class="team-box">
-        <mat-card class="team-card">
+        <mat-card class="team-card" *ngFor="let team of teams">
           <mat-card-content>
-            <h2 class="team-one">Team duran</h2>
-            <h3 class ="hunter-progress"> Team Hunting Progress: </h3>
-            <mat-progress-bar class="progress-hunt-bar" mode="determinate" value="80"></mat-progress-bar>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="team-card">
-          <mat-card-content>
-            <h2 class="team-two">Team dussan</h2>
-            <h3 class ="hunter-progress"> Team Hunting Progress: </h3>
-            <mat-progress-bar class="progress-hunt-bar" mode="determinate" value="30"></mat-progress-bar>
+            <h2>{{ team.name }}</h2>
+            <h3>Team Hunting Progress:</h3>
+            <mat-progress-bar class="progress-hunt-bar" mode="determinate" [value]="team.progress"></mat-progress-bar>
           </mat-card-content>
         </mat-card>
       </div>
+
     </div>
 
     <mat-card-actions>
@@ -52,3 +45,10 @@
     </mat-card-actions>
   </mat-card>
 }
+
+<script>
+  setInterval(function() {
+    window.location.reload();
+  }, 2000); // 2000 milliseconds = 2 seconds
+</script>
+
