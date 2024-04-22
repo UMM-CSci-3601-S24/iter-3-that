@@ -42,10 +42,18 @@ public class StartedHuntController implements Controller {
   private static final String API_PHOTO_REPLACE = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo/{photoId}";
 
   private static final int ACCESS_CODE_LENGTH = 6;
+  private static final int REASONABLE_TEAM_NAME_LENGTH = 50;
+  private static final int REASONABLE_AMOUNT_OF_MEMBERS = 20;
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
+  private final JacksonMongoCollection<TeamHunt> teamCollection;
 
   public StartedHuntController(MongoDatabase database) {
+    teamCollection = JacksonMongoCollection.builder().build(
+        database,
+        "teamHunts",
+        TeamHunt.class,
+        UuidRepresentation.STANDARD);
 
     startedHuntCollection = JacksonMongoCollection.builder().build(
         database,
@@ -55,10 +63,8 @@ public class StartedHuntController implements Controller {
 
     File directory = new File("photos");
     if (!directory.exists()) {
-        directory.mkdir();
+      directory.mkdir();
     }
-        // If you require it to make the entire directory path including parents,
-        // use directory.mkdirs(); here instead.
 
   }
 
@@ -115,13 +121,64 @@ public class StartedHuntController implements Controller {
           "Was unable to delete ID "
               + id
               + "; perhaps illegal ID or an ID for an item not in the system?");
-     }
+    }
     ctx.status(HttpStatus.OK);
 
     for (Task task : startedHunt.completeHunt.tasks) {
       for (String photo : task.photos) {
         deletePhoto(photo, ctx);
       }
+    }
+  }
+
+  public void makeTeamHunt(Context ctx) {
+    TeamHunt newTeamHunt = ctx.bodyValidator(TeamHunt.class)
+        .check(teamHunt -> teamHunt.startedHuntId != null && teamHunt.startedHuntId.length() > 0, "Invalid ID")
+        .check(teamHunt -> teamHunt.teamName.length() <= REASONABLE_TEAM_NAME_LENGTH,
+            "Team name must be 50 characters or less")
+        .check(teamHunt -> teamHunt.teamName.length() > 0, "Team name must be at least 1 character")
+        .check(teamHunt -> teamHunt.members.size() <= REASONABLE_AMOUNT_OF_MEMBERS, "Too many members")
+        .check(teamHunt -> teamHunt.members.size() > 0, "Must have at least one member")
+        .get();
+
+    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(newTeamHunt.startedHuntId))).first();
+    if (startedHunt == null) {
+      ctx.status(HttpStatus.NOT_FOUND);
+      throw new BadRequestResponse("StartedHunt with ID " + newTeamHunt.startedHuntId + " does not exist");
+    }
+
+    if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt has already ended");
+    }
+
+    if (startedHunt.teamsLeft == 0) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt is full");
+    }
+
+    startedHunt.teamsLeft--;
+    startedHuntCollection.save(startedHunt);
+    newTeamHunt.tasks = startedHunt.completeHunt.tasks;
+
+    teamCollection.insertOne(newTeamHunt);
+    ctx.json(Map.of("id", newTeamHunt._id));
+    ctx.status(HttpStatus.CREATED);
+  }
+
+  public TeamHunt getTeamHunt(Context ctx) {
+    String id = ctx.pathParam("id");
+    TeamHunt teamHunt;
+
+    try {
+      teamHunt = teamCollection.find(eq("_id", new ObjectId(id))).first();
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
+    }
+    if (teamHunt == null) {
+      throw new NotFoundResponse("The requested team hunt was not found");
+    } else {
+      return teamHunt;
     }
   }
 
@@ -142,29 +199,24 @@ public class StartedHuntController implements Controller {
   }
 
   public String uploadPhoto(Context ctx) {
-    try {
-      var uploadedFile = ctx.uploadedFile("photo");
-      if (uploadedFile != null) {
-        try (InputStream in = uploadedFile.content()) {
+    var uploadedFile = ctx.uploadedFile("photo");
+    if (uploadedFile == null) {
+      throw new BadRequestResponse("No photo uploaded");
+    }
+    try (InputStream in = uploadedFile.content()) {
 
-          String id = UUID.randomUUID().toString();
+      String id = UUID.randomUUID().toString();
 
-          String extension = getFileExtension(uploadedFile.filename());
-          File file = Path.of("photos", id + "." + extension).toFile();
-          System.err.println("The path was " + file.toPath());
+      String extension = getFileExtension(uploadedFile.filename());
+      File file = Path.of("photos", id + "." + extension).toFile();
+      System.err.println("The path was " + file.toPath());
 
-          Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-          ctx.status(HttpStatus.OK);
-          return id + "." + extension;
-        } catch (IOException e) {
-          System.err.println("Error copying the uploaded file: " + e);
-          throw new BadRequestResponse("Error handling the uploaded file: " + e.getMessage());
-        }
-      } else {
-        throw new BadRequestResponse("No photo uploaded");
-      }
-    } catch (Exception e) {
-      throw new BadRequestResponse("Unexpected error during photo upload: " + e.getMessage());
+      Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      ctx.status(HttpStatus.OK);
+      return id + "." + extension;
+    } catch (RuntimeException | IOException e) {
+      System.err.println("Error copying the uploaded file: " + e);
+      throw new BadRequestResponse("Error handling the uploaded file: " + e.getMessage());
     }
   }
 
@@ -203,7 +255,7 @@ public class StartedHuntController implements Controller {
     if (!Files.exists(filePath)) {
       ctx.status(HttpStatus.NOT_FOUND);
       throw new BadRequestResponse("Photo with ID " + id + " does not exist");
-  }
+    }
 
     try {
       Files.delete(filePath);

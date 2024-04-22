@@ -1,0 +1,81 @@
+.add-team-title {
+  font-size: 1.5rem;
+  padding-bottom: 10px;
+  padding: 5px;
+}
+
+.add-team-card {
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+
+
+  mat-form-field .mat-input-element {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-underline {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-label {
+    color: black;
+  }
+
+  .mat-form-field-ripple {
+    background-color: black;
+  }
+}
+
+.create-team-card {
+  background-color: white;
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+
+
+  mat-form-field .mat-input-element {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-underline {
+    background-color: white;
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  .mat-form-field-label {
+    color: black;
+  }
+
+  .mat-form-field-ripple {
+    background-color: black;
+  }
+}
+
+::ng-deep .submit-button {
+  color: #0056b3 !important;
+  @media (prefers-color-scheme: dark) {
+    color: #0056b3 !important;
+  }
+}
+
+::ng-deep .submit-button:disabled {
+  color: gray !important;
+  @media (prefers-color-scheme: dark) {
+    color: gray !important;
+  }
+}

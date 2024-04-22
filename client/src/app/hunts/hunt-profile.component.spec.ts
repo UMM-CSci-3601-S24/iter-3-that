@@ -16,6 +16,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CompleteHunt } from './completeHunt';
 import { HttpClientModule } from '@angular/common/http';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 
 describe('HuntProfileComponent', () => {
@@ -29,17 +30,23 @@ describe('HuntProfileComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         HttpClientModule,
         RouterTestingModule,
         MatCardModule,
-        HuntProfileComponent, HuntCardComponent, HttpClientModule, HttpClientTestingModule
-    ],
-    providers: [
+        HuntProfileComponent,
+        HuntCardComponent,
+        HttpClientModule,
+        HttpClientTestingModule,
+        MatFormFieldModule,
+        MatInputModule,
+        BrowserAnimationsModule
+      ],
+      providers: [
         { provide: HostService, useValue: mockHostService },
         { provide: ActivatedRoute, useValue: activatedRoute }
-    ]
-})
+      ]
+    })
       .compileComponents();
   }));
 

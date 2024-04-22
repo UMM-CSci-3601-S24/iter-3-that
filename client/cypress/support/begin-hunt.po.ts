@@ -99,4 +99,8 @@ export class BeginHuntPage {
   getTeamCard() {
     return cy.get(this.teamCard);
   }
+
+  getNumTeamField() {
+    return cy.get(`mat-form-field [formcontrolname=numTeam]`);
+  }
 }
