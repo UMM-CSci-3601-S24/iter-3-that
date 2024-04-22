@@ -8,7 +8,7 @@ import { Hunt } from './hunt';
 import { CommonModule } from '@angular/common';
 import { HostService } from '../hosts/host.service';
 import { MatDialog } from '@angular/material/dialog';
-import { EditHuntDialogComponent } from './edit-hunt-dialog.component';
+import { EditHuntComponent } from './edit-hunt.component';
 
 @Component({
     selector: 'app-hunt-card',
@@ -33,19 +33,19 @@ export class HuntCardComponent {
     });
   }
 
-  // ...
+  openEditDialog(): void {
+    const dialogRef = this.dialog.open(EditHuntComponent, {
+      width: '250px',
+      data: { hunt: this.hunt }
+    });
 
-    openEditDialog(): void {
-      const dialogRef = this.dialog.open(EditHuntDialogComponent, {
-        width: '250px',
-        data: this.hunt
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        console.log('The dialog was closed');
-        this.hunt = result;
-      });
-    }
+    dialogRef.afterClosed().subscribe(updatedHunt => {
+      if (updatedHunt) {
+        // Replace the old hunt with the updated one
+        this.hunt = updatedHunt;
+      }
+    });
+  }
 }
 
 

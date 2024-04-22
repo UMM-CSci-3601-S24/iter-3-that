@@ -275,6 +275,6 @@ try {
     server.delete(API_HUNT, this::deleteHunt);
     server.delete(API_TASK, this::deleteTask);
     server.get(API_START_HUNT, this::startHunt);
-    server.put(API_HUNT, HuntController::updateHunt); // Access the updateHunt method in a static way
+    server.post(API_HUNT, HuntController::updateHunt); // Access the updateHunt method in a static way
   }
 }
