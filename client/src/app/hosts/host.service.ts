@@ -21,7 +21,7 @@ export class HostService {
   readonly endHuntUrl: string = `${environment.apiUrl}endHunt`;
   readonly endedHuntsUrl: string = `${environment.apiUrl}endedHunts`;
   readonly endedHuntUrl: string = `${environment.apiUrl}startedHunt`;
-  readonly teamUrl: string = `${environment.apiUrl}team`;
+  readonly teamUrl: string = `${environment.apiUrl}teamHunts`;
 
   constructor(private httpClient: HttpClient){
   }
