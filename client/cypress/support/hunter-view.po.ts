@@ -11,8 +11,10 @@ export class HunterViewPage {
   private readonly profileButtonSelector = '[data-test=viewProfileButton]';
   private readonly beginHuntButton = '.begin-hunt';
   private readonly huntAccessCode = '.access-code-number';
-  private readonly UploadImageButton = '.image-upload input[type="file"]';
+  private readonly takePictureButton = '.take-picture';
   private readonly joinHuntButtonSelector = '[name="join-button"]';
+  private readonly captureImageButton = '.capture-image-button';
+  private readonly cancelCaptureImageButton = '.cancel-capture-button';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -114,21 +116,21 @@ export class HunterViewPage {
   }
 
   /**
-   * Get the upload image button and the image input field.
+   * Get the take picture button.
    *
-   * @return the value of the element with the class `.image-upload`
+   * @returns the value of the element.
    */
-  getHunterUploadImage() {
-    return cy.get(this.hunterUploadImage);
+  getTakePictureButton() {
+    return cy.get(this.takePictureButton);
   }
 
   /**
-   * Clicks the "upload image" button in the hunter view table.
+   * Click the take picture button DOM element.
    *
-   * @return the value of the element with the class `.image-upload input[type="file"]`
+   * @returns the value of the element.
    */
-  clickUploadImage() {
-    return cy.get(this.UploadImageButton).first().click({force: true});
+  clickTakePictureButton() {
+    return cy.get(this.takePictureButton).first().click();
   }
 
   /**
@@ -148,5 +150,41 @@ export class HunterViewPage {
    */
   clickJoinHuntButton() {
     return cy.get(this.joinHuntButtonSelector).click();
+  }
+
+  /**
+   * Get the capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCaptureImageButton() {
+    return cy.get(this.captureImageButton);
+  }
+
+  /**
+   * Click the capture image button DOM element.
+   *
+   * @return the value of the element with the class.
+   */
+  clickCaptureImageButton() {
+    return cy.get(this.captureImageButton).click();
+  }
+
+  /**
+   * Get the cancel capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelCaptureButton() {
+    return cy.get(this.cancelCaptureImageButton);
+  }
+
+  /**
+   * Click the cancel capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCancelCaptureButton() {
+    return cy.get(this.cancelCaptureImageButton).click();
   }
 }
