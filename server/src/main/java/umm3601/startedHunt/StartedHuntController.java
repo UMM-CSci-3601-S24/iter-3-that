@@ -34,6 +34,7 @@ import java.util.Base64;
 public class StartedHuntController implements Controller {
 
   private static final String API_STARTED_HUNT = "/api/startedHunts/{accessCode}";
+  private static final String API_TEAM_HUNT = "/api/teamHunts/{id}";
   private static final String API_END_HUNT = "/api/endHunt/{id}";
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
   private static final String API_ENDED_HUNTS = "/api/hosts/{id}/endedHunts";
