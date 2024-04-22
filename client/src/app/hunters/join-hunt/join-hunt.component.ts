@@ -7,6 +7,9 @@ import { RouterModule } from '@angular/router';
 import { HostService } from 'src/app/hosts/host.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+import { StartedHunt } from 'src/app/startHunt/startedHunt';
+import { Team } from 'src/app/hunts/team';
 
 @Component({
   selector: 'app-join-hunt',
@@ -17,6 +20,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     CommonModule,
     MatButtonModule,
     RouterModule,
+    FormsModule
   ],
   templateUrl: './join-hunt.component.html',
   styleUrl: './join-hunt.component.scss'
@@ -26,7 +30,10 @@ export class JoinHuntComponent {
   isAccessCodeValid = false;
 
   accessCode: string;
+  hunterTeam: Team;
+  taskProgress: boolean[];
   errorMessage: string;
+  userName: string;
 
   constructor(private hostService: HostService, private router: Router, private snackBar: MatSnackBar) { }
 
@@ -110,10 +117,35 @@ export class JoinHuntComponent {
 
   checkAccessCode() {
     this.accessCode = [this.input1.nativeElement.value, this.input2.nativeElement.value, this.input3.nativeElement.value, this.input4.nativeElement.value, this.input5.nativeElement.value, this.input6.nativeElement.value].join('');
-    if (this.accessCode.length === 6) {
+    if (this.accessCode.length === 6 && this.userName.length !== 0) {
       this.hostService.getStartedHunt(this.accessCode).subscribe({
-        next: () => {
+        next: (startedHunt: StartedHunt) => {
           this.isAccessCodeValid = true;
+          if (startedHunt.completeHunt?.teams) {
+            for (const team of startedHunt.completeHunt.teams) {
+              if(team.name == this.userName)
+              {
+                this.hunterTeam = team;
+              }
+            }
+          }
+          if(this.hunterTeam == null)
+          {
+            console.log('New Team!');
+            const newTeam: Team = { name: this.userName, progress: startedHunt.completeHunt.tasks.map(() => false)};
+            this.hunterTeam = newTeam;
+
+            // Initialize teams array if it doesn't exist
+            if (!startedHunt.completeHunt.teams) {
+              startedHunt.completeHunt.teams = [];
+            }
+          }
+            startedHunt.completeHunt.teams.push(this.hunterTeam);
+
+            this.hostService.setStartedHunt(this.accessCode, startedHunt).subscribe({
+              next: () => console.log('Hunt updated with new team.'),
+              error: (err) => console.error('Error updating hunt:', err)
+            });
         },
         error: () => {
           this.isAccessCodeValid = false;
@@ -124,4 +156,5 @@ export class JoinHuntComponent {
       });
     }
   }
+
 }
