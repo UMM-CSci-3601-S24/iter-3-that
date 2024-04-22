@@ -42,6 +42,8 @@ describe('Join Hunt', () => {
       cy.url().should('match', /\/hunts\/[0-9a-fA-F]{24}$/);
     });
 
+
+    cy.get('mat-form-field [formcontrolname=numTeam]').type('2', {force: true});
     page.clickBeginHunt();
     cy.wait(2000);
     page.getAccessCode();
@@ -92,6 +94,8 @@ describe('Join Hunt', () => {
       cy.url().should('match', /\/hunts\/[0-9a-fA-F]{24}$/);
     });
 
+
+    cy.get('mat-form-field [formcontrolname=numTeam]').type('2', {force: true});
     page.clickBeginHunt();
     cy.wait(2000);
     page.getAccessCode();

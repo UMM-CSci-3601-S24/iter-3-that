@@ -12,6 +12,7 @@ describe('Begin Hunt', () => {
   });
 
   it('should click the begin hunt and navigate to the right access code page', () => {
+    page.getNumTeamField().type('2', {force: true});
     page.beginHuntButton().should('exist');
     page.beginHuntButton().click();
     cy.wait(2000);
@@ -22,6 +23,7 @@ describe('Begin Hunt', () => {
   })
 
   it('should click the Begin Hunt button again to start the hunt', () => {
+    page.getNumTeamField().type('2', {force: true});
     page.beginHuntButton().should('exist');
     page.beginHuntButton().click();
     cy.wait(2000);
@@ -33,6 +35,7 @@ describe('Begin Hunt', () => {
   })
 
   it('should start hunt with the correct hunt information/end hunt page', () => {
+    page.getNumTeamField().type('2', {force: true});
     page.beginHuntButton().should('exist');
     page.beginHuntButton().click();
     cy.wait(2000);
@@ -49,6 +52,7 @@ describe('Begin Hunt', () => {
   })
 
   it('should click End Hunt, navigate to the host page and show message', () => {
+    page.getNumTeamField().type('2', {force: true});
     page.beginHuntButton().should('exist');
     page.beginHuntButton().click();
     cy.wait(2000);
