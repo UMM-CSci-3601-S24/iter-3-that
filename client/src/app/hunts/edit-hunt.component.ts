@@ -1,14 +1,16 @@
 import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { HostService } from "../hosts/host.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router } from "@angular/router";
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Hunt } from "./hunt";
+import { MatFormField, MatLabel } from "@angular/material/form-field";
 
 @Component ({
   selector: 'app-edit-hunt',
   templateUrl: './edit-hunt.component.html',
+  imports: [ReactiveFormsModule, MatFormField, MatLabel],
   standalone: true,
 })
 export class EditHuntComponent {
