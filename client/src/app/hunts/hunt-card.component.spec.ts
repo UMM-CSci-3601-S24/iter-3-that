@@ -31,7 +31,7 @@ describe('HuntCardComponent', () => {
 
     component.startHunt(id);
 
-    expect(hostService.startHunt).toHaveBeenCalledWith(id);
+    expect(hostService.startHunt).toHaveBeenCalledWith(id, null);
     expect(router.navigate).toHaveBeenCalledWith(['/startedHunts/', accessCode]);
   });
 });
