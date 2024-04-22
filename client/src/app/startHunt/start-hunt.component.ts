@@ -62,6 +62,7 @@ export class StartHuntComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     if (window.confirm('Are you sure you want to end this hunt?')) {
       this.endHunt()
+      this.router.navigate(['/endedHunts/', this.startedHunt._id]);
     }
   }
 
@@ -73,11 +74,11 @@ export class StartHuntComponent implements OnInit, OnDestroy {
   endHunt(): void {
     this.hostService.endStartedHunt(this.startedHunt._id)
       .subscribe({
-        next: () => {
+        next: endedHuntId => {
           this.snackBar.open('Hunt ended successfully', 'Close', {
             duration: 2000,
           });
-          this.router.navigate(['/hosts']); // Navigate to home page after ending the hunt
+          this.router.navigate(['/hunts/', endedHuntId]); // Navigate to home page after ending the hunt
         },
         error: _err => {
           this.error = {

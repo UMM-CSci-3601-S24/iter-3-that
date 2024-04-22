@@ -101,6 +101,7 @@ public class StartedHuntController implements Controller {
       startedHunt.accessCode = "1";
       startedHunt.endDate = new Date();
       startedHuntCollection.save(startedHunt);
+      ctx.json(startedHunt._id);
       ctx.status(HttpStatus.OK);
     }
   }
