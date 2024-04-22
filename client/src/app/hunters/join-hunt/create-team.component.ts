@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component } from "@angular/core";
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatOptionModule } from "@angular/material/core";
@@ -19,7 +19,7 @@ import { HostService } from "src/app/hosts/host.service";
   imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class CreateTeamComponent {
-  members: { name: string }[] = [{ name: '' }];
+  //memberArray: { name: string }[] = [{ name: '' }];
 
   teamForm = new FormGroup({
     teamName: new FormControl('', Validators.compose([
@@ -28,11 +28,13 @@ export class CreateTeamComponent {
       Validators.maxLength(50)
     ])),
 
-    members: new FormControl([], Validators.compose([
-      //Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(85)
-    ])),
+    members: new FormArray([
+      new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(85)
+      ]))
+    ]),
 
     startedHuntId: new FormControl(''),
 
@@ -44,7 +46,7 @@ export class CreateTeamComponent {
       { type: 'minlength', message: 'Team name must be at least 1 character long' },
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
     ],
-    member: [
+    members: [
       { type: 'required', message: 'At least one member is required' },
       { type: 'minlength', message: 'Team name must be at least 1 character long' },
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
@@ -99,12 +101,19 @@ export class CreateTeamComponent {
   }
 
   addMember() {
-    this.members.push({ name: '' });
-    this.cdr.detectChanges();
+    (this.teamForm.get('members') as FormArray).push(new FormControl('', Validators.compose([
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(85)
+    ])));
   }
 
   removeMember(index: number) {
-    this.members.splice(index, 1);
+    (this.teamForm.get('members') as FormArray).removeAt(index);
+  }
+
+  get members() {
+    return this.teamForm.get('members') as FormArray;
   }
 
 }

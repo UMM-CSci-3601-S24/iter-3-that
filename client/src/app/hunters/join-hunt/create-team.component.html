@@ -9,32 +9,34 @@
           <div class="flex-col">
             <mat-form-field>
               <mat-label>Team Name</mat-label>
-              <input matInput formControlName="name" required>
-              @if (formControlHasError('name')) {
+              <input matInput formControlName="teamName" required>
+              @if (formControlHasError('teamName')) {
                 <mat-error data-test="nameError">
                   {{getErrorMessage('name')}}
                 </mat-error>
               }
             </mat-form-field>
 
-            <div *ngFor="let member of members; let i = index">
-              <mat-form-field>
-                <mat-label>Team Member</mat-label>
-                <input matInput [(ngModel)]="member.name" required>
-                @if (formControlHasError('member')) {
-                  <mat-error data-test="memberError">
-                    {{getErrorMessage('member')}}
-                  </mat-error>
-                }
-              </mat-form-field>
-              <button mat-button type="button" (click)="removeMember(i)">Remove Member</button>
+            <div formArrayName="members">
+              <div *ngFor="let memberCtrl of members.controls; let i = index">
+                <mat-form-field>
+                  <mat-label>Team Member</mat-label>
+                  <input matInput [formControlName]="i" required>
+                  @if (formControlHasError('members')) {
+                    <mat-error data-test="memberError">
+                      {{getErrorMessage('members')}}
+                    </mat-error>
+                  }
+                </mat-form-field>
+                <button mat-button type="button" (click)="removeMember(i)">Remove Member</button>
+              </div>
             </div>
             <button mat-button type="button" (click)="addMember()">Add Member</button>
           </div>
         </mat-card-content>
         <mat-card-actions align="end">
-          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelAddHuntButton">CANCEL</button>
-          <button mat-button type="button" color="primary" [disabled]="!teamForm.valid" type="submit" data-test="confirmAddHuntButton" class="submit-button">CREATE TEAM</button>
+          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelCreateTeamButton">CANCEL</button>
+          <button mat-button type="button" color="primary" [disabled]="!teamForm.valid" type="submit" data-test="confirmCreateTeamButton" class="submit-button">CREATE TEAM</button>
         </mat-card-actions>
       </mat-card>
     </form>
