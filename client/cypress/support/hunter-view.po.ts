@@ -15,6 +15,7 @@ export class HunterViewPage {
   private readonly captureImageButton = '.capture-image-button';
   private readonly cancelCaptureImageButton = '.cancel-capture-button';
   private readonly snackBar = '.mat-mdc-snack-bar-label.mdc-snackbar__label';
+  private readonly cancelOverlay = '.overlay';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -189,4 +190,12 @@ export class HunterViewPage {
     return cy.get(this.snackBar);
   }
 
+  /**
+   * Get the cancel overlay DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelOverlay() {
+    return cy.get(this.cancelOverlay);
+  }
 }
