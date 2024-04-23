@@ -9,6 +9,7 @@ import { MatCard, MatCardActions, MatCardContent } from "@angular/material/card"
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Task } from "../hunts/task";
 
 
 @Component({
@@ -27,10 +28,10 @@ export class StartHuntComponent implements OnInit, OnDestroy {
   teams = [
     { name: 'Team Duran', progress: 80 },
     { name: 'Team Dussan', progress: 30 },
-    { name: 'Team BB', progress: 60 },
-    { name: 'Team Gurl', progress: 50 },
-    { name: 'Team Cutie', progress: 90 },
-    { name: 'Team Patootie', progress: 25 },
+    { name: 'Team This', progress: 60 },
+    { name: 'Team That', progress: 50 },
+    { name: 'Team Win', progress: 90 },
+    { name: 'Team Lose', progress: 25 },
   ];
 
   private ngUnsubscribe = new Subject<void>();
@@ -96,4 +97,17 @@ export class StartHuntComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  returnPercent(progress: Task[]): number {
+    let numTrue = 0;
+     for(const val of progress)
+     {
+        if(val.status)
+        {
+          numTrue++;
+        }
+     }
+     return ((numTrue * 100.0)/progress.length);
+    }
+
 }

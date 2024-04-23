@@ -68,5 +68,8 @@ private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
   return(teamHuntsArray);
 }
 
-
+@Override
+  public void addRoutes(Javalin server) {
+    server.get(API_TEAMHUNTS_BY_INVITE_CODE, this::getTeamHuntsByInviteCode);
+  }
 }
