@@ -7,6 +7,7 @@ import { Task } from '../hunts/task';
 import { CompleteHunt } from '../hunts/completeHunt';
 import { StartedHunt } from '../startHunt/startedHunt';
 import { EndedHunt } from '../endedHunts/endedHunt';
+import { Team } from '../hunts/team';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,10 @@ export class HostService {
   // This is a put request that ends the hunt by setting its status to false
   endStartedHunt(id: string): Observable<void> {
     return this.httpClient.put<void>(`${this.endHuntUrl}/${id}`, null);
+  }
+
+  getHunterTeam(accessCode: string): Observable<Team> {
+    return this.httpClient.get<Team>(`${this.startedHuntUrl}/${accessCode}`);
   }
 
   // This is a get request that gets all the ended StartedHunts
