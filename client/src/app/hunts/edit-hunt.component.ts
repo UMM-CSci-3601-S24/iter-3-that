@@ -39,19 +39,19 @@ export class EditHuntComponent implements OnInit {
   ngOnInit(): void {
     this.editHuntForm = new FormGroup({
       name: new FormControl(this.hunt.name, Validators.compose([
-        //Validators.required,
+        Validators.required,
         Validators.minLength(1),
         Validators.maxLength(50)
       ])),
 
       description: new FormControl(this.hunt.description, Validators.compose([
-        //Validators.required,
+        Validators.required,
         Validators.minLength(1),
         Validators.maxLength(85)
       ])),
 
       est: new FormControl<number>(this.hunt.est, Validators.compose([
-        //Validators.required,
+        Validators.required,
         Validators.min(0),
         Validators.max(240),
         Validators.pattern('^[0-9]+$')
@@ -62,7 +62,7 @@ export class EditHuntComponent implements OnInit {
 
   readonly editHuntValidationMessages = {
     name: [
-      //{ type: 'required', message: 'Name is required' },
+      { type: 'required', message: 'Name is required' },
       { type: 'minlength', message: 'Name must be at least 1 character long' },
       { type: 'maxlength', message: 'Name cannot be more than 50 characters long' }
     ],
@@ -70,11 +70,11 @@ export class EditHuntComponent implements OnInit {
     description: [
       { type: 'minlength', message: 'Description must be at least 1 character long'},
       { type: 'maxlength', message: 'Description cannot be more than 85 characters long' },
-      //{ type: 'required', message: 'Description is required' }
+      { type: 'required', message: 'Description is required' }
     ],
 
     est: [
-      //{ type: 'required', message: 'Estimated time is required' },
+      { type: 'required', message: 'Estimated time is required' },
       { type: 'min', message: 'Estimated time must be at least 0' },
       { type: 'max', message: 'Estimated time cannot be more than 4 hours' },
       { type: 'pattern', message: 'Estimated time must be a number' }

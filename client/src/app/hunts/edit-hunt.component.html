@@ -10,7 +10,7 @@
           <div class="flex-col">
             <mat-form-field>
               <mat-label>Hunt Name</mat-label>
-              <input matInput formControlName="name">
+              <input matInput formControlName="name" required>
               @if (formControlHasError('name')) {
                 <mat-error data-test="nameError">
                   {{getErrorMessage('name')}}
@@ -20,7 +20,7 @@
 
             <mat-form-field>
               <mat-label>Edit Description</mat-label>
-              <input matInput formControlName="description">
+              <input matInput formControlName="description" required>
               @if (formControlHasError('description')) {
                 <mat-error data-test="descriptionError">
                   {{getErrorMessage('description')}}
@@ -31,7 +31,7 @@
             <mat-form-field>
               <mat-label>Edit Estimated Time</mat-label>
               <input matInput type="number"
-                formControlName="est">
+                formControlName="est" required>
               @if (formControlHasError('est')) {
                 <mat-error data-test="estError">
                   {{getErrorMessage('est')}}
