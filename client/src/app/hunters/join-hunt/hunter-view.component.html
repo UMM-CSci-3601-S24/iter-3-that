@@ -29,6 +29,7 @@
       <webcam [trigger]="$trigger" (imageCapture)="snapshot($event, task)" [imageQuality]="1" class="webcam"></webcam>
       <button class="capture-image-button" (click)="captureImage()" >Capture Image</button>
       <button class="cancel-capture-button" (click)="cancelCapture()">X</button>
+      <button (click)="switchCamera()">Switch Camera</button>
     </div>
 
     <div class="task-list" [ngClass]="{'task-completed': task.status}">{{ task.name }}</div>
