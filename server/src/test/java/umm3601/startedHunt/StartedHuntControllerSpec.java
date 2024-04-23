@@ -57,6 +57,7 @@ import io.javalin.validation.ValidationException;
 import umm3601.hunt.CompleteHunt;
 import umm3601.hunt.Hunt;
 import umm3601.hunt.Task;
+import static com.mongodb.client.model.Updates.set; // Import the necessary package
 
 @SuppressWarnings({ "MagicNumber" })
 class StartedHuntControllerSpec {
@@ -825,7 +826,7 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.CREATED);
 
     Document addedTeamHunt = db.getCollection("teamHunts")
-      .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
+        .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
 
     assertNotEquals("", addedTeamHunt.get("_id"));
     assertEquals("New Hunt", addedTeamHunt.get("teamName"));
@@ -834,7 +835,7 @@ class StartedHuntControllerSpec {
     assertEquals(3, ((List<Document>) addedTeamHunt.get("tasks")).size());
 
     Document updatedStartedHunt = db.getCollection("startedHunts")
-      .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
+        .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
 
     assertEquals(1, updatedStartedHunt.get("teamsLeft"));
   }
@@ -854,6 +855,46 @@ class StartedHuntControllerSpec {
         .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
 
     assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidNullStartedHuntId() {
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": null,
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy",
+          "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender"],
+          "tasks": []
+        }
+        """;
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidLengthStartedHuntId() {
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy",
+          "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender"],
+          "tasks": []
+        }
+        """;
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
       startedHuntController.makeTeamHunt(ctx);
     });
   }
@@ -937,6 +978,54 @@ class StartedHuntControllerSpec {
     assertThrows(ValidationException.class, () -> {
       startedHuntController.makeTeamHunt(ctx);
     });
+  }
+
+  @Test
+  void testMakeTeamHunt_HuntEnded() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    ObjectId id = new ObjectId(startedHuntIdHex);
+    db.getCollection("startedHunts").updateOne(eq("_id", id), set("status", false));
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+
+    verify(ctx).status(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void testMakeTeamHunt_HuntFull() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    ObjectId id = new ObjectId(startedHuntIdHex);
+    db.getCollection("startedHunts").updateOne(eq("_id", id), set("teamsLeft", 0));
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+
+    verify(ctx).status(HttpStatus.BAD_REQUEST);
   }
 
   @Test
