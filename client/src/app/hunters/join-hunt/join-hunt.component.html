@@ -14,7 +14,7 @@
     <input type="text" [(ngModel)]="userName">
   </div>
 
-    <a mat-raised-button [ngClass]="{'join-button-enabled': isAccessCodeValid}" class="link-button center-button" name="join-button" [routerLink]="['/hunter-view', this.accessCode]"
+    <a mat-raised-button [ngClass]="{'join-button-enabled': isAccessCodeValid}" class="link-button center-button" name="join-button" (keyup)="submitHunterName()" (click)="submitHunterName()"
       routerLinkActive="drawer-list-item-active" [disabled]="!isAccessCodeValid">
       <span class="button-text">Join Hunt</span>
     </a>
