@@ -981,7 +981,7 @@ class StartedHuntControllerSpec {
   }
 
   @Test
-  void testMakeTeamHunt_HuntEnded() {
+  void testMakeTeamHuntHuntEnded() {
     String startedHuntIdHex = startedHuntId.toHexString();
     ObjectId id = new ObjectId(startedHuntIdHex);
     db.getCollection("startedHunts").updateOne(eq("_id", id), set("status", false));
@@ -1005,7 +1005,7 @@ class StartedHuntControllerSpec {
   }
 
   @Test
-  void testMakeTeamHunt_HuntFull() {
+  void testMakeTeamHuntHuntFull() {
     String startedHuntIdHex = startedHuntId.toHexString();
     ObjectId id = new ObjectId(startedHuntIdHex);
     db.getCollection("startedHunts").updateOne(eq("_id", id), set("teamsLeft", 0));
