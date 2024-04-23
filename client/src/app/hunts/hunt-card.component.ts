@@ -75,7 +75,8 @@ export class HuntCardComponent {
 
   openEditDialog(): void {
     const dialogRef = this.dialog.open(EditHuntComponent, {
-      width: '250px',
+      width: '500px',
+      height: '500px',
       data: { hunt: this.hunt }
     });
 
