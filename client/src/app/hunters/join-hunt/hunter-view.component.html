@@ -18,7 +18,7 @@
            title="Upload Picture"
            height="300px"
            width="300px"
-           (click)="openImage(task._id)"
+           (click)="imageUrls[task._id] ? openImage(task._id) : startCapture(task._id)"
            (keydown.enter)="openImage(task._id)"
            tabindex="0"/>
       <button class="take-picture" (click)="startCapture(task._id)">Take Picture</button>
