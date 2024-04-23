@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
 export class JoinHuntComponent {
 
   isAccessCodeValid = false;
-
+  startedHuntId: string;
   accessCode: string;
   errorMessage: string;
   userName: string;
@@ -115,8 +115,9 @@ export class JoinHuntComponent {
     this.accessCode = [this.input1.nativeElement.value, this.input2.nativeElement.value, this.input3.nativeElement.value, this.input4.nativeElement.value, this.input5.nativeElement.value, this.input6.nativeElement.value].join('');
     if (this.accessCode.length === 6) {
       this.hostService.getStartedHunt(this.accessCode).subscribe({
-        next: () => {
+        next: startedHunt => {
           this.isAccessCodeValid = true;
+          this.startedHuntId = startedHunt._id;
         },
         error: () => {
           this.isAccessCodeValid = false;
