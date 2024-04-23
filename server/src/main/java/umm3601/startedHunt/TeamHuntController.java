@@ -21,6 +21,7 @@ import umm3601.Controller;
 
 public class TeamHuntController implements Controller {
   private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamhunts/{invitecode}";
+  //private static final String TEAMHUNT_UPDATES_WEBSOCKET = "web"
 
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
@@ -66,6 +67,11 @@ private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
   ArrayList<TeamHunt> teamHunts = TeamHuntCollection.find(eq(STARTED_HUNT_ID_KEY, startedHuntId)).into(new ArrayList<>());
   TeamHunt[] teamHuntsArray = (TeamHunt[]) teamHunts.toArray();
   return(teamHuntsArray);
+}
+
+public void addRoutes(Javalin server) {
+  //get all teamhunts for a started hunt
+  server.get(API_TEAMHUNTS_BY_INVITE_CODE, this::getTeamHuntsByInviteCode);
 }
 
 
