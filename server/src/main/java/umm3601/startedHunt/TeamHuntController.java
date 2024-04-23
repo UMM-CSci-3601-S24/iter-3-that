@@ -21,6 +21,7 @@ import umm3601.Controller;
 
 public class TeamHuntController implements Controller {
   private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamhunts/{invitecode}";
+  //private static final String TEAMHUNT_UPDATES_WEBSOCKET = "web"
 
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
