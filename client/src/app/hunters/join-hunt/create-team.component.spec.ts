@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { CreateTeamComponent } from './create-team.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -125,5 +125,57 @@ describe('CreateTeamComponent', () => {
     expect(mockHostService.createTeam).toHaveBeenCalledWith(createTeamComponent.teamForm.value);
     expect(mockSnackBar.open).toHaveBeenCalledWith('Team created successfully', 'Close', { duration: 5000 });
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/team', '123']);
+  });
+
+  describe('formControlHasError', () => {
+    it('should return the correct error message for name', () => {
+      createTeamComponent.teamForm.get('teamName').setErrors({ required: true });
+      expect(createTeamComponent.getErrorMessage('teamName')).toBe('Team name is required');
+
+      createTeamComponent.teamForm.get('teamName').setErrors({ minlength: true });
+      expect(createTeamComponent.getErrorMessage('teamName')).toBe('Team name must be at least 1 character long');
+
+      createTeamComponent.teamForm.get('teamName').setErrors({ maxlength: true });
+      expect(createTeamComponent.getErrorMessage('teamName')).toBe('Team name cannot be more than 50 characters long');
+    });
+
+    it('should return the correct error message for members', () => {
+      createTeamComponent.teamForm.get('members').setErrors({ required: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('At least one member is required');
+
+      createTeamComponent.teamForm.get('members').setErrors({ minlength: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('Team name must be at least 1 character long');
+
+      createTeamComponent.teamForm.get('members').setErrors({ maxlength: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('Team name cannot be more than 50 characters long');
+    });
+  });
+
+  it('should log an error if creating a team fails', () => {
+    const error = new Error('Error creating team');
+    mockHostService.createTeam.and.returnValue(throwError(error));
+    spyOn(console, 'error');
+
+    createTeamComponent.submitForm();
+
+    expect(console.error).toHaveBeenCalledWith('Error creating team:', error);
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error creating team', 'Close', { duration: 5000 });
+  });
+
+  it('should add a member control to the members form array', () => {
+    createTeamComponent.addMember();
+    const members = createTeamComponent.teamForm.get('members') as FormArray;
+    expect(members.length).toBe(2);
+
+    const control = members.at(1);
+    const validator = Validators.compose([Validators.required, Validators.minLength(1), Validators.maxLength(85)]);
+    expect(validator(control)).toEqual(control.validator(control));
+  });
+
+  it('should remove a member control from the members form array', () => {
+    createTeamComponent.addMember();
+    createTeamComponent.removeMember(0);
+    const members = createTeamComponent.teamForm.get('members') as FormArray;
+    expect(members.length).toBe(1);
   });
 });
