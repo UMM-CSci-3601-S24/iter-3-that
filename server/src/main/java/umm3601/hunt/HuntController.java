@@ -32,7 +32,7 @@ public class HuntController implements Controller {
   private static final String API_HUNTS = "/api/hunts";
   private static final String API_TASK = "/api/tasks/{id}";
   private static final String API_TASKS = "/api/tasks";
-  private static final String API_START_HUNT = "/api/startHunt/{id}";
+  private static final String API_START_HUNT = "/api/startHunt/{id}/teams/{teamsLeft}";
 
   static final String HUNT_KEY = "huntId";
   static final String HOST_KEY = "hostId";
@@ -233,6 +233,11 @@ public class HuntController implements Controller {
     startedHunt.status = true; // true means the hunt is active
     startedHunt.endDate = null; // null endDate until the hunt is ended
     // Insert the StartedHunt into the startedHunt collection
+    try {
+      startedHunt.teamsLeft = Integer.parseInt(ctx.pathParam("teamsLeft"));
+    } catch (NumberFormatException e) {
+      throw new BadRequestResponse("The number of teams left must be a valid integer.");
+    }
     startedHuntCollection.insertOne(startedHunt);
 
     ctx.json(startedHunt.accessCode);

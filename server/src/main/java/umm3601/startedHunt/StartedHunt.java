@@ -18,4 +18,5 @@ public class StartedHunt {
   public CompleteHunt completeHunt;
   public Boolean status;
   public Date endDate;
+  public int teamsLeft;
 }
