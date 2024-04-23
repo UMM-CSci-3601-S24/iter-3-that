@@ -24,7 +24,7 @@ const routes: Routes = [
   {path: 'hunter-view/:accessCode', component: HunterViewComponent},
   {path: 'startedHunts/:accessCode', component: StartHuntComponent, title: 'Started Hunt'},
   {path: 'endedHunts/:id', component: EndedHuntDetailsComponent, title: 'Ended Hunt Details'},
-  {path: 'create-team', component: CreateTeamComponent },
+  {path: 'create-team/:id', component: CreateTeamComponent, title: 'Create Team'},
 ];
 
 @NgModule({

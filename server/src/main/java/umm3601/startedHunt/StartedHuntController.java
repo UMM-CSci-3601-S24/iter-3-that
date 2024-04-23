@@ -34,6 +34,7 @@ import java.util.Base64;
 public class StartedHuntController implements Controller {
 
   private static final String API_STARTED_HUNT = "/api/startedHunts/{accessCode}";
+  private static final String API_TEAM_HUNT = "/api/teamHunts";
   private static final String API_END_HUNT = "/api/endHunt/{id}";
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
   private static final String API_ENDED_HUNTS = "/api/hosts/{id}/endedHunts";
@@ -348,5 +349,6 @@ public class StartedHuntController implements Controller {
     server.get(API_ENDED_HUNT, this::getEndedHunt);
     server.get(API_ENDED_HUNTS, this::getEndedHunts);
     server.delete(API_DELETE_HUNT, this::deleteStartedHunt);
+    server.post(API_TEAM_HUNT, this::makeTeamHunt);
   }
 }
