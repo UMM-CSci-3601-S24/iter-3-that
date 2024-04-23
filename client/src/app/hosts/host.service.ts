@@ -62,10 +62,6 @@ export class HostService {
     return this.httpClient.put<void>(`${this.endHuntUrl}/${id}`, null);
   }
 
-  setStartedHunt(id: string, hunt: StartedHunt): Observable<void> {
-    return this.httpClient.put<void>(`${this.startedHuntUrl}/${id}`, hunt);
-  }
-
   // This is a get request that gets all the ended StartedHunts
   getEndedHunts(hostId: string): Observable<StartedHunt[]> {
     return this.httpClient.get<StartedHunt[]>(`${this.hostUrl}/${hostId}/endedHunts`);

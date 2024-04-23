@@ -29,7 +29,7 @@
       </div>
 
       <div class="team-box">
-        <mat-card class="team-card" *ngFor="let team of startedHunt?.completeHunt?.teams">
+        <mat-card class="team-card" *ngFor="let team of teams">
           <mat-card-content>
             <h2>{{ team.name }}</h2>
             <h3>Team Hunting Progress:</h3>
@@ -37,6 +37,7 @@
           </mat-card-content>
         </mat-card>
       </div>
+
     </div>
 
     <mat-card-actions>
