@@ -7,12 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Hunt } from './hunt';
 import { CommonModule } from '@angular/common';
 import { HostService } from '../hosts/host.service';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
