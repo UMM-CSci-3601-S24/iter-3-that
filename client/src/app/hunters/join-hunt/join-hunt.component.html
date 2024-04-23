@@ -9,10 +9,6 @@
     <input type="text" maxlength="1" (keyup)="onKeyUp($event, 5)" (keydown)="onKeyDown($event, 5)" (keypress)="numericOnly($event)" (paste)="onPaste($event)" #input5>
     <input type="text" maxlength="1" (keyup)="onKeyUp($event, 6)" (keydown)="onKeyDown($event, 6)" (keypress)="numericOnly($event)" (paste)="onPaste($event)" #input6>
   </div>
-  <mat-card-title class="title">Enter Hunter Team Name</mat-card-title>
-  <div class="text-container">
-    <input type="text" [(ngModel)]="userName">
-  </div>
 
     <a mat-raised-button [ngClass]="{'join-button-enabled': isAccessCodeValid}" class="link-button center-button" name="join-button" [routerLink]="['/hunter-view', this.accessCode]"
       routerLinkActive="drawer-list-item-active" [disabled]="!isAccessCodeValid">

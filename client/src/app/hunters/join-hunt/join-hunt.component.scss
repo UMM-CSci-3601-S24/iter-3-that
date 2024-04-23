@@ -56,20 +56,6 @@
     margin-bottom: 20px;
   }
 }
-.text-container {
-  display: flex;
-  justify-content: space-between;
-  input {
-    width: 250px;
-    height: 30px;
-    text-align: center;
-    border: 1px solid #000;
-    &:last-child {
-      margin-right: 0; // Remove the margin from the last box
-    }
-    margin-bottom: 20px;
-  }
-}
 
 /* ::ng-deep .mat-raised-button:not([disabled]) {
   background-color: #00ccff !important;
