@@ -700,6 +700,8 @@ class HuntControllerSpec {
     Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
     assertNotNull(hunt);
 
+    when(ctx.pathParam("teamsLeft")).thenReturn("3");
+
     huntController.startHunt(ctx);
 
     verify(ctx).status(HttpStatus.CREATED);

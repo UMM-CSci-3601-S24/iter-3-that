@@ -3,6 +3,7 @@ package umm3601.startedHunt;
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,11 +19,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,9 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UploadedFile;
+import io.javalin.json.JavalinJackson;
+import io.javalin.validation.BodyValidator;
+import io.javalin.validation.ValidationException;
 import umm3601.hunt.CompleteHunt;
 import umm3601.hunt.Hunt;
 import umm3601.hunt.Task;
@@ -63,9 +65,11 @@ class StartedHuntControllerSpec {
   private ObjectId huntId;
   private ObjectId taskId;
   private ObjectId startedHuntId;
+  private ObjectId teamHuntId;
 
   private static MongoClient mongoClient;
   private static MongoDatabase db;
+  private static JavalinJackson javalinJackson = new JavalinJackson();
 
   @Mock
   private Context ctx;
@@ -147,13 +151,6 @@ class StartedHuntControllerSpec {
             .append("description", "Fry's hunt for money")
             .append("est", 40)
             .append("numberOfTasks", 1));
-    testHunts.add(
-        new Document()
-            .append("hostId", "differentId")
-            .append("name", "Different's Hunt")
-            .append("description", "Different's hunt for money")
-            .append("est", 60)
-            .append("numberOfTasks", 10));
 
     huntId = new ObjectId();
     Document hunt = new Document()
@@ -188,12 +185,6 @@ class StartedHuntControllerSpec {
             .append("name", "Take a picture of a park")
             .append("status", true)
             .append("photos", new ArrayList<String>()));
-    testTasks.add(
-        new Document()
-            .append("huntId", "differentId")
-            .append("name", "Take a picture of a moose")
-            .append("status", true)
-            .append("photos", new ArrayList<String>()));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -209,9 +200,6 @@ class StartedHuntControllerSpec {
     MongoCollection<Document> startedHuntsDocuments = db.getCollection("startedHunts");
     startedHuntsDocuments.drop();
     List<Document> startedHunts = new ArrayList<>();
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2024, Calendar.MAY, 2, 12, 0, 0);
-    Date date = calendar.getTime();
     startedHunts.add(
         new Document()
             .append("accessCode", "123456")
@@ -228,15 +216,6 @@ class StartedHuntControllerSpec {
                 .append("hunt", testHunts.get(1))
                 .append("tasks", testTasks.subList(2, 3)))
             .append("status", false)
-            .append("endDate", date));
-
-    startedHunts.add(
-        new Document()
-            .append("accessCode", "123459")
-            .append("completeHunt", new Document()
-                .append("hunt", testHunts.get(2))
-                .append("tasks", testTasks.subList(0, 3)))
-            .append("status", true)
             .append("endDate", null));
 
     startedHuntId = new ObjectId();
@@ -247,10 +226,39 @@ class StartedHuntControllerSpec {
             .append("hunt", testHunts.get(2))
             .append("tasks", testTasks.subList(0, 3)))
         .append("status", true)
-        .append("endDate", null);
+        .append("endDate", null)
+        .append("teamsLeft", 2);
 
     startedHuntsDocuments.insertMany(startedHunts);
     startedHuntsDocuments.insertOne(startedHunt);
+
+    MongoCollection<Document> teamHuntsDocuments = db.getCollection("teamHunts");
+    teamHuntsDocuments.drop();
+    List<Document> teamHunts = new ArrayList<>();
+    teamHunts.add(
+        new Document()
+            .append("startedHuntId", startedHuntId.toHexString())
+            .append("teamName", "Team 1")
+            .append("members", Arrays.asList("fry", "bender", "leela"))
+            .append("tasks", testTasks.subList(0, 2)));
+
+    teamHunts.add(
+        new Document()
+            .append("startedHuntId", startedHuntId.toHexString())
+            .append("teamName", "Team 2")
+            .append("members", Arrays.asList("fry", "bender", "leela"))
+            .append("tasks", testTasks.subList(2, 3)));
+
+    teamHuntId = new ObjectId();
+    Document teamHunt = new Document()
+        .append("_id", teamHuntId)
+        .append("startedHuntId", startedHuntId.toHexString())
+        .append("teamName", "Team 1")
+        .append("members", Arrays.asList("fry", "bender", "leela"))
+        .append("tasks", testTasks.subList(0, 2));
+
+    teamHuntsDocuments.insertMany(teamHunts);
+    teamHuntsDocuments.insertOne(teamHunt);
 
     startedHuntController = new StartedHuntController(db);
   }
@@ -470,7 +478,7 @@ class StartedHuntControllerSpec {
       startedHuntController.uploadPhoto(ctx);
       fail("Expected BadRequestResponse");
     } catch (BadRequestResponse e) {
-      assertEquals("Unexpected error during photo upload: No photo uploaded", e.getMessage());
+      assertEquals("No photo uploaded", e.getMessage());
     }
   }
 
@@ -487,7 +495,7 @@ class StartedHuntControllerSpec {
       startedHuntController.uploadPhoto(ctx);
       fail("Expected BadRequestResponse");
     } catch (BadRequestResponse e) {
-      assertEquals("Unexpected error during photo upload: Test Exception", e.getMessage());
+      assertEquals("Error handling the uploaded file: Test Exception", e.getMessage());
     }
   }
 
@@ -793,6 +801,179 @@ class StartedHuntControllerSpec {
     assertEquals(taskDocuments.get(0).get("_id").toString(), finishedHunt.finishedTasks.get(0).taskId);
     assertEquals(taskDocuments.get(1).get("_id").toString(), finishedHunt.finishedTasks.get(1).taskId);
     assertEquals(taskDocuments.get(2).get("_id").toString(), finishedHunt.finishedTasks.get(2).taskId);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void addTeamHunt() throws IOException {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    startedHuntController.makeTeamHunt(ctx);
+    verify(ctx).json(mapCaptor.capture());
+
+    verify(ctx).status(HttpStatus.CREATED);
+
+    Document addedTeamHunt = db.getCollection("teamHunts")
+      .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
+
+    assertNotEquals("", addedTeamHunt.get("_id"));
+    assertEquals("New Hunt", addedTeamHunt.get("teamName"));
+    assertEquals(startedHuntIdHex, addedTeamHunt.get("startedHuntId"));
+    assertEquals(3, ((List<String>) addedTeamHunt.get("members")).size());
+    assertEquals(3, ((List<Document>) addedTeamHunt.get("tasks")).size());
+
+    Document updatedStartedHunt = db.getCollection("startedHunts")
+      .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
+
+    assertEquals(1, updatedStartedHunt.get("teamsLeft"));
+  }
+
+  @Test
+  void addTeamHuntWithInvalidStartedHuntId() {
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "588935f57546a2daea54de8c",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """;
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidTeamName() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidLongTeamName() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "This is a very long team name that is longer than 50 characters",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidMembers() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": [],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidToManyMembers() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy",
+          "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void getTeamHuntById() throws IOException {
+    String id = teamHuntId.toHexString();
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    TeamHunt teamHunt = startedHuntController.getTeamHunt(ctx);
+
+    assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
+    assertEquals(teamHuntId.toHexString(), teamHunt._id);
+    assertEquals(2, teamHunt.tasks.size());
+    assertEquals(3, teamHunt.members.size());
+    assertEquals("Team 1", teamHunt.teamName);
+  }
+
+  @Test
+  void getHuntWithBadId() throws IOException {
+    when(ctx.pathParam("id")).thenReturn("bad");
+
+    Throwable exception = assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.getTeamHunt(ctx);
+    });
+
+    assertEquals("The requested team id wasn't a legal Mongo Object ID.", exception.getMessage());
+  }
+
+  @Test
+  void getHuntWithNonexistentId() throws IOException {
+    String id = "588935f5c668650dc77df581";
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    Throwable exception = assertThrows(NotFoundResponse.class, () -> {
+      startedHuntController.getTeamHunt(ctx);
+    });
+
+    assertEquals("The requested team hunt was not found", exception.getMessage());
   }
 
 }
