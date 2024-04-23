@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { HostService } from 'src/app/hosts/host.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-join-hunt',
@@ -17,6 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     CommonModule,
     MatButtonModule,
     RouterModule,
+    FormsModule
   ],
   templateUrl: './join-hunt.component.html',
   styleUrl: './join-hunt.component.scss'
@@ -27,6 +29,7 @@ export class JoinHuntComponent {
 
   accessCode: string;
   errorMessage: string;
+  userName: string;
 
   constructor(private hostService: HostService, private router: Router, private snackBar: MatSnackBar) { }
 
