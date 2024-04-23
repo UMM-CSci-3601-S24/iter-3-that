@@ -11,15 +11,18 @@ import { HuntCardComponent } from 'src/app/hunts/hunt-card.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { WebcamImage, WebcamModule } from 'ngx-webcam';
+import { Observable } from 'rxjs';
 
 
 @Component({
   selector: 'app-hunter-view',
   standalone: true,
-  imports: [HuntCardComponent, CommonModule, MatCardModule, MatIconModule],
+  imports: [HuntCardComponent, CommonModule, MatCardModule, MatIconModule, WebcamModule],
   templateUrl: './hunter-view.component.html',
   styleUrl: './hunter-view.component.scss'
 })
+
 export class HunterViewComponent implements OnInit, OnDestroy {
   startedHunt: StartedHunt;
   tasks: Task[] = [];
@@ -35,6 +38,16 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     private router: Router,
     public dialog: MatDialog,
   ) { }
+
+  stream = null;
+  status = null;
+  trigger: Subject<void> = new Subject<void>();
+  btnLabel: string = 'Capture image';
+  showWebcam: boolean = false;
+
+  get $trigger(): Observable<void> {
+    return this.trigger.asObservable();
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -58,36 +71,13 @@ export class HunterViewComponent implements OnInit, OnDestroy {
           };
         }
       });
+
+    this.checkPermission();
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-  }
-
-  onFileSelected(event, task: Task): void {
-    const file: File = event.target.files[0];
-    const fileType = file.type;
-    if (fileType.match(/image\/*/)) {
-      if (this.imageUrls[task._id] && !window.confirm('An image has already been uploaded for this task. Are you sure you want to replace it?')) {
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        this.imageUrls[task._id] = event.target.result.toString();
-      };
-
-      if (file) {
-        if (task.photos.length > 0) {
-          this.replacePhoto(file, task, this.startedHunt._id);
-        }
-        else {
-          this.submitPhoto(file, task, this.startedHunt._id);
-        }
-      }
-    }
   }
 
   submitPhoto(file: File, task: Task, startedHuntId: string): void {
@@ -123,5 +113,78 @@ export class HunterViewComponent implements OnInit, OnDestroy {
         });
       },
     });
+  }
+
+  currentTaskId: string;
+
+  startCapture(taskId: string) {
+    this.currentTaskId = taskId;
+    this.status = 'Camera is getting accessed';
+    this.btnLabel = 'Capture image';
+    this.showWebcam = true;
+  }
+
+  snapshot(event: WebcamImage, task: Task) {
+    console.log(event);
+    this.imageUrls[task._id] = event.imageAsDataUrl;
+    const photo: File = new File([this.dataURItoBlob(event.imageAsDataUrl)], 'photo.jpg');
+
+    if (photo) {
+      if (task.photos.length > 0) {
+        this.replacePhoto(photo, task, this.startedHunt._id);
+      }
+      else {
+        this.submitPhoto(photo, task, this.startedHunt._id);
+      }
+    }
+  }
+
+  // Transform the image data into the blob format to save into the database.
+  private dataURItoBlob(dataURI: string): Blob {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  }
+
+  cancelCapture() {
+    this.showWebcam = false;
+    this.status = null;
+    this.currentTaskId = null;
+  }
+
+  captureImage() {
+    this.trigger.next();
+    this.showWebcam = false;
+    this.status = null;
+    this.currentTaskId = null;
+  }
+
+  private permissionChecked = false;
+
+  checkPermission() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        // Camera is available and authorized
+        this.stream = stream;
+      })
+      .catch(err => {
+        // Camera is not available or not authorized
+        console.error(err);
+        this.stream = null;
+      });
+  }
+
+  openImage(taskId: string) {
+    const image = this.imageUrls[taskId];
+    if (image) {
+      const imageBlob = this.dataURItoBlob(image);
+      const imageUrl = URL.createObjectURL(imageBlob);
+      window.open(imageUrl, '_blank');
+    }
   }
 }
