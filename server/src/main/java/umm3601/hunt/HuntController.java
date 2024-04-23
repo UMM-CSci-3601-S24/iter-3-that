@@ -23,8 +23,11 @@ import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
+import static com.mongodb.client.model.Updates.*;
 
 public class HuntController implements Controller {
 
@@ -245,30 +248,33 @@ public class HuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
-  public static void updateHunt(Context ctx) {
-  String id = ctx.pathParam("id");
-  Hunt updatedHunt = ctx.bodyAsClass(Hunt.class);
-  Hunt hunt;
+  public void updateHunt(Context ctx) {
+    String id = ctx.pathParam("id");
+    Hunt updatedHunt = ctx.bodyAsClass(Hunt.class);
 
-  try {
-    hunt = huntCollection.findOne(eq("_id", new ObjectId(id)));
-  } catch (IllegalArgumentException e) {
-    throw new BadRequestResponse("The requested hunt id wasn't a legal Mongo Object ID.");
-  }
+    try {
+      Bson filter = eq("_id", new ObjectId(id));
+      Bson updateOperation = combine(
+          set("name", updatedHunt.name),
+          set("description", updatedHunt.description),
+          set("est", updatedHunt.est));
 
-  if (hunt == null) {
-    throw new NotFoundResponse("The requested hunt was not found");
-  } else {
-try {
-  hunt = huntCollection.findOneAndReplace(eq("_id", new ObjectId(id)), updatedHunt);
-  ctx.json(hunt);
-  ctx.status(HttpStatus.OK);
-} catch (Exception e) {
-  e.printStackTrace(); // This will print the stack trace of the exception to the console
-  throw new InternalServerErrorResponse("Error updating the hunt.");
-}
+      FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().upsert(false);
+      Hunt hunt = huntCollection.findOneAndUpdate(filter, updateOperation, options);
+
+      if (hunt == null) {
+        throw new NotFoundResponse("The requested hunt was not found");
+      } else {
+        ctx.json(hunt);
+        ctx.status(HttpStatus.OK);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("The requested hunt id wasn't a legal Mongo Object ID.");
+    } catch (Exception e) {
+      e.printStackTrace(); // This will print the stack trace of the exception to the console
+      throw new InternalServerErrorResponse("Error updating the hunt.");
+    }
   }
-}
 
   @Override
   public void addRoutes(Javalin server) {
@@ -280,6 +286,6 @@ try {
     server.delete(API_HUNT, this::deleteHunt);
     server.delete(API_TASK, this::deleteTask);
     server.get(API_START_HUNT, this::startHunt);
-    server.post(API_HUNT, HuntController::updateHunt); // Access the updateHunt method in a static way
+    server.put(API_HUNT, this::updateHunt);
   }
 }
