@@ -67,7 +67,7 @@ export class StartHuntComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.router.navigate(['/endedHunts/', this.startedHunt._id])
   }
 
   endHunt(): void {
