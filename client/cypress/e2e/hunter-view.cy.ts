@@ -173,7 +173,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     // navigate to the hunter view page with access code.
 
@@ -205,7 +205,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     // navigate to the hunter view page with access code.
 
@@ -238,7 +238,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     // navigate to the hunter view page with access code.
 
@@ -275,7 +275,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     // navigate to the hunter view page with access code.
 
@@ -323,7 +323,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     // navigate to the hunter view page with access code.
 
