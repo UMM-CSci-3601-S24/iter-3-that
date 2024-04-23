@@ -434,4 +434,42 @@ describe('When getHunts() is called', () => {
       });
     }));
   });
+
+  describe('When getTeamHunt() is given an ID', () => {
+    it('calls api/teams/id with the correct ID', waitForAsync(() => {
+      const targetTeamHunt: TeamHunt = testTeamHunts[1];
+      const targetId: string = targetTeamHunt._id;
+
+      const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetTeamHunt));
+
+      hostService.getTeamHunt(targetId).subscribe(() => {
+        expect(mockedMethod)
+          .withContext('one call')
+          .toHaveBeenCalledTimes(1);
+
+        expect(mockedMethod)
+          .withContext('talks to the correct endpoint')
+          .toHaveBeenCalledWith(`${hostService.teamUrl}/${targetId}`);
+      });
+    }));
+  });
+
+  describe('When getEndedHuntById() is given an ID', () => {
+    it('calls api/endedHunts/id with the correct ID', waitForAsync(() => {
+      const targetEndedHunt: StartedHunt = testStartedHunts[1];
+      const targetId: string = targetEndedHunt._id;
+
+      const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetEndedHunt));
+
+      hostService.getEndedHuntById(targetId).subscribe(() => {
+        expect(mockedMethod)
+          .withContext('one call')
+          .toHaveBeenCalledTimes(1);
+
+        expect(mockedMethod)
+          .withContext('talks to the correct endpoint')
+          .toHaveBeenCalledWith(`${hostService.endedHuntsUrl}/${targetId}`);
+      });
+    }));
+  });
 });
