@@ -1,22 +1,47 @@
-<h1 mat-dialog-title>Edit Hunt</h1>
-<div mat-dialog-content>
-  <form [formGroup]="editHuntForm" (ngSubmit)="submitForm()">
-    <mat-form-field>
-      <mat-label>Title</mat-label>
-      <input matInput formControlName="title">
-    </mat-form-field>
 
-    <mat-form-field>
-      <mat-label>Description</mat-label>
-      <input matInput formControlName="description">
-    </mat-form-field>
+<div class="flex-row">
+  <div class="flex-1">
+    <form [formGroup]="editHuntForm" (ngSubmit)="submitForm();">
+      <mat-card class="edit-hunt-card">
+        <mat-card-header>
+          <mat-card-title class="edit-hunt-title">Edit Hunt</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flex-col">
+            <mat-form-field>
+              <mat-label>Hunt Name</mat-label>
+              <input matInput formControlName="name" required>
+              @if (formControlHasError('name')) {
+                <mat-error data-test="nameError">
+                  {{getErrorMessage('name')}}
+                </mat-error>
+              }
+            </mat-form-field>
 
-    <mat-form-field>
-      <mat-label>Estimated Time</mat-label>
-      <input matInput formControlName="etime">
-    </mat-form-field>
-  </form>
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="submitForm()">Submit</button>
+            <mat-form-field>
+              <mat-label>Edit Description</mat-label>
+              <input matInput formControlName="description"
+                required>
+              @if (formControlHasError('description')) {
+                <mat-error data-test="descriptionError">
+                  {{getErrorMessage('description')}}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Edit Estimated Time</mat-label>
+              <input matInput type="number"
+                formControlName="est" required>
+              @if (formControlHasError('est')) {
+                <mat-error data-test="estError">
+                  {{getErrorMessage('est')}}
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
 </div>

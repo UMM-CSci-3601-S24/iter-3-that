@@ -1,16 +1,22 @@
 import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { HostService } from "../hosts/host.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Hunt } from "./hunt";
-import { MatFormField, MatLabel } from "@angular/material/form-field";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { CommonModule } from "@angular/common";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatOptionModule } from "@angular/material/core";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
 
 @Component ({
   selector: 'app-edit-hunt',
   templateUrl: './edit-hunt.component.html',
-  imports: [ReactiveFormsModule, MatFormField, MatLabel],
+  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
   standalone: true,
 })
 export class EditHuntComponent {
@@ -43,6 +49,7 @@ export class EditHuntComponent {
     ],
 
     description: [
+      { type: 'minlength', message: 'Description must be at least 1 character long'},
       { type: 'maxlength', message: 'Description cannot be more than 85 characters long' },
       { type: 'required', message: 'Description is required' }
     ],
