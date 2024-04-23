@@ -32,7 +32,6 @@ export class HuntCardComponent {
       this.router.navigate(['/startedHunts/', accessCode]);
     });
   }
-
   openEditDialog(): void {
     const dialogRef = this.dialog.open(EditHuntComponent, {
       width: '250px',
@@ -41,7 +40,6 @@ export class HuntCardComponent {
 
     dialogRef.afterClosed().subscribe(updatedHunt => {
       if (updatedHunt) {
-        // Replace the old hunt with the updated one
         this.hunt = updatedHunt;
       }
     });
