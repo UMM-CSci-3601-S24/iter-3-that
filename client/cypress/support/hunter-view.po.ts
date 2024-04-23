@@ -4,7 +4,6 @@ export class HunterViewPage {
   private readonly huntNofTasks = '.hunt-Nof-tasks';
   private readonly huntTimer = '.hunt-timer';
   private readonly huntTaskList = '.task-list';
-  private readonly hunterUploadImage = '.image-upload';
   private readonly HunterButton = '[name="hunter-button"]';
   private readonly HostButton = '[name="host-button"]';
   private readonly hostCardSelector = '.hunt-cards-container app-hunt-card';
@@ -15,6 +14,7 @@ export class HunterViewPage {
   private readonly joinHuntButtonSelector = '[name="join-button"]';
   private readonly captureImageButton = '.capture-image-button';
   private readonly cancelCaptureImageButton = '.cancel-capture-button';
+  private readonly snackBar = '.mat-mdc-snack-bar-label.mdc-snackbar__label';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -125,15 +125,6 @@ export class HunterViewPage {
   }
 
   /**
-   * Click the take picture button DOM element.
-   *
-   * @returns the value of the element.
-   */
-  clickTakePictureButton() {
-    return cy.get(this.takePictureButton).first().click();
-  }
-
-  /**
    * Get the position of the box in the access input field.
    *
    * @param index
@@ -187,4 +178,15 @@ export class HunterViewPage {
   clickCancelCaptureButton() {
     return cy.get(this.cancelCaptureImageButton).click();
   }
+
+  /**
+   * Get the snack bar DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getSnackBar() {
+    cy.wait(500);
+    return cy.get(this.snackBar);
+  }
+
 }
