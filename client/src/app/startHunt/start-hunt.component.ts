@@ -21,6 +21,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 })
 
 export class StartHuntComponent implements OnInit, OnDestroy {
+
   startedHunt: StartedHunt;
   huntBegun = false;
   error: { help: string, httpResponse: string, message: string };
@@ -96,4 +97,16 @@ export class StartHuntComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  returnPercent(progress: boolean[]): number {
+    let numTrue = 0;
+     for(const bool of progress)
+     {
+        if(bool)
+        {
+          numTrue++;
+        }
+     }
+     return ((numTrue * 100.0)/progress.length);
+    }
 }
