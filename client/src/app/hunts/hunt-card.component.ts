@@ -77,7 +77,7 @@ export class HuntCardComponent {
     const dialogRef = this.dialog.open(EditHuntComponent, {
       width: '500px',
       height: '500px',
-      data: { hunt: this.hunt }
+      data: { huntToEdit: this.hunt() }
     });
 
     dialogRef.afterClosed().subscribe(updatedHunt => {

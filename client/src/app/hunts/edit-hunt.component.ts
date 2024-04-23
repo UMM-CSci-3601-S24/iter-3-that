@@ -1,9 +1,9 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { HostService } from "../hosts/host.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router, RouterLink } from "@angular/router";
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { Hunt } from "./hunt";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { CommonModule } from "@angular/common";
@@ -17,31 +17,49 @@ import { MatSelectModule } from "@angular/material/select";
   selector: 'app-edit-hunt',
   templateUrl: './edit-hunt.component.html',
   styleUrls: ['./edit-hunt.component.scss'],
-  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
+  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule,
+    MatDialogTitle, MatDialogContent],
   standalone: true,
 })
-export class EditHuntComponent {
+export class EditHuntComponent implements OnInit {
 
-  editHuntForm = new FormGroup({
-    name: new FormControl('', Validators.compose([
-      //Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(50)
-    ])),
+  hunt: Hunt;
+  editHuntForm: FormGroup;
 
-    description: new FormControl('', Validators.compose([
-      //Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(85)
-    ])),
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public huntToEdit: { huntToEdit: Hunt },
+    private hostService: HostService,
+    private snackBar: MatSnackBar,
+    private router: Router)
+    {
+      this.hunt = huntToEdit.huntToEdit;
+  }
 
-    est: new FormControl<number>(null, Validators.compose([
-      //Validators.required,
-      Validators.min(0),
-      Validators.max(240),
-      Validators.pattern('^[0-9]+$')
-    ])),
-  });
+  ngOnInit(): void {
+    this.editHuntForm = new FormGroup({
+      name: new FormControl(this.hunt.name, Validators.compose([
+        //Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(50)
+      ])),
+
+      description: new FormControl(this.hunt.description, Validators.compose([
+        //Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(85)
+      ])),
+
+      est: new FormControl<number>(this.hunt.est, Validators.compose([
+        //Validators.required,
+        Validators.min(0),
+        Validators.max(240),
+        Validators.pattern('^[0-9]+$')
+      ])),
+    });
+
+  }
+
   readonly editHuntValidationMessages = {
     name: [
       //{ type: 'required', message: 'Name is required' },
@@ -63,14 +81,6 @@ export class EditHuntComponent {
     ]
   };
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: {width: number, hunt: Hunt},
-    private hostService: HostService,
-    private snackBar: MatSnackBar,
-    private router: Router)
-    {
-  }
-
   formControlHasError(controlName: string): boolean {
     return this.editHuntForm.get(controlName).invalid &&
       (this.editHuntForm.get(controlName).dirty || this.editHuntForm.get(controlName).touched);
@@ -86,7 +96,7 @@ export class EditHuntComponent {
   }
 
   submitForm() {
-    this.hostService.updateHunt(this.data.hunt._id, this.editHuntForm.value).subscribe({
+    this.hostService.updateHunt(this.hunt._id, this.editHuntForm.value).subscribe({
       next: (newId) => {
         this.snackBar.open(
           `Edited hunt ${this.editHuntForm.value.name}`,
