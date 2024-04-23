@@ -41,7 +41,7 @@ export class CreateTeamComponent {
   });
 
   readonly createTeamValidationMessages = {
-    name: [
+    teamName: [
       { type: 'required', message: 'Team name is required' },
       { type: 'minlength', message: 'Team name must be at least 1 character long' },
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
@@ -54,17 +54,6 @@ export class CreateTeamComponent {
   };
 
   constructor(private hostService: HostService, private route: ActivatedRoute, private router: Router, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) {
-  }
-
-  createTeam(): void {
-    if (this.teamForm.valid) {
-
-      this.hostService.createTeam(this.teamForm.value).subscribe(response => {
-        this.router.navigate(['/team', response]);
-      }, error => {
-        console.error('Error creating team:', error);
-      });
-    }
   }
 
   formControlHasError(controlName: string): boolean {

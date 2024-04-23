@@ -12,7 +12,7 @@
               <input matInput formControlName="teamName" required>
               @if (formControlHasError('teamName')) {
                 <mat-error data-test="nameError">
-                  {{getErrorMessage('name')}}
+                  {{getErrorMessage('teamName')}}
                 </mat-error>
               }
             </mat-form-field>
