@@ -23,7 +23,6 @@ import { MatSelectModule } from "@angular/material/select";
   standalone: true,
 })
 export class EditHuntComponent implements OnInit {
-
   hunt: Hunt;
   editHuntForm: FormGroup;
 
@@ -97,13 +96,15 @@ export class EditHuntComponent implements OnInit {
 
   submitForm() {
     this.hostService.updateHunt(this.hunt._id, this.editHuntForm.value).subscribe({
-      next: (newId) => {
+      next: () => {
         this.snackBar.open(
           `Edited hunt ${this.editHuntForm.value.name}`,
           null,
           { duration: 2000 }
         );
-        this.router.navigate(['/hunts/', newId]);
+        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/hosts']);
+        });
       },
       error: err => {
         this.snackBar.open(
@@ -113,5 +114,9 @@ export class EditHuntComponent implements OnInit {
         );
       },
     });
+  }
+
+  navigateToHosts() {
+    this.router.navigate(['/hosts'])
   }
 }
