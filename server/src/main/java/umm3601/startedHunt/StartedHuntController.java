@@ -276,6 +276,7 @@ public class StartedHuntController implements Controller {
 
   public void getEndedHunt(Context ctx) {
     EndedHunt endedHunt = new EndedHunt();
+    endedHunt.finishedTasks = new ArrayList<>();
     endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", ctx.pathParam("id"))).into(new ArrayList<>());
     for (TeamHunt teamHunt : endedHunt.teamHunts) {
       endedHunt.finishedTasks.addAll(getFinishedTasks(teamHunt.tasks));

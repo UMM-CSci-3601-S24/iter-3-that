@@ -156,25 +156,25 @@ class HuntControllerSpec {
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a cat")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a dog")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a park")
             .append("status", true)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", "differentId")
             .append("name", "Take a picture of a moose")
             .append("status", true)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -182,7 +182,7 @@ class HuntControllerSpec {
         .append("huntId", "someId")
         .append("name", "Best Task")
         .append("status", false)
-        .append("photos", new ArrayList<String>());
+        .append("photo", null);
 
     taskDocuments.insertMany(testTasks);
     taskDocuments.insertOne(task);
@@ -500,7 +500,7 @@ class HuntControllerSpec {
     assertEquals("New Task", addedTask.get("name"));
     assertEquals("bestHuntId", addedTask.get("huntId"));
     assertEquals(false, addedTask.get("status"));
-    assertEquals(new ArrayList<String>(), addedTask.get("photos"));
+    assertEquals(null, addedTask.get("photo"));
   }
 
   @Test
