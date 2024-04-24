@@ -113,7 +113,6 @@ public class StartedHuntController implements Controller {
 
   public void deleteStartedHunt(Context ctx) {
     String id = ctx.pathParam("id");
-    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(id))).first();
     DeleteResult deleteResult = startedHuntCollection.deleteOne(eq("_id", new ObjectId(id)));
     if (deleteResult.getDeletedCount() != 1) {
       ctx.status(HttpStatus.NOT_FOUND);
@@ -124,8 +123,13 @@ public class StartedHuntController implements Controller {
     }
     ctx.status(HttpStatus.OK);
 
-    for (Task task : startedHunt.completeHunt.tasks) {
-      deletePhoto(task.photo, ctx);
+    for (TeamHunt teamHunt : teamHuntCollection.find(eq("startedHuntId", id)).into(new ArrayList<>())) {
+      for (Task task : teamHunt.tasks) {
+        if (task.photo != null) {
+          deletePhoto(task.photo, ctx);
+        }
+      }
+      deleteTeamHunt(teamHunt._id);
     }
   }
 
@@ -177,6 +181,16 @@ public class StartedHuntController implements Controller {
       throw new NotFoundResponse("The requested team hunt was not found");
     } else {
       return teamHunt;
+    }
+  }
+
+  public void deleteTeamHunt(String id) {
+    DeleteResult deleteResult = teamHuntCollection.deleteOne(eq("_id", new ObjectId(id)));
+    if (deleteResult.getDeletedCount() != 1) {
+      throw new NotFoundResponse(
+          "Was unable to delete ID "
+              + id
+              + "; perhaps illegal ID or an ID for an item not in the system?");
     }
   }
 
