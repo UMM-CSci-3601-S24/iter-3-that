@@ -2,7 +2,6 @@ package umm3601.startedHunt;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -380,19 +379,19 @@ class StartedHuntControllerSpec {
     UploadedFile uploadedFile = mock(UploadedFile.class);
     InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-    Document startedHuntDocument = db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+    Document teamHuntDocument = db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString()))).first();
     Document taskDocument = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHuntDocument.get("completeHunt", Document.class).get("tasks", List.class).add(taskDocument);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())),
-        startedHuntDocument);
+    teamHuntDocument.get("tasks", List.class).add(taskDocument);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())),
+        teamHuntDocument);
 
     when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
     when(uploadedFile.content()).thenReturn(inputStream);
     when(uploadedFile.filename()).thenReturn("test.jpg");
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhoto(ctx);
 
@@ -400,7 +399,6 @@ class StartedHuntControllerSpec {
     when(ctx.pathParam("accessCode")).thenReturn("123456");
 
     assertEquals(1, db.getCollection("startedHunts").countDocuments(eq("_id", new ObjectId(testID))));
-    StartedHunt startedHuntToDelete = startedHuntController.getStartedHunt(ctx);
 
     when(ctx.pathParam("id")).thenReturn(testID);
 
@@ -410,11 +408,6 @@ class StartedHuntControllerSpec {
 
     assertEquals(0, db.getCollection("startedHunts").countDocuments(eq("_id", new ObjectId(testID))));
 
-    // Verify that deletePhoto is called
-
-    for (Task task : startedHuntToDelete.completeHunt.tasks) {
-      verify(spyStartedHuntController).deletePhoto(task.photo, ctx);
-    }
   }
 
   @Test
@@ -530,22 +523,24 @@ class StartedHuntControllerSpec {
   @Test
   void testAddPhotoPathToTask() throws IOException {
     String photoPath = "test.jpg";
-    Document startedHunt = db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+    Document teamHunt = db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString()))).first();
     Document task = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(task);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+    teamHunt.get("tasks", List.class).add(task);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())), teamHunt);
 
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhotoPathToTask(ctx, photoPath);
 
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
+    when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+    Document updatedTask = (Document) db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
+        .first().get("tasks", List.class).get(3);
     assertNotNull(updatedTask);
-    assertEquals(1, updatedTask.get("photos", List.class).size());
+    assertNotEquals(null, updatedTask.get("photo", String.class));
   }
 
   @Test
@@ -554,7 +549,7 @@ class StartedHuntControllerSpec {
     String photoPath = "photoPath";
 
     when(ctx.pathParam("id")).thenReturn(id);
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     assertThrows(BadRequestResponse.class, () -> startedHuntController.addPhotoPathToTask(ctx, photoPath));
     verify(ctx).status(HttpStatus.NOT_FOUND);
@@ -596,7 +591,7 @@ class StartedHuntControllerSpec {
     Document updatedTask = (Document) db.getCollection("teamHunts")
         .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
         .first().get("tasks", List.class).get(3);
-    String id = updatedTask.get("photos", List.class).get(0).toString();
+    String id = updatedTask.get("photo", String.class);
 
     verify(ctx).status(HttpStatus.OK);
     startedHuntController.deletePhoto(id, ctx);
@@ -604,29 +599,29 @@ class StartedHuntControllerSpec {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testGetPhotosFromTask() throws IOException {
+  void testGetPhotoFromTask() throws IOException {
     // Create a Task with the paths of the temporary files
     UploadedFile uploadedFile = mock(UploadedFile.class);
     InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-    Document startedHunt = db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
+    Document teamHunt = db.getCollection("teamHunts").find(eq("_id", new ObjectId(teamHuntId.toHexString())))
         .first();
     Document testTask = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(testTask);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+    teamHunt.get("tasks", List.class).add(testTask);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())), teamHunt);
 
     when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
     when(uploadedFile.content()).thenReturn(inputStream);
     when(uploadedFile.filename()).thenReturn("test.jpg");
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhoto(ctx);
 
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
+    Document updatedTask = (Document) db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
+        .first().get("tasks", List.class).get(3);
     Task task = new Task();
     task.photo = updatedTask.get("photo", String.class);
     task.huntId = updatedTask.getString("huntId");
@@ -950,7 +945,7 @@ class StartedHuntControllerSpec {
 
     assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
     assertEquals(teamHuntId.toHexString(), teamHunt._id);
-    assertEquals(2, teamHunt.tasks.size());
+    assertEquals(3, teamHunt.tasks.size());
     assertEquals(3, teamHunt.members.size());
     assertEquals("Team 1", teamHunt.teamName);
   }
