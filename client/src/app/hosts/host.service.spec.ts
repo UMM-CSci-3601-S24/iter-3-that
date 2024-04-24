@@ -6,6 +6,7 @@ import { Hunt } from '../hunts/hunt';
 import { Task } from '../hunts/task';
 import { HostService } from './host.service';
 import { StartedHunt } from '../startHunt/startedHunt';
+import { TeamHunt } from '../hunters/join-hunt/teamHunt';
 
 describe('HostService', () => {
 const testHunts: Hunt[] = [
@@ -85,6 +86,30 @@ const testStartedHunts: StartedHunt[] = [
     accessCode: "9012",
   },
 
+];
+
+const testTeamHunts: TeamHunt[] = [
+  {
+    _id: "5889",
+    startedHuntId: "588",
+    teamName: "Default Team 1",
+    members: ["Joe", "Bob", "Sue"],
+    tasks: testTasks,
+  },
+  {
+    _id: "5754",
+    startedHuntId: "575",
+    teamName: "Default Team 2",
+    members: ["Ely"],
+    tasks: testTasks,
+  },
+  {
+    _id: "de7c",
+    startedHuntId: "e7c",
+    teamName: "Default Team 3",
+    members: ["Ben"],
+    tasks: testTasks,
+  },
 ];
 
 let hostService: HostService;
@@ -229,14 +254,14 @@ describe('When getHunts() is called', () => {
 
       const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetStartedHunt.accessCode));
 
-        hostService.startHunt(targetId).subscribe(() => {
+        hostService.startHunt(targetId, 1).subscribe(() => {
           expect(mockedMethod)
             .withContext('one call')
             .toHaveBeenCalledTimes(1);
 
           expect(mockedMethod)
             .withContext('talks to the correct endpoint')
-            .toHaveBeenCalledWith(`${hostService.startHuntUrl}/${targetId}`);
+            .toHaveBeenCalledWith(`${hostService.startHuntUrl}/${targetId}/teams/1`);
         });
       }));
     });
@@ -256,6 +281,27 @@ describe('When getHunts() is called', () => {
         expect(mockedMethod)
           .withContext('talks to the correct endpoint')
           .toHaveBeenCalledWith(`${hostService.startedHuntUrl}/${targetAccessCode}`);
+      });
+    }));
+  });
+
+  describe("When createTeam() is given an partial TeamHunt", () => {
+    it('talks to the right endpoint and is called once', waitForAsync(() => {
+      const teamHunt_id = 'pat_id';
+      const expected_http_response = { id: teamHunt_id } ;
+
+      const mockedMethod = spyOn(httpClient, 'post')
+        .and
+        .returnValue(of(expected_http_response));
+
+      hostService.createTeam(testTeamHunts[1]).subscribe((new_teamHunt_id) => {
+        expect(new_teamHunt_id).toBe(teamHunt_id);
+        expect(mockedMethod)
+          .withContext('one call')
+          .toHaveBeenCalledTimes(1);
+        expect(mockedMethod)
+          .withContext('talks to the correct endpoint')
+          .toHaveBeenCalledWith(hostService.teamUrl, testTeamHunts[1]);
       });
     }));
   });
@@ -385,6 +431,44 @@ describe('When getHunts() is called', () => {
 
         const formData: FormData = args[1];
         expect(formData.get('photo')).toEqual(photo);
+      });
+    }));
+  });
+
+  describe('When getTeamHunt() is given an ID', () => {
+    it('calls api/teams/id with the correct ID', waitForAsync(() => {
+      const targetTeamHunt: TeamHunt = testTeamHunts[1];
+      const targetId: string = targetTeamHunt._id;
+
+      const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetTeamHunt));
+
+      hostService.getTeamHunt(targetId).subscribe(() => {
+        expect(mockedMethod)
+          .withContext('one call')
+          .toHaveBeenCalledTimes(1);
+
+        expect(mockedMethod)
+          .withContext('talks to the correct endpoint')
+          .toHaveBeenCalledWith(`${hostService.teamUrl}/${targetId}`);
+      });
+    }));
+  });
+
+  describe('When getEndedHuntById() is given an ID', () => {
+    it('calls api/endedHunts/id with the correct ID', waitForAsync(() => {
+      const targetEndedHunt: StartedHunt = testStartedHunts[1];
+      const targetId: string = targetEndedHunt._id;
+
+      const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetEndedHunt));
+
+      hostService.getEndedHuntById(targetId).subscribe(() => {
+        expect(mockedMethod)
+          .withContext('one call')
+          .toHaveBeenCalledTimes(1);
+
+        expect(mockedMethod)
+          .withContext('talks to the correct endpoint')
+          .toHaveBeenCalledWith(`${hostService.endedHuntsUrl}/${targetId}`);
       });
     }));
   });

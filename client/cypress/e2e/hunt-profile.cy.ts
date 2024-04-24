@@ -36,6 +36,7 @@ describe('Hunt Profile', () => {
   })
 
   it('should display the Begin Hunt button and click it go to the started hunt page', () => {
+    page.getFormField('numTeam').type('2', {force: true});
     page.getHuntCardBeginHuntButton().should('exist');
     page.getHuntCardBeginHuntButton().click();
     page.getAccessCode().then((accessCode) => {
