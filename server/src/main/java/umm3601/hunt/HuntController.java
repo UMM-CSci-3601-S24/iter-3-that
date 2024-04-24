@@ -150,7 +150,7 @@ public class HuntController implements Controller {
         .check(task -> task.name.length() > 0, "Name must be at least 1 character")
         .get();
 
-    newTask.photos = new ArrayList<String>();
+    newTask.photo = null;
 
     taskCollection.insertOne(newTask);
     increaseTaskCount(newTask.huntId);
