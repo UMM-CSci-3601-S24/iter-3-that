@@ -3,12 +3,11 @@ package umm3601.startedHunt;
 import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.UuidRepresentation;
-import org.bson.types.ObjectId;
+// import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Enumeration;
+
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import com.mongodb.client.MongoDatabase;
 
 import io.javalin.Javalin;
-import io.javalin.http.BadRequestResponse;
+// import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
@@ -65,9 +64,11 @@ public void getTeamHuntsByInviteCode(Context ctx) {
     throw new NotFoundResponse("The requested startedHunt was not found " + inviteCode);
   }
 
-  String startedHuntId = startedHunt._id;
+  String startedHuntId = startedHunt._id.toString();
 
   TeamHunt[] teamHuntsArray = getTeamHuntsByStartedHuntId(startedHuntId);
+
+  //System.err.println("teamHunt names " + teamHuntsArray[1].teamName);
 
   ctx.json(teamHuntsArray);
   ctx.status(HttpStatus.OK);
@@ -76,8 +77,11 @@ public void getTeamHuntsByInviteCode(Context ctx) {
 
 
 private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
+
   ArrayList<TeamHunt> teamHunts = TeamHuntCollection.find(eq(STARTED_HUNT_ID_KEY, startedHuntId)).into(new ArrayList<>());
+
   TeamHunt[] teamHuntsArray = teamHunts.toArray(new TeamHunt[0]);
+  //System.err.println("teamHunt names in privet method" + teamHuntsArray[1].teamName);
   return(teamHuntsArray);
 }
 
