@@ -260,5 +260,46 @@ describe('HunterViewComponent', () => {
 
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it('should stop all tracks if stream exists', () => {
+    const track = jasmine.createSpyObj('track', ['stop']);
+    component.stream = { getTracks: () => [track] } as MediaStream;
+
+    component.switchCamera();
+
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it('should switch between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.currentDeviceIndex).toBe(1);
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ video: { deviceId: '2' } });
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
 });
 
