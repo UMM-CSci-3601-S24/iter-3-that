@@ -178,4 +178,9 @@ describe('CreateTeamComponent', () => {
     const members = createTeamComponent.teamForm.get('members') as FormArray;
     expect(members.length).toBe(1);
   });
+
+  it('should return Unknown error if the error type is not recognized', () => {
+    createTeamComponent.teamForm.get('teamName').setErrors({ unknown: true });
+    expect(createTeamComponent.getErrorMessage('teamName')).toBe('Unknown error');
+  });
 });
