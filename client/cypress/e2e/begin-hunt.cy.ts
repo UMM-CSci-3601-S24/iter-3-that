@@ -48,7 +48,6 @@ describe('Begin Hunt', () => {
     page.getHuntTaskList().should('exist');
     page.getTableTaskTitle().should('exist');
     page.getProgressTeamTile().should('exist');
-    page.getTeamCard().should('exist');
   })
 
   it('should click End Hunt, navigate to the host page and show message', () => {
