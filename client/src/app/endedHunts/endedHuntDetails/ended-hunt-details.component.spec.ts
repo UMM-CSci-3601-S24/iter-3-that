@@ -56,19 +56,19 @@ describe('EndedHuntDetailsComponent', () => {
               _id: '1', name: 'Task 1',
               huntId: '',
               status: false,
-              photos: []
+              photo: ''
             },
             {
               _id: '2', name: 'Task 2',
               huntId: '',
               status: false,
-              photos: []
+              photo: ''
             },
             {
               _id: '3', name: 'Task 3',
               huntId: '',
               status: false,
-              photos: []
+              photo: ''
             }
           ],
           hunt: undefined

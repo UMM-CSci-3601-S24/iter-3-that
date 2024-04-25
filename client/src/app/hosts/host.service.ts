@@ -20,7 +20,7 @@ export class HostService {
   readonly startedHuntUrl: string = `${environment.apiUrl}startedHunts`;
   readonly endHuntUrl: string = `${environment.apiUrl}endHunt`;
   readonly endedHuntsUrl: string = `${environment.apiUrl}endedHunts`;
-  readonly endedHuntUrl: string = `${environment.apiUrl}startedHunt`;
+  readonly endedHuntUrl: string = `${environment.apiUrl}teamHunt`;
   readonly teamUrl: string = `${environment.apiUrl}teamHunts`;
 
   constructor(private httpClient: HttpClient){
@@ -82,20 +82,18 @@ export class HostService {
     return this.httpClient.delete<void>(`${this.endedHuntsUrl}/${id}`);
   }
 
-  submitPhoto(startedHuntId: string, taskId: string, photo: File): Observable<string> {
+  submitPhoto(teamHuntId: string, taskId: string, photo: File): Observable<string> {
     const formData = new FormData();
     formData.append('photo', photo);
-    return this.httpClient.post<{id: string}>(`${this.endedHuntUrl}/${startedHuntId}/tasks/${taskId}/photo`, formData).pipe(map(result => result.id));
-  }
-
-  replacePhoto(startedHuntId: string, taskId: string, photoPath: string, photo: File): Observable<string> {
-    const formData = new FormData();
-    formData.append('photo', photo);
-    return this.httpClient.put<{id: string}>(`${this.endedHuntUrl}/${startedHuntId}/tasks/${taskId}/photo/${photoPath}`, formData).pipe(map(result => result.id));
+    return this.httpClient.post<{id: string}>(`${this.endedHuntUrl}/${teamHuntId}/tasks/${taskId}/photo`, formData).pipe(map(result => result.id));
   }
 
   getEndedHuntById(id: string): Observable<EndedHunt> {
     return this.httpClient.get<EndedHunt>(`${this.endedHuntsUrl}/${id}`);
+  }
+
+  updateHunt(id: string, updatedHunt: Partial<Hunt>): Observable<Hunt> {
+    return this.httpClient.put<Hunt>(`${this.huntUrl}/${id}`, updatedHunt);
   }
 
 }

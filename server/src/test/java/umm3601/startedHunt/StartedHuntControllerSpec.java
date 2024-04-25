@@ -98,6 +98,9 @@ class StartedHuntControllerSpec {
   private ArgumentCaptor<EndedHunt> finishedHuntCaptor;
 
   @Captor
+  private ArgumentCaptor<TeamHunt> teamHuntCaptor;
+
+  @Captor
   private ArgumentCaptor<Map<String, String>> mapCaptor;
 
   @BeforeAll
@@ -946,11 +949,11 @@ class StartedHuntControllerSpec {
     String id = teamHuntId.toHexString();
     when(ctx.pathParam("id")).thenReturn(id);
 
-    TeamHunt teamHunt = startedHuntController.getTeamHunt(ctx);
+    startedHuntController.getTeamHunt(ctx);
 
     assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
     assertEquals(teamHuntId.toHexString(), teamHunt._id);
-    assertEquals(3, teamHunt.tasks.size());
+    assertEquals(2, teamHunt.tasks.size());
     assertEquals(3, teamHunt.members.size());
     assertEquals("Team 1", teamHunt.teamName);
   }
@@ -963,7 +966,8 @@ class StartedHuntControllerSpec {
       startedHuntController.getTeamHunt(ctx);
     });
 
-    assertEquals("The requested team id wasn't a legal Mongo Object ID.", exception.getMessage());
+    ctx.status(HttpStatus.BAD_REQUEST);
+    assertEquals("The requested team id 'bad' wasn't a legal Mongo Object ID.", exception.getMessage());
   }
 
   @Test
@@ -975,7 +979,8 @@ class StartedHuntControllerSpec {
       startedHuntController.getTeamHunt(ctx);
     });
 
-    assertEquals("The requested team hunt was not found", exception.getMessage());
+    ctx.status(HttpStatus.NOT_FOUND);
+    assertEquals("The requested team hunt with id '588935f5c668650dc77df581' was not found", exception.getMessage());
   }
 
   @Test
