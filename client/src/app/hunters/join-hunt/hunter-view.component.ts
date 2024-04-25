@@ -28,6 +28,10 @@ export class HunterViewComponent implements OnInit, OnDestroy {
   tasks: Task[] = [];
   error: { help: string, httpResponse: string, message: string };
   imageUrls = {};
+  currentDeviceId: string;
+  videoDevices: MediaDeviceInfo[] = [];
+  currentDeviceIndex = 0;
+  currentFacingMode: string = 'user';
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -70,9 +74,13 @@ export class HunterViewComponent implements OnInit, OnDestroy {
             message: _err.error?.title,
           };
         }
-      });
+    });
 
     this.checkPermission();
+
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      this.videoDevices = devices.filter(device => device.kind === 'videoinput');
+    });
   }
 
   ngOnDestroy(): void {
@@ -165,4 +173,47 @@ export class HunterViewComponent implements OnInit, OnDestroy {
       window.open(imageUrl, '_blank');
     }
   }
+
+  switchCamera() {
+    if (this.stream) {
+      // Stop all tracks of the current stream before requesting a new one
+      this.stream.getTracks().forEach(track => track.stop());
+    }
+
+    if (this.videoDevices.length > 1) {
+      // If there are multiple video devices, switch between them
+      this.currentDeviceIndex = (this.currentDeviceIndex + 1) % this.videoDevices.length;
+      const deviceId = this.videoDevices[this.currentDeviceIndex].deviceId;
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          deviceId: deviceId
+        }
+      })
+        .then(stream => {
+          this.stream = stream;
+        })
+        .catch(err => {
+          console.error(err);
+          this.stream = null;
+        });
+    } else {
+      // If there is only one video device, switch between 'user' and 'environment'
+      this.currentFacingMode = this.currentFacingMode === 'user' ? 'environment' : 'user';
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: this.currentFacingMode
+        }
+      })
+        .then(stream => {
+          this.stream = stream;
+        })
+        .catch(err => {
+          console.error(err);
+          this.stream = null;
+        });
+    }
+  }
+
 }

@@ -207,5 +207,98 @@ describe('HunterViewComponent', () => {
 
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it('should stop all tracks if stream exists', () => {
+    const track = jasmine.createSpyObj('track', ['stop']);
+    component.stream = { getTracks: () => [track] } as MediaStream;
+
+    component.switchCamera();
+
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it('should switch between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.currentDeviceIndex).toBe(1);
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ video: { deviceId: '2' } });
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
+
+  it('should set stream when getUserMedia resolves', (done) => {
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
+
+  it('should set stream to null when getUserMedia rejects', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
+  });
+
+  it('should handle getUserMedia error when switching between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
+  });
 });
 

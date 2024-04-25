@@ -732,4 +732,12 @@ class HuntControllerSpec {
     Document startedHunt = db.getCollection("startedHunts").find(eq("hunt._id", new ObjectId(testID))).first();
     assertNull(startedHunt);
   }
+
+  @Test
+  void updateHuntWithInvalidId() {
+    String id = "invalid id";
+    when(ctx.pathParam("id")).thenReturn(id);
+    HuntController huntControl = new HuntController(db);
+    assertThrows(BadRequestResponse.class, () -> huntControl.updateHunt(ctx));
+  }
 }
