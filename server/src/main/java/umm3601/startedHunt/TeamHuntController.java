@@ -67,7 +67,7 @@ public void getTeamHuntsByInviteCode(Context ctx) {
     throw new NotFoundResponse("The requested startedHunt was not found " + inviteCode);
   }
 
-  String startedHuntId = startedHunt._id.toString();
+  String startedHuntId = startedHunt._id;
 
   TeamHunt[] teamHuntsArray = getTeamHuntsByStartedHuntId(startedHuntId);
 
@@ -106,6 +106,7 @@ private void updateTeamHuntsViaWebsocket(String startedHuntId) {
   }
 }
 
+@Override
 public void addRoutes(Javalin server) {
   //get all teamhunts for a started hunt
   server.get(API_TEAMHUNTS_BY_INVITE_CODE, this::getTeamHuntsByInviteCode);
