@@ -82,28 +82,6 @@
   }
 }
 
-.return-to-hunts {
-  background-color: #007bff6e;
-  border-radius: 5px;
-  padding: 10px 10px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  margin-right: 10px;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: #00ccff;
-  }
-}
-
-.return-to-hunts:hover {
-  background-color: #007bff;
-  color: white;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: #00ccff;
-  }
-}
-
 .begin-hunt {
   background-color: #007bff6e;
   border-radius: 5px;

@@ -4,6 +4,9 @@
     @if (completeHunt) {
       <app-hunt-card class="hunt-card" [hunt]="this.completeHunt.hunt" [simple]="false">
       </app-hunt-card>
+      <mat-card-actions class="button-container">
+        <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
+      </mat-card-actions>
       <ol class="task-list">
         <mat-card-title class="tasks-title">Tasks</mat-card-title>
         @for (task of this.completeHunt.tasks; track task._id) {

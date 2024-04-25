@@ -20,7 +20,6 @@
         }
         @else {
           <mat-card-actions class="button-container">
-            <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
             <form [formGroup]="NumberofTeamsForm">
               <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
               <mat-form-field>
