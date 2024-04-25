@@ -188,7 +188,7 @@ public class StartedHuntController implements Controller {
     DeleteResult deleteResult = teamHuntCollection.deleteOne(eq("_id", new ObjectId(id)));
     if (deleteResult.getDeletedCount() != 1) {
       throw new NotFoundResponse(
-          "Was unable to delete ID "
+          "Was unable to delete team hunt with ID "
               + id
               + "; perhaps illegal ID or an ID for an item not in the system?");
     }

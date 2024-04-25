@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -973,4 +974,23 @@ class StartedHuntControllerSpec {
     assertEquals("The requested team hunt was not found", exception.getMessage());
   }
 
+  @Test
+  void deleteFoundTeamHunt() throws IOException {
+    String id = teamHuntId.toHexString();
+
+    startedHuntController.deleteTeamHunt(id);
+
+    assertEquals(0, db.getCollection("teamHunts").countDocuments(eq("_id", new ObjectId(id))));
+  }
+
+  @Test
+  public void testDeleteTeamHuntNotFound() {
+    String id = "6629834cfe108543ff502ca3";
+
+    Throwable exception = assertThrows(NotFoundResponse.class, () -> {
+      startedHuntController.deleteTeamHunt(id);
+    });
+
+    assertTrue(exception.getMessage().contains("Was unable to delete team hunt with ID 6629834cfe108543ff502ca3"));
+  }
 }
