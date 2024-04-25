@@ -198,3 +198,17 @@
     background-color: black;
   }
 }
+
+.edit-hunt-button {
+  background-color: transparent;
+  color: #007bff6e;
+  border-radius: 5px;
+  padding: 10px 10px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: transparent;
+  }
+}
