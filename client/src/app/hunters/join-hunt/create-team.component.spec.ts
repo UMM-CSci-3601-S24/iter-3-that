@@ -124,7 +124,7 @@ describe('CreateTeamComponent', () => {
 
     expect(mockHostService.createTeam).toHaveBeenCalledWith(createTeamComponent.teamForm.value);
     expect(mockSnackBar.open).toHaveBeenCalledWith('Team created successfully', 'Close', { duration: 5000 });
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/team', '123']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/team/', '123']);
   });
 
   describe('formControlHasError', () => {
