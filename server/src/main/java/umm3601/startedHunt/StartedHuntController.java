@@ -76,14 +76,17 @@ public class StartedHuntController implements Controller {
 
     // Validate the access code
     if (accessCode.length() != ACCESS_CODE_LENGTH || !accessCode.matches("\\d+")) {
+      ctx.status(HttpStatus.BAD_REQUEST);
       throw new BadRequestResponse("The requested access code is not a valid access code.");
     }
 
     startedHunt = startedHuntCollection.find(eq("accessCode", accessCode)).first();
 
     if (startedHunt == null) {
+      ctx.status(HttpStatus.NOT_FOUND);
       throw new NotFoundResponse("The requested access code was not found.");
     } else if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
       throw new BadRequestResponse("The requested hunt is no longer joinable.");
     } else {
       ctx.json(startedHunt);
@@ -175,14 +178,15 @@ public class StartedHuntController implements Controller {
     try {
       teamHunt = teamCollection.find(eq("_id", new ObjectId(id))).first();
     } catch (IllegalArgumentException e) {
-      throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The requested team id '" + id + "' wasn't a legal Mongo Object ID.");
     }
     if (teamHunt == null) {
-      throw new NotFoundResponse("The requested team hunt was not found");
-    } else {
-      ctx.json(teamHunt);
-      ctx.status(HttpStatus.OK);
+      ctx.status(HttpStatus.NOT_FOUND);
+      throw new NotFoundResponse("The requested team hunt with id '" + id + "' was not found");
     }
+    ctx.json(teamHunt);
+    ctx.status(HttpStatus.OK);
   }
 
   public void addPhoto(Context ctx) {
