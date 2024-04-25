@@ -737,6 +737,7 @@ class HuntControllerSpec {
   void updateHuntWithInvalidId() {
     String id = "invalid id";
     when(ctx.pathParam("id")).thenReturn(id);
-    assertThrows(BadRequestResponse.class, () -> HuntController.updateHunt(ctx));
+    HuntController huntControl = new HuntController(db);
+    assertThrows(BadRequestResponse.class, () -> huntControl.updateHunt(ctx));
   }
 }

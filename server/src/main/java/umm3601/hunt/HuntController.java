@@ -10,6 +10,8 @@ import umm3601.Controller;
 import umm3601.startedHunt.StartedHunt;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,9 +28,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
-import static com.mongodb.client.model.Updates.*;
 
 public class HuntController implements Controller {
 
@@ -259,10 +259,10 @@ public class HuntController implements Controller {
           set("name", updatedHunt.name),
           set("description", updatedHunt.description),
           set("est", updatedHunt.est));
-
-          FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().upsert(false).returnDocument(ReturnDocument.AFTER);
+          FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+          options.upsert(false);
+          options.returnDocument(ReturnDocument.AFTER);
       Hunt hunt = huntCollection.findOneAndUpdate(filter, updateOperation, options);
-
       if (hunt == null) {
         throw new NotFoundResponse("The requested hunt was not found");
       } else {
