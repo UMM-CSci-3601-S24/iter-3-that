@@ -28,8 +28,8 @@ import umm3601.Controller;
 //none of this will work until teamhunts is merged with main or merged into the branch
 
 public class TeamHuntController implements Controller {
-  private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamhunts/{invitecode}";
-  private static final String TEAMHUNT_UPDATES_WEBSOCKET = "ws/teamhunts{startedhuntid}";
+  private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamHunts/{invitecode}";
+  private static final String TEAMHUNT_UPDATES_WEBSOCKET = "ws/teamHunts/{startedhuntid}";
 
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
@@ -77,7 +77,7 @@ public void getTeamHuntsByInviteCode(Context ctx) {
 
 private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
   ArrayList<TeamHunt> teamHunts = TeamHuntCollection.find(eq(STARTED_HUNT_ID_KEY, startedHuntId)).into(new ArrayList<>());
-  TeamHunt[] teamHuntsArray = (TeamHunt[]) teamHunts.toArray();
+  TeamHunt[] teamHuntsArray = teamHunts.toArray(new TeamHunt[0]);
   return(teamHuntsArray);
 }
 

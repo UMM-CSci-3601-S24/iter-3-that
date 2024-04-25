@@ -3,7 +3,7 @@
     "_id": {
       "$oid": "588935f37587a2daea54de7c"
     },
-    "startedHuntId": "588935f",
+    "startedHuntId": "588935f57547a2daea54de7c",
     "teamName": "John Doe",
     "members": [
       "John Doe",

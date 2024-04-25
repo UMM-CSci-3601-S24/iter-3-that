@@ -22,6 +22,7 @@ export class HostService {
   readonly endedHuntsUrl: string = `${environment.apiUrl}endedHunts`;
   readonly endedHuntUrl: string = `${environment.apiUrl}startedHunt`;
   readonly teamUrl: string = `${environment.apiUrl}team`;
+  readonly teamHuntUrl: string = `${environment.apiUrl}teamHunts`;
 
   private team: TeamHunt = null;
 
@@ -69,16 +70,12 @@ export class HostService {
     return this.httpClient.get<StartedHunt>(`${this.startedHuntUrl}/${accessCode}`);
   }
 
-  getTeamHunt(id: string): Observable<TeamHunt> {
-    return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
-  }
-
   getTeamsByCode (accessCode: string): Observable<TeamHunt[]> {
-    return this.httpClient.get<TeamHunt[]>(`${this.teamUrl}/${accessCode}`);
+    return this.httpClient.get<TeamHunt[]>(`${this.teamHuntUrl}/${accessCode}`);
   }
 
   createTeam(teamName: string, memberNames: string[]): Observable<TeamHunt> {
-    return this.httpClient.post<TeamHunt>(this.teamUrl, { teamName, memberNames });
+    return this.httpClient.post<TeamHunt>(this.teamHuntUrl, { teamName, memberNames });
   }
 
   // This is a put request that ends the hunt by setting its status to false
