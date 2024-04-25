@@ -61,7 +61,7 @@ public class TeamHuntController implements Controller {
 
 public void getTeamHuntsByInviteCode(Context ctx) {
   String inviteCode = ctx.pathParam("invitecode");
-  StartedHunt startedHunt = startedHuntCollection.find(eq( INVITE_CODE_KEY, inviteCode)).first();
+  StartedHunt startedHunt = startedHuntCollection.find(eq(INVITE_CODE_KEY, inviteCode)).first();
 
   if (startedHunt == null) {
     throw new NotFoundResponse("The requested startedHunt was not found " + inviteCode);
