@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Task } from "../hunts/task";
+import { TeamHunt } from "../hunters/join-hunt/teamHunt";
 
 
 @Component({
@@ -23,16 +24,9 @@ import { Task } from "../hunts/task";
 
 export class StartHuntComponent implements OnInit, OnDestroy {
   startedHunt: StartedHunt;
+  hunterTeams: TeamHunt[];
   huntBegun = false;
   error: { help: string, httpResponse: string, message: string };
-  teams = [
-    { name: 'Team Duran', progress: 80 },
-    { name: 'Team Dussan', progress: 30 },
-    { name: 'Team This', progress: 60 },
-    { name: 'Team That', progress: 50 },
-    { name: 'Team Win', progress: 90 },
-    { name: 'Team Lose', progress: 25 },
-  ];
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -61,6 +55,28 @@ export class StartHuntComponent implements OnInit, OnDestroy {
         };
       }
     });
+
+    this.route.paramMap.pipe(
+
+      map((paramMap: ParamMap) => paramMap.get('accessCode')),
+
+      switchMap((accessCode: string) => this.hostService.getTeamsByCode(accessCode)),
+
+      takeUntil(this.ngUnsubscribe)
+    ).subscribe({
+      next: hunters => {
+        this.hunterTeams = hunters;
+        console.log(this.hunterTeams);
+        return ;
+      },
+      error: _err => {
+        this.error = {
+          help: 'There was a problem retrieving hunters – try again.',
+          httpResponse: _err.message,
+          message: _err.error?.title,
+        };
+      }
+    });
   }
 
   beginHunt() {
@@ -70,7 +86,7 @@ export class StartHuntComponent implements OnInit, OnDestroy {
   onEndHuntClick(event: Event) {
     event.stopPropagation();
     if (window.confirm('Are you sure you want to end this hunt?')) {
-      this.endHunt()
+      this.endHunt();
     }
   }
 

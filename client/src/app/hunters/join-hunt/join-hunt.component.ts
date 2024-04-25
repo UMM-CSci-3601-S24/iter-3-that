@@ -111,6 +111,42 @@ export class JoinHuntComponent {
     }
   }
 
+  submitHunterName() {
+    if (this.userName.length !== 0) {
+      this.hostService.getTeamsByCode(this.accessCode).subscribe({
+        next: teams => {
+          for(const team of teams)
+          {
+            if(team.teamName === this.userName)
+            {
+              this.hostService.setTeamVar(team);
+              break;
+            }
+          }
+          if(this.hostService.getTeamVar() === null)
+          {
+            this.router.navigate(['/create-team']);
+          }
+          else
+          {
+            this.router.navigate(['/hunter-view', this.accessCode]);
+          }
+        },
+        error: () => {
+          this.isAccessCodeValid = false;
+          this.snackBar.open('Invalid access code. No hunt was found.', 'Close', {
+            duration: 6000,
+          });
+        }
+      });
+    }
+    else{
+      this.snackBar.open('No team name entered', 'Close', {
+        duration: 6000,
+      });
+    }
+  }
+
   checkAccessCode() {
     this.accessCode = [this.input1.nativeElement.value, this.input2.nativeElement.value, this.input3.nativeElement.value, this.input4.nativeElement.value, this.input5.nativeElement.value, this.input6.nativeElement.value].join('');
     if (this.accessCode.length === 6) {
@@ -129,3 +165,5 @@ export class JoinHuntComponent {
     }
   }
 }
+
+

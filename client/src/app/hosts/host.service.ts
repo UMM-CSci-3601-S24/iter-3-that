@@ -8,7 +8,6 @@ import { StartedHunt } from '../startHunt/startedHunt';
 import { EndedHunt } from '../endedHunts/endedHunt';
 import { TeamHunt } from '../hunters/join-hunt/teamHunt';
 import { CompleteHunt } from '../hunts/completeHunt';
-import { Team } from '../hunts/team';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +21,17 @@ export class HostService {
   readonly endHuntUrl: string = `${environment.apiUrl}endHunt`;
   readonly endedHuntsUrl: string = `${environment.apiUrl}endedHunts`;
   readonly endedHuntUrl: string = `${environment.apiUrl}startedHunt`;
-  readonly teamUrl: string = `${environment.apiUrl}teamHunts`;
+  readonly teamUrl: string = `${environment.apiUrl}team`;
+
+  private team: TeamHunt = null;
+
+  getTeamVar(): TeamHunt {
+    return this.team;
+  }
+
+  setTeamVar(team: TeamHunt) {
+    this.team = team;
+  }
 
   constructor(private httpClient: HttpClient){
   }
@@ -64,17 +73,17 @@ export class HostService {
     return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
   }
 
-  createTeam(newTeamHunt: Partial<TeamHunt>): Observable<string> {
-    return this.httpClient.post<{id: string}>(this.teamUrl, newTeamHunt).pipe(map(res => res.id));
+  getTeamsByCode (accessCode: string): Observable<TeamHunt[]> {
+    return this.httpClient.get<TeamHunt[]>(`${this.teamUrl}/${accessCode}`);
+  }
+
+  createTeam(teamName: string, memberNames: string[]): Observable<TeamHunt> {
+    return this.httpClient.post<TeamHunt>(this.teamUrl, { teamName, memberNames });
   }
 
   // This is a put request that ends the hunt by setting its status to false
   endStartedHunt(id: string): Observable<void> {
     return this.httpClient.put<void>(`${this.endHuntUrl}/${id}`, null);
-  }
-
-  getHunterTeam(accessCode: string): Observable<Team> {
-    return this.httpClient.get<Team>(`${this.startedHuntUrl}/${accessCode}`);
   }
 
   // This is a get request that gets all the ended StartedHunts
