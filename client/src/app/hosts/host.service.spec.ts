@@ -472,4 +472,18 @@ describe('When getHunts() is called', () => {
       });
     }));
   });
+
+  it('should update hunt', () => {
+    const updatedHunt: Partial<Hunt> = { name: 'Updated Hunt', description: 'Updated Description', est: 120 };
+    const id = '1';
+
+    hostService.updateHunt(id, updatedHunt).subscribe();
+
+    const req = httpTestingController.expectOne(`${hostService.huntUrl}/${id}`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(updatedHunt);
+
+    req.flush(updatedHunt);
+  });
+
 });

@@ -98,4 +98,8 @@ export class HostService {
     return this.httpClient.get<EndedHunt>(`${this.endedHuntsUrl}/${id}`);
   }
 
+  updateHunt(id: string, updatedHunt: Partial<Hunt>): Observable<Hunt> {
+    return this.httpClient.put<Hunt>(`${this.huntUrl}/${id}`, updatedHunt);
+  }
+
 }
