@@ -9,7 +9,6 @@ import { MatCard, MatCardActions, MatCardContent } from "@angular/material/card"
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Task } from "../hunts/task";
 import { TeamHunt } from "../hunters/join-hunt/teamHunt";
 
 
@@ -45,6 +44,20 @@ export class StartHuntComponent implements OnInit, OnDestroy {
       next: startedHunt => {
         this.startedHunt = startedHunt;
         console.log(this.startedHunt);
+        this.hostService.createTeam('test', ['testHunter1', 'testHunter2', 'testHunter3']).subscribe({
+          next: (response) => {
+            this.snackBar.open('Team created successfully', 'Close', {
+              duration: 5000
+            });
+            this.router.navigate(['/team', response]);
+          },
+          error: (err) => {
+            console.error('Error creating team:', err);
+            this.snackBar.open('Error creating team', 'Close', {
+              duration: 5000
+            });
+          }
+        });
         return ;
       },
       error: _err => {
@@ -114,8 +127,9 @@ export class StartHuntComponent implements OnInit, OnDestroy {
       });
   }
 
-  returnPercent(progress: Task[]): number {
+  returnPercent(teamInput: TeamHunt): number {
     let numTrue = 0;
+    const progress = teamInput.tasks;
      for(const val of progress)
      {
         if(val.status)

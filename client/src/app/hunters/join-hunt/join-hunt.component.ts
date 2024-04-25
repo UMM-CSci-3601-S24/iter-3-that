@@ -117,6 +117,7 @@ export class JoinHuntComponent {
         next: teams => {
           for(const team of teams)
           {
+            console.log('inside_loop');
             if(team.teamName === this.userName)
             {
               this.hostService.setTeamVar(team);
@@ -125,10 +126,13 @@ export class JoinHuntComponent {
           }
           if(this.hostService.getTeamVar() === null)
           {
-            this.router.navigate(['/create-team']);
+            const randomInt = Math.floor(Math.random() * (999999 - 100001)) + 100000;
+            console.log('inside_create');
+            this.router.navigate(['/create-team', randomInt]);
           }
           else
           {
+            console.log('inside_hunter-view')
             this.router.navigate(['/hunter-view', this.accessCode]);
           }
         },

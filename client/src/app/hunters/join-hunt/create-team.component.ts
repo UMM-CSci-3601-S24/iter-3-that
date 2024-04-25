@@ -73,7 +73,7 @@ export class CreateTeamComponent {
   submitForm(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.teamForm.get('startedHuntId').setValue(id);
-    this.hostService.createTeam(this.teamForm.value).subscribe({
+    this.hostService.createTeam(this.teamForm.value.teamName, this.teamForm.value.members).subscribe({
       next: (response) => {
         this.snackBar.open('Team created successfully', 'Close', {
           duration: 5000
