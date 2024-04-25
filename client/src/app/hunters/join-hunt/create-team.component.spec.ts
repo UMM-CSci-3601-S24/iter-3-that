@@ -122,7 +122,7 @@ describe('CreateTeamComponent', () => {
 
     createTeamComponent.submitForm();
 
-    expect(mockHostService.createTeam).toHaveBeenCalledWith(createTeamComponent.teamForm.value);
+    expect(mockHostService.createTeam).toHaveBeenCalledWith(createTeamComponent.teamForm.value.teamName, createTeamComponent.teamForm.value.members);
     expect(mockSnackBar.open).toHaveBeenCalledWith('Team created successfully', 'Close', { duration: 5000 });
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/team', '123']);
   });

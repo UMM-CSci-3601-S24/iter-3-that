@@ -44,21 +44,6 @@ export class StartHuntComponent implements OnInit, OnDestroy {
       next: startedHunt => {
         this.startedHunt = startedHunt;
         console.log(this.startedHunt);
-        this.hostService.createTeam('test', ['testHunter1', 'testHunter2', 'testHunter3']).subscribe({
-          next: (response) => {
-            this.snackBar.open('Team created successfully', 'Close', {
-              duration: 5000
-            });
-            this.router.navigate(['/team', response]);
-          },
-          error: (err) => {
-            console.error('Error creating team:', err);
-            this.snackBar.open('Error creating team', 'Close', {
-              duration: 5000
-            });
-          }
-        });
-        return ;
       },
       error: _err => {
         this.error = {

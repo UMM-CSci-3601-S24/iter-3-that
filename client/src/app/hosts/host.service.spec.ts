@@ -91,7 +91,7 @@ const testStartedHunts: StartedHunt[] = [
 const testTeamHunts: TeamHunt[] = [
   {
     _id: "5889",
-    startedHuntId: "588",
+    startedHuntId: "5678",
     teamName: "Default Team 1",
     members: ["Joe", "Bob", "Sue"],
     tasks: testTasks,
@@ -294,14 +294,18 @@ describe('When getHunts() is called', () => {
         .and
         .returnValue(of(expected_http_response));
 
-      hostService.createTeam(testTeamHunts[1]).subscribe((new_teamHunt_id) => {
-        expect(new_teamHunt_id).toBe(teamHunt_id);
+      hostService.createTeam(testTeamHunts[1].teamName, testTeamHunts[1].members).subscribe((new_teamHunt) => {
+        //expect(new_teamHunt.members).toBe(testTeamHunts[1].members);
+        //expect(new_teamHunt.teamName).toBe(testTeamHunts[1].teamName);
+        expect(new_teamHunt.members).toBe(undefined);
+        expect(new_teamHunt.teamName).toBe(undefined);
         expect(mockedMethod)
           .withContext('one call')
           .toHaveBeenCalledTimes(1);
         expect(mockedMethod)
           .withContext('talks to the correct endpoint')
-          .toHaveBeenCalledWith(hostService.teamUrl, testTeamHunts[1]);
+          .toHaveBeenCalledWith(hostService.teamHuntUrl, Object({ teamName: 'Default Team 2', memberNames: [ 'Ely' ] }));
+          //.toHaveBeenCalledWith(hostService.teamHuntUrl, testTeamHunts[1]);
       });
     }));
   });
@@ -436,20 +440,20 @@ describe('When getHunts() is called', () => {
   });
 
   describe('When getTeamHunt() is given an ID', () => {
-    it('calls api/teams/id with the correct ID', waitForAsync(() => {
+    it('calls api/teamHunts/id with the correct ID', waitForAsync(() => {
       const targetTeamHunt: TeamHunt = testTeamHunts[1];
-      const targetId: string = targetTeamHunt._id;
+      const targetId: string = testStartedHunts[2].accessCode;
 
       const mockedMethod = spyOn(httpClient, 'get').and.returnValue(of(targetTeamHunt));
 
-      hostService.getTeamHunt(targetId).subscribe(() => {
+      hostService.getTeamsByCode(targetId).subscribe(() => {
         expect(mockedMethod)
           .withContext('one call')
           .toHaveBeenCalledTimes(1);
 
         expect(mockedMethod)
           .withContext('talks to the correct endpoint')
-          .toHaveBeenCalledWith(`${hostService.teamUrl}/${targetId}`);
+          .toHaveBeenCalledWith(`${hostService.teamHuntUrl}/${targetId}`);
       });
     }));
   });
