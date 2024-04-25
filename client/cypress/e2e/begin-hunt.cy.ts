@@ -51,7 +51,7 @@ describe('Begin Hunt', () => {
     page.getTeamCard().should('exist');
   })
 
-  it('should click End Hunt, navigate to the host page and show message', () => {
+  it('should click End Hunt, navigate to the Ended Hunt Details and show message', () => {
     page.getNumTeamField().type('2', {force: true});
     page.beginHuntButton().should('exist');
     page.beginHuntButton().click();
@@ -64,9 +64,11 @@ describe('Begin Hunt', () => {
 
     // start the hunt before end it
 
-    page.clickEndHuntButton();
-    cy.url().should('eq', 'http://localhost:4200/hosts');
+    page.clickEndHuntButton().then((result) => {
+      const oid = result.text();
+      cy.url().should('eq', `http://localhost:4200/endedHunts/${oid}`);
+    });
     cy.on('window:confirm', () => true);
   })
-
 })
+
