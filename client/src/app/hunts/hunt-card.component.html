@@ -6,10 +6,10 @@
         this.hunt().description }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-actions>
-    <button mat-raised-button class="edit-hunt-button" matTooltip="Edit Hunt" (click)="openEditDialog()" data-test="editHuntButton">
-      Edit Hunt
-    </button>
-  </mat-card-actions>
+      <button *ngIf="context === 'hunt-profile'" mat-raised-button class="edit-hunt-button" matTooltip="Edit Hunt" (click)="openEditDialog()" data-test="editHuntButton">
+        Edit Hunt
+      </button>
+    </mat-card-actions>
   <mat-card-actions class="actions-container">
       <div>
         @if (this.simple()) {
