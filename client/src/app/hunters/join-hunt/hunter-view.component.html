@@ -18,7 +18,7 @@
            title="Upload Picture"
            height="300px"
            width="300px"
-           (click)="openImage(task._id)"
+           (click)="imageUrls[task._id] ? openImage(task._id) : startCapture(task._id)"
            (keydown.enter)="openImage(task._id)"
            tabindex="0"/>
       <button class="take-picture" (click)="startCapture(task._id)">Take Picture</button>
@@ -29,6 +29,7 @@
       <webcam [trigger]="$trigger" (imageCapture)="snapshot($event, task)" [imageQuality]="1" class="webcam"></webcam>
       <button class="capture-image-button" (click)="captureImage()" >Capture Image</button>
       <button class="cancel-capture-button" (click)="cancelCapture()">X</button>
+      <button (click)="switchCamera()">Switch Camera</button>
     </div>
 
     <div class="task-list" [ngClass]="{'task-completed': task.status}">{{ task.name }}</div>
