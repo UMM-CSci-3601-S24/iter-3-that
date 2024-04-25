@@ -34,7 +34,8 @@ import java.util.Base64;
 public class StartedHuntController implements Controller {
 
   private static final String API_STARTED_HUNT = "/api/startedHunts/{accessCode}";
-  private static final String API_TEAM_HUNT = "/api/teamHunts";
+  private static final String API_TEAM_HUNTS = "/api/teamHunts";
+  private static final String API_TEAM_HUNT = "/api/teamHunts/{id}";
   private static final String API_END_HUNT = "/api/endHunt/{id}";
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
   private static final String API_ENDED_HUNTS = "/api/hosts/{id}/endedHunts";
@@ -167,7 +168,7 @@ public class StartedHuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
-  public TeamHunt getTeamHunt(Context ctx) {
+  public void getTeamHunt(Context ctx) {
     String id = ctx.pathParam("id");
     TeamHunt teamHunt;
 
@@ -179,7 +180,8 @@ public class StartedHuntController implements Controller {
     if (teamHunt == null) {
       throw new NotFoundResponse("The requested team hunt was not found");
     } else {
-      return teamHunt;
+      ctx.json(teamHunt);
+      ctx.status(HttpStatus.OK);
     }
   }
 
@@ -349,6 +351,7 @@ public class StartedHuntController implements Controller {
     server.get(API_ENDED_HUNT, this::getEndedHunt);
     server.get(API_ENDED_HUNTS, this::getEndedHunts);
     server.delete(API_DELETE_HUNT, this::deleteStartedHunt);
-    server.post(API_TEAM_HUNT, this::makeTeamHunt);
+    server.post(API_TEAM_HUNTS, this::makeTeamHunt);
+    server.get(API_TEAM_HUNT, this::getTeamHunt);
   }
 }
