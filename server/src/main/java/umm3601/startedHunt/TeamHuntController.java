@@ -33,12 +33,14 @@ public class TeamHuntController implements Controller {
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
 
+  int second_to_ping = 5;
+
   //the string value that is associated with the WsContexts is the started HuntId that all team hunts can be gotten from
   //put there for ease of access in functions
   private HashMap<WsContext, String> connectedContextsDictionary = new HashMap<WsContext, String>();
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
-  private final JacksonMongoCollection<TeamHunt> TeamHuntCollection;
+  private final JacksonMongoCollection<TeamHunt> teamHuntCollection;
 
     public TeamHuntController(MongoDatabase database) {
 
@@ -48,7 +50,7 @@ public class TeamHuntController implements Controller {
         StartedHunt.class,
         UuidRepresentation.STANDARD);
 
-    TeamHuntCollection = JacksonMongoCollection.builder().build(
+    teamHuntCollection = JacksonMongoCollection.builder().build(
         database,
         "teamHunts",
         TeamHunt.class,
@@ -58,7 +60,7 @@ public class TeamHuntController implements Controller {
 
 public void getTeamHuntsByInviteCode(Context ctx) {
   String inviteCode = ctx.pathParam("invitecode");
-  StartedHunt startedHunt = startedHuntCollection.find(eq( INVITE_CODE_KEY, inviteCode )).first();
+  StartedHunt startedHunt = startedHuntCollection.find( eq( INVITE_CODE_KEY, inviteCode ) ).first();
 
   if (startedHunt == null) {
     throw new NotFoundResponse("The requested startedHunt was not found " + inviteCode);
@@ -78,11 +80,12 @@ public void getTeamHuntsByInviteCode(Context ctx) {
 
 private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
 
-  ArrayList<TeamHunt> teamHunts = TeamHuntCollection.find(eq(STARTED_HUNT_ID_KEY, startedHuntId)).into(new ArrayList<>());
+  ArrayList<TeamHunt> teamHunts = teamHuntCollection.find(eq(STARTED_HUNT_ID_KEY, startedHuntId))
+  .into(new ArrayList<>());
 
   TeamHunt[] teamHuntsArray = teamHunts.toArray(new TeamHunt[0]);
   //System.err.println("teamHunt names in privet method" + teamHuntsArray[1].teamName);
-  return(teamHuntsArray);
+  return (teamHuntsArray);
 }
 
 
@@ -92,7 +95,7 @@ private void updateTeamHuntsViaWebsocket(String startedHuntId) {
     WsContext ws = iterator.next();
     if (ws.session.isOpen()) {
       String associatedStartedHuntID = connectedContextsDictionary.get(ws);
-      if(associatedStartedHuntID.equals(startedHuntId)) {
+      if (associatedStartedHuntID.equals(startedHuntId)) {
         TeamHunt[] teamHuntsArray = getTeamHuntsByStartedHuntId(startedHuntId);
         ws.send(teamHuntsArray);
       } else {
@@ -111,7 +114,7 @@ public void addRoutes(Javalin server) {
     ws.onConnect(ctx -> {
       String startedHuntId = ctx.pathParam("startedhuntid");
       connectedContextsDictionary.put(ctx, startedHuntId);
-      ctx.enableAutomaticPings(5, TimeUnit.SECONDS);
+      ctx.enableAutomaticPings(second_to_ping, TimeUnit.SECONDS);
     });
   });
 }
