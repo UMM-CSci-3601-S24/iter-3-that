@@ -26,6 +26,7 @@ import umm3601.Controller;
 
 //none of this will work until teamhunts is merged with main or merged into the branch
 
+@SuppressWarnings({ "MagicNumber" })
 public class TeamHuntController implements Controller {
   private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamHunts/{invitecode}";
   private static final String TEAMHUNT_UPDATES_WEBSOCKET = "ws/teamHunts/{startedhuntid}";
@@ -33,7 +34,7 @@ public class TeamHuntController implements Controller {
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
 
-  int second_to_ping = 5;
+  private final int secondToPing = 5;
 
   //the string value that is associated with the WsContexts is the started HuntId that all team hunts can be gotten from
   //put there for ease of access in functions
@@ -60,7 +61,7 @@ public class TeamHuntController implements Controller {
 
 public void getTeamHuntsByInviteCode(Context ctx) {
   String inviteCode = ctx.pathParam("invitecode");
-  StartedHunt startedHunt = startedHuntCollection.find( eq( INVITE_CODE_KEY, inviteCode ) ).first();
+  StartedHunt startedHunt = startedHuntCollection.find(eq( INVITE_CODE_KEY, inviteCode)).first();
 
   if (startedHunt == null) {
     throw new NotFoundResponse("The requested startedHunt was not found " + inviteCode);
@@ -114,7 +115,7 @@ public void addRoutes(Javalin server) {
     ws.onConnect(ctx -> {
       String startedHuntId = ctx.pathParam("startedhuntid");
       connectedContextsDictionary.put(ctx, startedHuntId);
-      ctx.enableAutomaticPings(second_to_ping, TimeUnit.SECONDS);
+      ctx.enableAutomaticPings(secondToPing, TimeUnit.SECONDS);
     });
   });
 }
