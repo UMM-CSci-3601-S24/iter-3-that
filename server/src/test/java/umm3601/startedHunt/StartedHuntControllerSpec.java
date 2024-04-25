@@ -2,6 +2,7 @@ package umm3601.startedHunt;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -20,9 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -992,5 +996,31 @@ class StartedHuntControllerSpec {
     });
 
     assertTrue(exception.getMessage().contains("Was unable to delete team hunt with ID 6629834cfe108543ff502ca3"));
+  }
+
+  @Test
+  public void testCreateDirectoryIfNotExists() throws IOException {
+
+    File directory = new File("photos");
+
+    // Delete the directory even if it's not empty
+    Files.walk(directory.toPath())
+      .sorted(Comparator.reverseOrder())
+      .map(Path::toFile)
+      .forEach(File::delete);
+
+    Path directoryPath = Paths.get("photos");
+
+    assertFalse(Files.exists(directoryPath));
+
+    startedHuntController = new StartedHuntController(db);
+
+    assertTrue(Files.exists(directoryPath));
+
+    // Delete the directory even if it's not empty
+    Files.walk(directory.toPath())
+      .sorted(Comparator.reverseOrder())
+      .map(Path::toFile)
+      .forEach(File::delete);
   }
 }
