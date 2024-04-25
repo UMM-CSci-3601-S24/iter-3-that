@@ -6,7 +6,6 @@ import com.mongodb.client.MongoDatabase;
 import umm3601.host.HostController;
 import umm3601.hunt.HuntController;
 import umm3601.startedHunt.StartedHuntController;
-import umm3601.startedHunt.TeamHunt;
 import umm3601.startedHunt.TeamHuntController;
 
 public class Main {
