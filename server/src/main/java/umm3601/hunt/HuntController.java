@@ -24,6 +24,7 @@ import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
@@ -259,7 +260,7 @@ public class HuntController implements Controller {
           set("description", updatedHunt.description),
           set("est", updatedHunt.est));
 
-      FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().upsert(false);
+          FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().upsert(false).returnDocument(ReturnDocument.AFTER);
       Hunt hunt = huntCollection.findOneAndUpdate(filter, updateOperation, options);
 
       if (hunt == null) {
