@@ -4,9 +4,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HunterViewComponent } from './hunter-view.component';
 import { HostService } from 'src/app/hosts/host.service';
-import { StartedHunt } from 'src/app/startHunt/startedHunt'
 import { Task } from 'src/app/hunts/task';
 import { WebcamImage } from 'ngx-webcam';
+import { TeamHunt } from './teamHunt';
 
 describe('HunterViewComponent', () => {
   let component: HunterViewComponent;
@@ -16,7 +16,7 @@ describe('HunterViewComponent', () => {
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    mockHostService = jasmine.createSpyObj('HostService', ['getStartedHunt', 'submitPhoto', 'replacePhoto']);
+    mockHostService = jasmine.createSpyObj('HostService', ['submitPhoto', 'getTeamHunt']);
     mockRoute = {
       paramMap: new Subject<ParamMap>()
     };
@@ -34,61 +34,43 @@ describe('HunterViewComponent', () => {
     fixture = TestBed.createComponent(HunterViewComponent);
     component = fixture.componentInstance;
 
-    const initialStartedHunt: StartedHunt = {
+    const initialTeamHunt: TeamHunt = {
       _id: '',
-      completeHunt: {
-        hunt: {
-          _id: '',
-          hostId: '',
-          name: '',
-          description: '',
-          est: 0,
-          numberOfTasks: 0
-        },
-        tasks: []
-      },
-      accessCode: ''
+      startedHuntId: '',
+      teamName: '',
+      tasks: [],
+      members: []
     };
-    component.startedHunt = initialStartedHunt;
+    component.teamHunt = initialTeamHunt;
 
     fixture.detectChanges();
   });
 
-  it('should navigate to the right hunt page by access code',() => {
-    const startedHunt: StartedHunt = {
-      _id: '',
-      completeHunt: {
-        hunt: {
+  it('should retrieve the team hunt by id', () => {
+    const teamHunt = {
+      _id: '123456',
+      startedHuntId: '',
+      teamName: 'Team 1',
+      tasks: [
+        {
           _id: '1',
-          hostId: '1',
-          name: 'Hunt 1',
-          description: 'Hunt 1 Description',
-          est: 10,
-          numberOfTasks: 1
-        },
-        tasks: [
-          {
-            _id: '1',
-            huntId: '1',
-            name: 'Task 1',
-            status: true,
-            photos: []
-          }
-        ]
-      },
-      accessCode: '123456'
+          huntId: '1',
+          name: 'Task 1',
+          status: true,
+          photo: ''
+        }
+      ],
+      members: ['member1', 'member2'],
     };
-    mockHostService.getStartedHunt.and.returnValue(of(startedHunt));
-    // Emit a paramMap event to trigger the hunt retrieval
+    mockHostService.getTeamHunt.and.returnValue(of(teamHunt));
     mockRoute.paramMap.next({ get: () => '123456', has: () => true, getAll: () => [], keys: [] });
     component.ngOnInit();
-    expect(component.startedHunt).toEqual(startedHunt);
-
+    expect(component.teamHunt).toEqual(teamHunt);
   });
 
-  it('should handle error when getting hunt by access code', () => {
+  it('should handle error when getting team hunt by id', () => {
     const error = { message: 'Error', error: { title: 'Error Title' } };
-    mockHostService.getStartedHunt.and.returnValue(throwError(error));
+    mockHostService.getTeamHunt.and.returnValue(throwError(error));
     // Emit a paramMap event to trigger the hunt retrieval
     mockRoute.paramMap.next({ get: () => '1', has: () => true, getAll: () => [], keys: [] });
     component.ngOnInit();
@@ -111,7 +93,7 @@ describe('HunterViewComponent', () => {
   });
 
   it('should handle snapshot when task has no photos', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: [] };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
     const event: WebcamImage = { imageAsDataUrl: 'data:image/jpeg;base64,' } as WebcamImage;
     spyOn(component, 'dataURItoBlob' as keyof HunterViewComponent).and.returnValue(new Blob());
     spyOn(component, 'submitPhoto');
@@ -120,18 +102,6 @@ describe('HunterViewComponent', () => {
 
     expect(component.imageUrls[task._id]).toBe(event.imageAsDataUrl);
     expect(component.submitPhoto).toHaveBeenCalled();
-  });
-
-  it('should handle snapshot when task has photos', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId'] };
-    const event: WebcamImage = { imageAsDataUrl: 'data:image/jpeg;base64,' } as WebcamImage;
-    spyOn(component, 'dataURItoBlob' as keyof HunterViewComponent).and.returnValue(new Blob());
-    spyOn(component, 'replacePhoto');
-
-    component.snapshot(event, task);
-
-    expect(component.imageUrls[task._id]).toBe(event.imageAsDataUrl);
-    expect(component.replacePhoto).toHaveBeenCalled();
   });
 
   it('should convert data URI to Blob', () => {
@@ -170,48 +140,25 @@ describe('HunterViewComponent', () => {
   });
 
   it('should submitted photo successfully', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: [] };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
     const photoId = 'photoId';
     const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
     mockHostService.submitPhoto.and.returnValue(of(photoId));
 
     component.submitPhoto(file, task, '1');
 
-    expect(task.photos).toContain(photoId);
+    expect(task.photo).toEqual(photoId);
     expect(mockSnackBar.open).toHaveBeenCalledWith('Photo uploaded successfully', 'Close', { duration: 3000 });
   });
 
   it('should handle error when fail to submit photo', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: [] };
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
     const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
     mockHostService.submitPhoto.and.returnValue(throwError('Error message'));
 
     component.submitPhoto(file, task, '1');
 
     expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', { duration: 3000 });
-  });
-
-  it('should replace photo successfully', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId'] };
-    const photoId = 'newPhotoId';
-    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-    mockHostService.replacePhoto.and.returnValue(of(photoId));
-
-    component.replacePhoto(file, task, '1');
-
-    expect(task.photos[0]).toBe(photoId);
-    expect(mockSnackBar.open).toHaveBeenCalledWith('Photo replaced successfully', 'Close', { duration: 3000 });
-  });
-
-  it('should handle error when fail to replace photo', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId'] };
-    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-    mockHostService.replacePhoto.and.returnValue(throwError('Error message'));
-
-    component.replacePhoto(file, task, '1');
-
-    expect(mockSnackBar.open).toHaveBeenCalledWith('Error replacing photo. Please try again', 'Close', { duration: 3000 });
-
   });
 
   it('should set stream to true when camera is available and authorized', (done) => {
@@ -259,6 +206,99 @@ describe('HunterViewComponent', () => {
     component.openImage(taskId);
 
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('should stop all tracks if stream exists', () => {
+    const track = jasmine.createSpyObj('track', ['stop']);
+    component.stream = { getTracks: () => [track] } as MediaStream;
+
+    component.switchCamera();
+
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it('should switch between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.currentDeviceIndex).toBe(1);
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ video: { deviceId: '2' } });
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
+
+  it('should set stream when getUserMedia resolves', (done) => {
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
+
+  it('should set stream to null when getUserMedia rejects', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
+  });
+
+  it('should handle getUserMedia error when switching between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
+
+    component.switchCamera();
+
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
   });
 });
 

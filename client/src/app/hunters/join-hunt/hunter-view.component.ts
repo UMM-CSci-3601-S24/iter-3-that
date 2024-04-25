@@ -5,7 +5,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
-import { StartedHunt } from 'src/app/startHunt/startedHunt';
 import { Task } from 'src/app/hunts/task';
 import { HuntCardComponent } from 'src/app/hunts/hunt-card.component';
 import { HostService } from 'src/app/hosts/host.service';
@@ -13,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { WebcamImage, WebcamModule } from 'ngx-webcam';
 import { Observable } from 'rxjs';
+import { TeamHunt } from './teamHunt';
 
 
 @Component({
@@ -24,10 +24,14 @@ import { Observable } from 'rxjs';
 })
 
 export class HunterViewComponent implements OnInit, OnDestroy {
-  startedHunt: StartedHunt;
+  teamHunt: TeamHunt;
   tasks: Task[] = [];
   error: { help: string, httpResponse: string, message: string };
   imageUrls = {};
+  currentDeviceId: string;
+  videoDevices: MediaDeviceInfo[] = [];
+  currentDeviceIndex = 0;
+  currentFacingMode: string = 'user';
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -51,16 +55,16 @@ export class HunterViewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
-      map((params: ParamMap) => params.get('accessCode')),
-      switchMap((accessCode: string) => this.hostService.getStartedHunt(accessCode)),
+      map((params: ParamMap) => params.get('id')),
+      switchMap((id: string) => this.hostService.getTeamHunt(id)),
 
       takeUntil(this.ngUnsubscribe)
       ).subscribe({
-        next: startedHunt => {
-          for (const task of startedHunt.completeHunt.tasks) {
-            task.photos = [];
+        next: teamHunt => {
+          for (const task of teamHunt.tasks) {
+            task.photo = "";
           }
-          this.startedHunt = startedHunt;
+          this.teamHunt = teamHunt;
           return;
         },
         error: _err => {
@@ -70,9 +74,13 @@ export class HunterViewComponent implements OnInit, OnDestroy {
             message: _err.error?.title,
           };
         }
-      });
+    });
 
     this.checkPermission();
+
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      this.videoDevices = devices.filter(device => device.kind === 'videoinput');
+    });
   }
 
   ngOnDestroy(): void {
@@ -84,7 +92,7 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     this.hostService.submitPhoto(startedHuntId, task._id, file).subscribe({
       next: (photoId: string) => {
         task.status = true;
-        task.photos.push(photoId);
+        task.photo = photoId;
         this.snackBar.open('Photo uploaded successfully', 'Close', {
           duration: 3000
         });
@@ -92,23 +100,6 @@ export class HunterViewComponent implements OnInit, OnDestroy {
       error: (error: Error) => {
         console.error('Error uploading photo', error);
         this.snackBar.open('Error uploading photo. Please try again', 'Close', {
-          duration: 3000
-        });
-      },
-    });
-  }
-
-  replacePhoto(file: File, task: Task, startedHuntId: string): void {
-    this.hostService.replacePhoto(startedHuntId, task._id, task.photos[0], file).subscribe({
-      next: (photoId: string) => {
-        task.photos[0] = photoId;
-        this.snackBar.open('Photo replaced successfully', 'Close', {
-          duration: 3000
-        });
-      },
-      error: (error: Error) => {
-        console.error('Error replacing photo', error);
-        this.snackBar.open('Error replacing photo. Please try again', 'Close', {
           duration: 3000
         });
       },
@@ -130,12 +121,7 @@ export class HunterViewComponent implements OnInit, OnDestroy {
     const photo: File = new File([this.dataURItoBlob(event.imageAsDataUrl)], 'photo.jpg');
 
     if (photo) {
-      if (task.photos.length > 0) {
-        this.replacePhoto(photo, task, this.startedHunt._id);
-      }
-      else {
-        this.submitPhoto(photo, task, this.startedHunt._id);
-      }
+      this.submitPhoto(photo, task, this.teamHunt._id);
     }
   }
 
@@ -187,4 +173,47 @@ export class HunterViewComponent implements OnInit, OnDestroy {
       window.open(imageUrl, '_blank');
     }
   }
+
+  switchCamera() {
+    if (this.stream) {
+      // Stop all tracks of the current stream before requesting a new one
+      this.stream.getTracks().forEach(track => track.stop());
+    }
+
+    if (this.videoDevices.length > 1) {
+      // If there are multiple video devices, switch between them
+      this.currentDeviceIndex = (this.currentDeviceIndex + 1) % this.videoDevices.length;
+      const deviceId = this.videoDevices[this.currentDeviceIndex].deviceId;
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          deviceId: deviceId
+        }
+      })
+        .then(stream => {
+          this.stream = stream;
+        })
+        .catch(err => {
+          console.error(err);
+          this.stream = null;
+        });
+    } else {
+      // If there is only one video device, switch between 'user' and 'environment'
+      this.currentFacingMode = this.currentFacingMode === 'user' ? 'environment' : 'user';
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: this.currentFacingMode
+        }
+      })
+        .then(stream => {
+          this.stream = stream;
+        })
+        .catch(err => {
+          console.error(err);
+          this.stream = null;
+        });
+    }
+  }
+
 }

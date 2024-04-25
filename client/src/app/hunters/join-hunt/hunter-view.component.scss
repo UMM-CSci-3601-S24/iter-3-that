@@ -129,14 +129,13 @@ label {
 
 .task-completed {
   position: relative;
-  color: green;
+  background-color: lightgreen;
 
   &::before {
-    content: '✔';
     display: block;
-    color: green;
     font-size: 40px;
     text-align: right;
+    font-weight: bold;
   }
 }
 
