@@ -109,6 +109,8 @@ body {
   font-size: 18px;
   transition: background-color 0.3s ease;
   margin-right: 10px;
+  margin-bottom: 75px;
+  margin-top: 50px;
 
   @media (prefers-color-scheme: dark) {
     background-color: #00ccff;
@@ -124,4 +126,15 @@ body {
   }
 }
 
+.bottom-background {
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+}
+
+.button-container {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
 
