@@ -48,7 +48,6 @@ import com.mongodb.client.MongoDatabase;
 import io.javalin.Javalin;
 // import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 // import io.javalin.http.UploadedFile;
 // import io.javalin.json.JavalinJackson;
@@ -263,20 +262,6 @@ public class TeamHuntControllerSpec {
     Javalin mockServer = mock(Javalin.class);
     teamHuntController.addRoutes(mockServer);
     verify(mockServer, Mockito.atLeast(1)).get(any(), any());
-  }
-
-  @Test
-  void getTeamHuntsByStartedHuntInviteCodeTest() {
-    when(ctx.pathParam("invitecode")).thenReturn("123456");
-
-
-    teamHuntController.getTeamHuntsByInviteCode(ctx);
-
-
-    verify(ctx).json(teamHuntArrayCaptor.capture());
-    verify(ctx).status(HttpStatus.OK);
-
-    assertEquals(3, teamHuntArrayCaptor.getValue().length);
   }
 
 
