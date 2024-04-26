@@ -42,21 +42,21 @@ const testTasks: Task[] = [
     huntId: "588",
     name: "Default Task 1",
     status: false,
-    photos: []
+    photo: ''
   },
   {
     _id: "5754",
     huntId: "575",
     name: "Default Task 2",
     status: false,
-    photos: []
+    photo: ''
   },
   {
     _id: "de7c",
     huntId: "e7c",
     name: "Default Task 3",
     status: false,
-    photos: []
+    photo: ''
   },
 ];
 
@@ -407,34 +407,6 @@ describe('When getHunts() is called', () => {
     }));
   });
 
-  describe('Replacing a photo using `replacePhoto()`', () => {
-    it('talks to the right endpoint and is called once', waitForAsync(() => {
-      const startedHuntId = 'startedHunt_id';
-      const task_id = 'task_id';
-      const photo = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-      const photoPath = 'photo.jpg';
-
-      const mockedMethod = spyOn(httpClient, 'put')
-        .and
-        .returnValue(of({id: 'someId'}));
-
-      hostService.replacePhoto(startedHuntId, task_id, photoPath ,photo).subscribe(() => {
-        expect(mockedMethod)
-          .withContext('one call')
-          .toHaveBeenCalledTimes(1);
-
-        const args = mockedMethod.calls.first().args;
-
-        expect(args[0])
-        .withContext('talks to the correct endpoint')
-        .toEqual(`${hostService.endedHuntUrl}/${startedHuntId}/tasks/${task_id}/photo/${photoPath}`);
-
-        const formData: FormData = args[1];
-        expect(formData.get('photo')).toEqual(photo);
-      });
-    }));
-  });
-
   describe('When getTeamHunt() is given an ID', () => {
     it('calls api/teams/id with the correct ID', waitForAsync(() => {
       const targetTeamHunt: TeamHunt = testTeamHunts[1];
@@ -472,4 +444,18 @@ describe('When getHunts() is called', () => {
       });
     }));
   });
+
+  it('should update hunt', () => {
+    const updatedHunt: Partial<Hunt> = { name: 'Updated Hunt', description: 'Updated Description', est: 120 };
+    const id = '1';
+
+    hostService.updateHunt(id, updatedHunt).subscribe();
+
+    const req = httpTestingController.expectOne(`${hostService.huntUrl}/${id}`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(updatedHunt);
+
+    req.flush(updatedHunt);
+  });
+
 });

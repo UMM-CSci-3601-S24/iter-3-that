@@ -5,7 +5,7 @@
       <mat-card-subtitle class="hunt-card-description" [class.host-profile]="context === 'host-profile'">{{
         this.hunt().description }}</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-actions class="actions-container">
+  <mat-card-actions class="actions-container">
       <div>
         @if (this.simple()) {
         <mat-card-actions>
@@ -15,10 +15,9 @@
         }
         @else {
           <mat-card-actions class="button-container">
-            <button mat-button [routerLink]="['/hosts']" class="return-to-hunts">Return to Hunts</button>
             <form [formGroup]="NumberofTeamsForm">
               <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
-              <mat-form-field>
+              <mat-form-field class="form-box">
                 <mat-label>Number of Teams</mat-label>
                 <input matInput type="number"
                   formControlName="numTeam" required>
@@ -46,7 +45,16 @@
           <span class="time-text">
             {{ hunt().est > 60 ? math.floor(hunt().est / 60) + 'h ' + hunt().est % 60 + 'm' : hunt().est + ' min' }}
           </span>
-      </div>
+          </div>
+    </mat-card-title>
+    <mat-card-title class="hunt-card-edit bottom-right icon-bottom">
+      <div>
+        <mat-card-actions>
+          <button *ngIf="context === 'hunt-profile'" mat-icon-button class="edit-hunt-button" matTooltip="Edit Hunt" (click)="openEditDialog()" data-test="editHuntButton">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </mat-card-actions>
+          </div>
     </mat-card-title>
   </mat-card>
 }

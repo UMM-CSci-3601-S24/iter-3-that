@@ -4,11 +4,14 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
 import umm3601.startedHunt.StartedHunt;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -22,6 +25,8 @@ import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
 
@@ -46,7 +51,7 @@ public class HuntController implements Controller {
   private static final int ACCESS_CODE_MIN = 100000;
   private static final int ACCESS_CODE_RANGE = 900000;
 
-  private final JacksonMongoCollection<Hunt> huntCollection;
+  private static JacksonMongoCollection<Hunt> huntCollection = null;
   private final JacksonMongoCollection<Task> taskCollection;
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
 
@@ -150,7 +155,7 @@ public class HuntController implements Controller {
         .check(task -> task.name.length() > 0, "Name must be at least 1 character")
         .get();
 
-    newTask.photos = new ArrayList<String>();
+    newTask.photo = "";
 
     taskCollection.insertOne(newTask);
     increaseTaskCount(newTask.huntId);
@@ -244,6 +249,34 @@ public class HuntController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
+  public void updateHunt(Context ctx) {
+    String id = ctx.pathParam("id");
+    Hunt updatedHunt = ctx.bodyAsClass(Hunt.class);
+
+    try {
+      Bson filter = eq("_id", new ObjectId(id));
+      Bson updateOperation = combine(
+          set("name", updatedHunt.name),
+          set("description", updatedHunt.description),
+          set("est", updatedHunt.est));
+          FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+          options.upsert(false);
+          options.returnDocument(ReturnDocument.AFTER);
+      Hunt hunt = huntCollection.findOneAndUpdate(filter, updateOperation, options);
+      if (hunt == null) {
+        throw new NotFoundResponse("The requested hunt was not found");
+      } else {
+        ctx.json(hunt);
+        ctx.status(HttpStatus.OK);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("The requested hunt id wasn't a legal Mongo Object ID.");
+    } catch (Exception e) {
+      e.printStackTrace(); // This will print the stack trace of the exception to the console
+      throw new InternalServerErrorResponse("Error updating the hunt.");
+    }
+  }
+
   @Override
   public void addRoutes(Javalin server) {
     server.get(API_HOST, this::getHunts);
@@ -254,5 +287,6 @@ public class HuntController implements Controller {
     server.delete(API_HUNT, this::deleteHunt);
     server.delete(API_TASK, this::deleteTask);
     server.get(API_START_HUNT, this::startHunt);
+    server.put(API_HUNT, this::updateHunt);
   }
 }

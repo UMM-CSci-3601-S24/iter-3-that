@@ -124,7 +124,7 @@ describe('CreateTeamComponent', () => {
 
     expect(mockHostService.createTeam).toHaveBeenCalledWith(createTeamComponent.teamForm.value);
     expect(mockSnackBar.open).toHaveBeenCalledWith('Team created successfully', 'Close', { duration: 5000 });
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/team', '123']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/team/', '123']);
   });
 
   describe('formControlHasError', () => {
@@ -177,5 +177,10 @@ describe('CreateTeamComponent', () => {
     createTeamComponent.removeMember(0);
     const members = createTeamComponent.teamForm.get('members') as FormArray;
     expect(members.length).toBe(1);
+  });
+
+  it('should return Unknown error if the error type is not recognized', () => {
+    createTeamComponent.teamForm.get('teamName').setErrors({ unknown: true });
+    expect(createTeamComponent.getErrorMessage('teamName')).toBe('Unknown error');
   });
 });

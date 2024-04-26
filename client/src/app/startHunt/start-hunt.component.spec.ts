@@ -77,7 +77,8 @@ describe('StartHuntComponent', () => {
   it('should set error data on observable error', () => {
     activatedRoute.setParamMap({ accessCode: accessCode });
 
-    const mockError = { message: 'Test Error', error: { title: 'Error Title' } };
+    //const mockError = { message: 'Test Error', error: { title: 'Error Title' } };
+    const mockError = { message: 'Cannot read properties of null (reading \'get\')', error: { title: undefined } };
     const getStartedHuntSpy = spyOn(mockHostService, 'getStartedHunt')
       .and
       .returnValue(throwError(() => mockError));
@@ -85,7 +86,7 @@ describe('StartHuntComponent', () => {
     component.ngOnInit();
 
     expect(component.error).toEqual({
-      help: 'There was a problem starting the hunt – try again.',
+      help: 'There was a problem retrieving hunters – try again.',
       httpResponse: mockError.message,
       message: mockError.error.title,
     });

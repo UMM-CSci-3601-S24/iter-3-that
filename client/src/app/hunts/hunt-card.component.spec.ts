@@ -3,13 +3,17 @@ import { HuntCardComponent } from './hunt-card.component';
 import { HostService } from '../hosts/host.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { EditHuntComponent } from './edit-hunt.component';
 
 describe('HuntCardComponent', () => {
   let component: HuntCardComponent;
   let hostService: HostService;
   let router: Router;
+  let dialog: MatDialog;
 
   beforeEach(() => {
+    dialog = jasmine.createSpyObj('MatDialog', ['open']);
     hostService = jasmine.createSpyObj('HostService', ['startHunt']);
     router = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -17,7 +21,8 @@ describe('HuntCardComponent', () => {
       providers: [
         HuntCardComponent,
         { provide: HostService, useValue: hostService },
-        { provide: Router, useValue: router }
+        { provide: Router, useValue: router },
+        { provide: MatDialog, useValue: dialog}
       ]
     });
 
@@ -67,5 +72,70 @@ describe('HuntCardComponent', () => {
       component.NumberofTeamsForm.get('numTeam').setErrors({ max: true });
       expect(component.getErrorMessage('numTeam')).toBe('Cannot have more than 20 teams');
     });
+  });
+
+  it('should open the edit dialog and update the hunt on close', () => {
+    const hunt = {
+      _id: 'testId',
+      hostId: 'testHostId',
+      name: 'testName',
+      description: 'testDescription',
+      est: 60,
+      numberOfTasks: 5,
+      numTeams: 5,
+      date: 'testDate',
+    };
+    const updatedHunt = {
+      _id: 'testId',
+      hostId: 'testHostId',
+      name: 'updatedName',
+      description: 'updatedDescription',
+      est: 60,
+      numberOfTasks: 5,
+      numTeams: 5,
+      date: 'testDate',
+
+    };
+    const dialogRef = { afterClosed: () => of(updatedHunt) } as MatDialogRef<EditHuntComponent>;
+    (dialog.open as jasmine.Spy).and.returnValue(dialogRef);
+    spyOn(component, 'hunt').and.returnValue(hunt);
+
+    // Act
+    component.openEditDialog();
+
+    // Assert
+    expect(dialog.open).toHaveBeenCalledWith(EditHuntComponent, {
+      width: '75%',
+      height: '75%',
+      data: { huntToEdit: hunt }
+    });
+    expect(component.hunt).toEqual(updatedHunt);
+  });
+
+  it('should not update the hunt if the dialog is closed without an update', () => {
+    const hunt = {
+      _id: 'testId',
+      hostId: 'testHostId',
+      name: 'testName',
+      description: 'testDescription',
+      est: 60,
+      numberOfTasks: 5,
+      numTeams: 5,
+      date: 'testDate',
+    };
+    const dialogRef = { afterClosed: () => of(hunt) } as MatDialogRef<EditHuntComponent>;
+    (dialog.open as jasmine.Spy).and.returnValue(dialogRef);
+    spyOn(component, 'hunt').and.returnValue(hunt);
+
+    // Act
+    component.openEditDialog();
+
+    // Assert
+    expect(dialog.open).toHaveBeenCalledWith(EditHuntComponent, {
+      width: '75%',
+      height: '75%',
+      data: { huntToEdit: hunt }
+    });
+    expect(component.hunt).toEqual(hunt); // The hunt should not be updated
   });
 });
