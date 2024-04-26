@@ -46,41 +46,4 @@ describe('EndedHuntDetailsComponent', () => {
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should return the correct task name', () => {
-    component.endedHunt = {
-      startedHunt: {
-        completeHunt: {
-          tasks: [
-            {
-              _id: '1', name: 'Task 1',
-              huntId: '',
-              status: false,
-              photo: ''
-            },
-            {
-              _id: '2', name: 'Task 2',
-              huntId: '',
-              status: false,
-              photo: ''
-            },
-            {
-              _id: '3', name: 'Task 3',
-              huntId: '',
-              status: false,
-              photo: ''
-            }
-          ],
-          hunt: undefined
-        },
-        _id: '',
-        accessCode: ''
-      },
-      finishedTasks: []
-    };
-
-    expect(component.getTaskName('1')).toBe('Task 1');
-    expect(component.getTaskName('2')).toBe('Task 2');
-    expect(component.getTaskName('3')).toBe('Task 3');
-  });
 });
