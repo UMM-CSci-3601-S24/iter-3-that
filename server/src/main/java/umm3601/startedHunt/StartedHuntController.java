@@ -254,11 +254,11 @@ public class StartedHuntController implements Controller {
       throw new BadRequestResponse("Task with ID " + taskId + " does not exist");
     }
 
-    if (task.photo != null) {
+    if (task.photo.length() > 0) {
       deletePhoto(task.photo, ctx);
     }
 
-    task.photo = photoPath;
+    task.photo = photoPath.toString();
     teamHunt.tasks.set(teamHunt.tasks.indexOf(task), task);
     teamHuntCollection.save(teamHunt);
   }
