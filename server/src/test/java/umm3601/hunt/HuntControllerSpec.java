@@ -500,7 +500,7 @@ class HuntControllerSpec {
     assertEquals("New Task", addedTask.get("name"));
     assertEquals("bestHuntId", addedTask.get("huntId"));
     assertEquals(false, addedTask.get("status"));
-    assertEquals(null, addedTask.get("photo"));
+    assertEquals("", addedTask.get("photo"));
   }
 
   @Test
