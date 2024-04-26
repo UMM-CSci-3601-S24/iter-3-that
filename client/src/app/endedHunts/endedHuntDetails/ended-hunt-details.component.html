@@ -9,7 +9,7 @@
         <mat-card-title class="tasks-title">Tasks and Photos</mat-card-title>
         <div class="task-photos-container">
           @for (task of this.endedHunt.startedHunt.completeHunt.tasks; track task._id) {
-            <mat-card-title class="task-list-name"> {{ this.getTaskName(task._id) }} </mat-card-title>
+            <mat-card-title class="task-list-name"> {{ task.name }} </mat-card-title>
             <div class="finishedTask-photos">
               @for (teamHunt of endedHunt.teamHunts; track teamHunt._id) {
                 @for (teamTask of teamHunt.tasks; track teamTask._id) {

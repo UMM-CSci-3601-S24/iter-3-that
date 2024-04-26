@@ -252,7 +252,7 @@ export class MockHostService extends HostService {
   static testEndedHunts: EndedHunt[] = [
     {
       startedHunt: MockHostService.testStartedHunts[0],
-      finishedTasks: [],
+      teamHunts: [],
     },
   ];
 
