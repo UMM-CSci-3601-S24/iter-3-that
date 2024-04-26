@@ -105,8 +105,8 @@ describe('HuntCardComponent', () => {
 
     // Assert
     expect(dialog.open).toHaveBeenCalledWith(EditHuntComponent, {
-      width: '500px',
-      height: '500px',
+      width: '75%',
+      height: '50%',
       data: { huntToEdit: hunt }
     });
     expect(component.hunt).toEqual(updatedHunt);
@@ -132,8 +132,8 @@ describe('HuntCardComponent', () => {
 
     // Assert
     expect(dialog.open).toHaveBeenCalledWith(EditHuntComponent, {
-      width: '500px',
-      height: '500px',
+      width: '75%',
+      height: '50%',
       data: { huntToEdit: hunt }
     });
     expect(component.hunt).toEqual(hunt); // The hunt should not be updated

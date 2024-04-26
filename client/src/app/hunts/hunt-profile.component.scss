@@ -1,3 +1,4 @@
+
 .task-list {
   font-size: 18px;
   font-weight: bold;
@@ -89,5 +90,51 @@
 
 .task-line:hover .remove-task-fab {
   visibility: visible;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  margin: 0;
+}
+
+.return-to-hunts {
+  background-color: #007bff6e;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 10px;
+  font-weight: bold;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+  margin-bottom: 75px;
+  margin-top: 50px;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #00ccff;
+  }
+}
+
+.return-to-hunts:hover {
+  background-color: #007bff;
+  color: white;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #00ccff;
+  }
+}
+
+.bottom-background {
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+}
+
+.button-container {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
 }
 
