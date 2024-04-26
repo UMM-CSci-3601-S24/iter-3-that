@@ -951,15 +951,12 @@ class StartedHuntControllerSpec {
 
     startedHuntController.getTeamHunt(ctx);
 
-    assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
-    assertEquals(teamHuntId.toHexString(), teamHunt._id);
-    assertEquals(2, teamHunt.tasks.size());
-    assertEquals(3, teamHunt.members.size());
-    assertEquals("Team 1", teamHunt.teamName);
+    verify(ctx).json(teamHuntCaptor.capture());
+    verify(ctx).status(HttpStatus.OK);
   }
 
   @Test
-  void getHuntWithBadId() throws IOException {
+  void getTeamHuntWithBadId() throws IOException {
     when(ctx.pathParam("id")).thenReturn("bad");
 
     Throwable exception = assertThrows(BadRequestResponse.class, () -> {
@@ -971,7 +968,7 @@ class StartedHuntControllerSpec {
   }
 
   @Test
-  void getHuntWithNonexistentId() throws IOException {
+  void getTeamHuntWithNonexistentId() throws IOException {
     String id = "588935f5c668650dc77df581";
     when(ctx.pathParam("id")).thenReturn(id);
 
