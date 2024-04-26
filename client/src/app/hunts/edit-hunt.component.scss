@@ -6,9 +6,27 @@
 
 .edit-hunt-title {
   color: black;
+  margin-bottom: 20px;
 }
 
 mat-error {
   color: #ff0000;
   background-color: #ffffff;
+}
+
+.submit-button {
+  margin-top: 30px;
+  width: 50%;
+}
+
+.description-box {
+  width: 50%;
+}
+
+.time-box {
+  width: 50%;
+}
+
+.name-box {
+  width: 50%
 }
