@@ -550,6 +550,7 @@ class StartedHuntControllerSpec {
         .first().get("tasks", List.class).get(3);
     assertNotNull(updatedTask);
     assertNotEquals(null, updatedTask.get("photo", String.class));
+    assertTrue(updatedTask.get("status", Boolean.class));
   }
 
   @Test
