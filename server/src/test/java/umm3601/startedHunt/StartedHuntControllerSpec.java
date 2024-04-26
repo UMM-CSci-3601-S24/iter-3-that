@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -681,29 +682,26 @@ class StartedHuntControllerSpec {
   }
 
   @Test
-  void testGetFinishedTasks() {
-    ArrayList<Document> taskDocuments = db.getCollection("tasks").find(eq("huntId", huntId.toHexString()))
-        .into(new ArrayList<>());
-    ArrayList<Task> tasks = new ArrayList<>();
+  public void testGetTaskPhoto() {
+    Task task1 = new Task();
+    Task task2 = new Task();
+    List<Task> tasks = Arrays.asList(task1, task2);
+    StartedHuntController controller = Mockito.spy(new StartedHuntController(db));
+    doReturn("photo1").when(controller).getPhotoFromTask(tasks.get(0));
+    doReturn("photo2").when(controller).getPhotoFromTask(tasks.get(1));
 
-    for (Document taskDocument : taskDocuments) {
-      Task task = new Task();
-      task._id = taskDocument.getObjectId("_id").toHexString();
-      task.huntId = taskDocument.getString("huntId");
-      task.name = taskDocument.getString("name");
-      task.status = taskDocument.getBoolean("status");
-      task.photo = taskDocument.get("photo", String.class);
-      tasks.add(task);
-    }
+    // Act
+    List<Task> result = controller.getTaskPhoto(tasks);
 
-    List<FinishedTask> finishedTasks = startedHuntController.getFinishedTasks(tasks);
-
-    assertEquals(3, finishedTasks.size());
+    // Assert
+    assertEquals("photo1", result.get(0).photo);
+    assertEquals("photo2", result.get(1).photo);
   }
 
   @Test
   void testGetEndedHunt() {
-    ArrayList<Document> taskDocuments = db.getCollection("tasks").find(eq("huntId", huntId.toHexString()))
+    ArrayList<Document> teamHuntsDocuments = db.getCollection("teamHunts")
+        .find(eq("startedHuntId", startedHuntId.toHexString()))
         .into(new ArrayList<>());
 
     when(ctx.pathParam("id")).thenReturn(startedHuntId.toHexString());
@@ -713,11 +711,11 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.OK);
     verify(ctx).json(finishedHuntCaptor.capture());
 
-    EndedHunt finishedHunt = finishedHuntCaptor.getValue();
-    assertNotNull(finishedHunt.teamHunts);
-    assertEquals(taskDocuments.get(0).get("_id").toString(), finishedHunt.finishedTasks.get(0).taskId);
-    assertEquals(taskDocuments.get(1).get("_id").toString(), finishedHunt.finishedTasks.get(1).taskId);
-    assertEquals(taskDocuments.get(2).get("_id").toString(), finishedHunt.finishedTasks.get(2).taskId);
+    EndedHunt endedHunt = finishedHuntCaptor.getValue();
+    assertNotNull(endedHunt.teamHunts);
+    assertEquals(teamHuntsDocuments.get(0).get("_id").toString(), endedHunt.teamHunts.get(0)._id);
+    assertEquals(teamHuntsDocuments.get(1).get("_id").toString(), endedHunt.teamHunts.get(1)._id);
+    assertEquals(teamHuntsDocuments.get(2).get("_id").toString(), endedHunt.teamHunts.get(2)._id);
   }
 
   @SuppressWarnings("unchecked")
@@ -1007,9 +1005,9 @@ class StartedHuntControllerSpec {
 
     // Delete the directory even if it's not empty
     Files.walk(directory.toPath())
-      .sorted(Comparator.reverseOrder())
-      .map(Path::toFile)
-      .forEach(File::delete);
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
 
     Path directoryPath = Paths.get("photos");
 
@@ -1021,8 +1019,8 @@ class StartedHuntControllerSpec {
 
     // Delete the directory even if it's not empty
     Files.walk(directory.toPath())
-      .sorted(Comparator.reverseOrder())
-      .map(Path::toFile)
-      .forEach(File::delete);
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
   }
 }
