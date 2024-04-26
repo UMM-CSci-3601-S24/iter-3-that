@@ -22,6 +22,7 @@ export class HostService {
   readonly endedHuntsUrl: string = `${environment.apiUrl}endedHunts`;
   readonly endedHuntUrl: string = `${environment.apiUrl}teamHunt`;
   readonly teamUrl: string = `${environment.apiUrl}teamHunts`;
+  readonly teamHuntUrl: string = `${environment.apiUrl}teamHunt`;
 
   constructor(private httpClient: HttpClient){
   }
@@ -61,6 +62,10 @@ export class HostService {
 
   getTeamHunt(id: string): Observable<TeamHunt> {
     return this.httpClient.get<TeamHunt>(`${this.teamUrl}/${id}`);
+  }
+
+  getTeamsByCode (accessCode: string): Observable<TeamHunt[]> {
+    return this.httpClient.get<TeamHunt[]>(`${this.teamHuntUrl}/${accessCode}`);
   }
 
   createTeam(newTeamHunt: Partial<TeamHunt>): Observable<string> {
