@@ -102,9 +102,6 @@ export class EditHuntComponent implements OnInit {
           null,
           { duration: 2000 }
         );
-        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-          this.router.navigate(['/hosts']);
-        });
       },
       error: err => {
         this.snackBar.open(
@@ -114,6 +111,10 @@ export class EditHuntComponent implements OnInit {
         );
       },
     });
+  }
+
+  reloadPage() {
+    window.location.reload();
   }
 
   navigateToHosts() {
