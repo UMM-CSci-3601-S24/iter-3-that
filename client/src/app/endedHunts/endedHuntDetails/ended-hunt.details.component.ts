@@ -69,7 +69,7 @@ export class EndedHuntDetailsComponent implements OnInit, OnDestroy {
   }
 
   getTaskName(taskId: string): string {
-    return this.endedHunt.startedHunt.completeHunt.tasks.find(
+    return this.endedHunt.teamHunts[0].tasks.find(
       (task) => task._id === taskId
     ).name;
   }

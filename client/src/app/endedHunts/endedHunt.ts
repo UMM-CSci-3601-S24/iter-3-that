@@ -1,7 +1,7 @@
-import { StartedHunt } from "../startHunt/startedHunt";
+import { TeamHunt } from "../hunters/join-hunt/teamHunt";
 import { FinishedTask } from "./finishedTask";
 
 export interface EndedHunt {
-  startedHunt: StartedHunt;
+  teamHunts: TeamHunt[];
   finishedTasks: FinishedTask[];
 }
