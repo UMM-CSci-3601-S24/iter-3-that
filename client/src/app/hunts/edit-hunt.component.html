@@ -8,7 +8,7 @@
         </mat-card-header>
         <mat-card-content>
           <div class="flex-col">
-            <mat-form-field>
+            <mat-form-field class="name-box">
               <mat-label>Hunt Name</mat-label>
               <input matInput formControlName="name" required>
               @if (formControlHasError('name')) {
@@ -18,7 +18,7 @@
               }
             </mat-form-field>
 
-            <mat-form-field>
+            <mat-form-field class="description-box">
               <mat-label>Edit Description</mat-label>
               <input matInput formControlName="description" required>
               @if (formControlHasError('description')) {
@@ -28,7 +28,7 @@
               }
             </mat-form-field>
 
-            <mat-form-field>
+            <mat-form-field class="time-box">
               <mat-label>Edit Estimated Time</mat-label>
               <input matInput type="number"
                 formControlName="est" required>
