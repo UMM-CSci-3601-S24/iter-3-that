@@ -259,6 +259,7 @@ public class StartedHuntController implements Controller {
     }
 
     task.photo = photoPath.toString();
+    task.status = true;
     teamHunt.tasks.set(teamHunt.tasks.indexOf(task), task);
     teamHuntCollection.save(teamHunt);
   }
