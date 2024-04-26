@@ -283,9 +283,10 @@ public class StartedHuntController implements Controller {
   public void getEndedHunt(Context ctx) {
     EndedHunt endedHunt = new EndedHunt();
     endedHunt.startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("id")))).first();
-    endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", endedHunt.startedHunt._id)).into(new ArrayList<>());
+    endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", endedHunt.startedHunt._id))
+      .into(new ArrayList<>());
     for (TeamHunt teamHunt : endedHunt.teamHunts) {
-      teamHunt.tasks = getFinishedTasks(teamHunt.tasks);
+      teamHunt.tasks = getTaskPhoto(teamHunt.tasks);
     }
 
     ctx.json(endedHunt);
@@ -308,7 +309,7 @@ public class StartedHuntController implements Controller {
     }
   }
 
-  public List<Task> getFinishedTasks(List<Task> tasks) {
+  public List<Task> getTaskPhoto(List<Task> tasks) {
     for (Task task : tasks) {
       task.photo = getPhotoFromTask(task);
     }
