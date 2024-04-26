@@ -180,19 +180,19 @@ class StartedHuntControllerSpec {
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a cat")
             .append("status", false)
-            .append("photo", null));
+            .append("photo", ""));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a dog")
             .append("status", false)
-            .append("photo", null));
+            .append("photo", ""));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a park")
             .append("status", true)
-            .append("photo", null));
+            .append("photo", ""));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -200,7 +200,7 @@ class StartedHuntControllerSpec {
         .append("huntId", "someId")
         .append("name", "Best Task")
         .append("status", false)
-        .append("photo", null);
+        .append("photo", "");
 
     taskDocuments.insertMany(testTasks);
     taskDocuments.insertOne(task);
