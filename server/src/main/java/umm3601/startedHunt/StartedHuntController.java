@@ -129,7 +129,7 @@ public class StartedHuntController implements Controller {
 
     for (TeamHunt teamHunt : teamHuntCollection.find(eq("startedHuntId", id)).into(new ArrayList<>())) {
       for (Task task : teamHunt.tasks) {
-        if (task.photo != null) {
+        if (task.photo.length() > 0) {
           deletePhoto(task.photo, ctx);
         }
       }
