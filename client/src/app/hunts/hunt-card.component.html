@@ -5,11 +5,6 @@
       <mat-card-subtitle class="hunt-card-description" [class.host-profile]="context === 'host-profile'">{{
         this.hunt().description }}</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-actions>
-      <button *ngIf="context === 'hunt-profile'" mat-icon-button class="edit-hunt-button" matTooltip="Edit Hunt" (click)="openEditDialog()" data-test="editHuntButton">
-        <mat-icon>edit</mat-icon>
-      </button>
-    </mat-card-actions>
   <mat-card-actions class="actions-container">
       <div>
         @if (this.simple()) {
@@ -50,6 +45,15 @@
           <span class="time-text">
             {{ hunt().est > 60 ? math.floor(hunt().est / 60) + 'h ' + hunt().est % 60 + 'm' : hunt().est + ' min' }}
           </span>
+          </div>
+    </mat-card-title>
+    <mat-card-title class="hunt-card-edit bottom-right icon-bottom">
+      <div>
+        <mat-card-actions>
+          <button *ngIf="context === 'hunt-profile'" mat-icon-button class="edit-hunt-button" matTooltip="Edit Hunt" (click)="openEditDialog()" data-test="editHuntButton">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </mat-card-actions>
           </div>
     </mat-card-title>
   </mat-card>
