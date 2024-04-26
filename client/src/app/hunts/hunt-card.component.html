@@ -22,7 +22,7 @@
           <mat-card-actions class="button-container">
             <form [formGroup]="NumberofTeamsForm">
               <button mat-button (click)="startHunt(hunt()._id)" class="begin-hunt">Begin Hunt</button>
-              <mat-form-field>
+              <mat-form-field class="form-box">
                 <mat-label>Number of Teams</mat-label>
                 <input matInput type="number"
                   formControlName="numTeam" required>
