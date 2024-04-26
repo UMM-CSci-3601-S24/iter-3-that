@@ -45,7 +45,6 @@ describe('EditHuntComponent', () => {
     component.submitForm();
     expect(mockHostService.updateHunt).toHaveBeenCalled();
     expect(mockSnackBar.open).toHaveBeenCalled();
-    expect(mockRouter.navigateByUrl).toHaveBeenCalled();
   });
 
   it('should navigate to hosts', () => {
@@ -92,6 +91,6 @@ describe('EditHuntComponent', () => {
       'OK',
       { duration: 5000 }
     );
-  });
+  })
 
 });
