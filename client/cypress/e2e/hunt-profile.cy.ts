@@ -39,7 +39,9 @@ describe('Hunt Profile', () => {
     page.getFormField('numTeam').type('2', {force: true});
     page.getHuntCardBeginHuntButton().should('exist');
     page.getHuntCardBeginHuntButton().click();
+    cy.wait(2000);
     page.getAccessCode().then((accessCode) => {
+      cy.wait(1000);
       cy.url().should('eq', `http://localhost:4200/startedHunts/${accessCode}`);
     });
   })
