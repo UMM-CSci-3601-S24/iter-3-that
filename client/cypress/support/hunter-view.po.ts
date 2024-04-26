@@ -16,6 +16,8 @@ export class HunterViewPage {
   private readonly cancelCaptureImageButton = '.cancel-capture-button';
   private readonly snackBar = '.mat-mdc-snack-bar-label.mdc-snackbar__label';
   private readonly cancelOverlay = '.overlay';
+  private readonly teamNameField = 'input[formControlName="teamName"]';
+  private readonly teamMembersField = '.member';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -197,5 +199,23 @@ export class HunterViewPage {
    */
   getCancelOverlay() {
     return cy.get(this.cancelOverlay);
+  }
+
+  /**
+   * Get the team field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getTeamNameField() {
+    return cy.get(this.teamNameField);
+  }
+
+  /**
+   * Get the team members field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getTeamMembersField() {
+    return cy.get(this.teamMembersField);
   }
 }

@@ -19,7 +19,7 @@
 
             <div formArrayName="members">
               <div *ngFor="let memberCtrl of members.controls; let i = index">
-                <mat-form-field>
+                <mat-form-field data-test="member">
                   <mat-label>Team Member</mat-label>
                   <input matInput [formControlName]="i" required>
                   @if (formControlHasError('members')) {

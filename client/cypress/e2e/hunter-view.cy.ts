@@ -55,7 +55,8 @@ describe('Hunter View', () => {
       page.clickJoinHuntButton();
     })
 
-//     navigate to the hunter view page with access code.
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John Doe, Jane Doe');
 
     page.getHunterViewTitle().contains('You are in');
   });
@@ -341,5 +342,6 @@ describe('Hunter View', () => {
 
     page.getTakePictureButton().first().click();
     page.getCancelOverlay().click({force: true});
-  })
+  });
+
 });
