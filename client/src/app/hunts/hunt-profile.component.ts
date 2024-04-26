@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
 import { HuntCardComponent } from './hunt-card.component';
@@ -26,6 +26,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconButton,
     MatIcon,
     HttpClientModule,
+    RouterLink,
   ],
 })
 export class HuntProfileComponent implements OnInit, OnDestroy {
