@@ -30,6 +30,9 @@
     margin-top: 20px;
     margin-bottom: 20px;
     padding: 50px;
+    border: 2px solid #01b5ec;
+    box-shadow: 0 0 5px 0 #1128f8;
+    transition: box-shadow 0.3s;
   }
 
   .hunter-button:hover {
@@ -66,11 +69,12 @@
   margin-top: 20px;
   margin-bottom: 20px;
   padding: 50px;
-  border: black;
+  border: 2px solid #01b5ec;
+  box-shadow: 0 0 5px 0 #1128f8;
+  transition: box-shadow 0.3s;
 }
 
 .host-button:hover {
   background-color: rgb(190, 231, 255);
   color: #fff;
 }
-
