@@ -282,10 +282,10 @@ public class StartedHuntController implements Controller {
 
   public void getEndedHunt(Context ctx) {
     EndedHunt endedHunt = new EndedHunt();
-    endedHunt.finishedTasks = new ArrayList<>();
-    endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", ctx.pathParam("id"))).into(new ArrayList<>());
+    endedHunt.startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("id")))).first();
+    endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", endedHunt.startedHunt._id)).into(new ArrayList<>());
     for (TeamHunt teamHunt : endedHunt.teamHunts) {
-      endedHunt.finishedTasks.addAll(getFinishedTasks(teamHunt.tasks));
+      teamHunt.tasks = getFinishedTasks(teamHunt.tasks);
     }
 
     ctx.json(endedHunt);
@@ -308,16 +308,11 @@ public class StartedHuntController implements Controller {
     }
   }
 
-  public List<FinishedTask> getFinishedTasks(List<Task> tasks) {
-    ArrayList<FinishedTask> finishedTasks = new ArrayList<>();
-    FinishedTask finishedTask;
+  public List<Task> getFinishedTasks(List<Task> tasks) {
     for (Task task : tasks) {
-      finishedTask = new FinishedTask();
-      finishedTask.taskId = task._id;
-      finishedTask.photo = getPhotoFromTask(task);
-      finishedTasks.add(finishedTask);
+      task.photo = getPhotoFromTask(task);
     }
-    return finishedTasks;
+    return tasks;
   }
 
   public String getPhotoFromTask(Task task) {
