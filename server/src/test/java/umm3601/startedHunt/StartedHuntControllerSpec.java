@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -606,6 +607,20 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.OK);
     startedHuntController.deletePhoto(id, ctx);
   }
+
+    @Test
+    public void testAddPhoto_HuntHasAlreadyEnded() {
+      Document startedHunt = db.getCollection("startedHunts")
+          .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+      startedHunt.put("status", false);
+      db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+
+      when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+
+      assertThrows(BadRequestResponse.class, () -> {
+        startedHuntController.addPhoto(ctx);
+      });
+    }
 
   @SuppressWarnings("unchecked")
   @Test
