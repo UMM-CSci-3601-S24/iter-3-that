@@ -13,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { WebcamImage, WebcamModule } from 'ngx-webcam';
 import { Observable } from 'rxjs';
 import { TeamHunt } from './teamHunt';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-hunter-view',
@@ -102,9 +103,9 @@ export class HunterViewComponent implements OnInit, OnDestroy {
           duration: 3000,
         });
       },
-      error: (error: Error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Error uploading photo', error);
-        this.snackBar.open('Error uploading photo. Please try again', 'Close', {
+        this.snackBar.open('Error uploading photo: ' + error.error.title, 'Close', {
           duration: 3000,
         });
       },

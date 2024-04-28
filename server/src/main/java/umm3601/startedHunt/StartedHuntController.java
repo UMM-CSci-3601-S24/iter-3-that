@@ -201,6 +201,15 @@ public class StartedHuntController implements Controller {
   }
 
   public void addPhoto(Context ctx) {
+    TeamHunt teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("teamHuntId")))).first();
+    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(teamHunt.startedHuntId))).first();
+    if (startedHunt == null) {
+      ctx.status(HttpStatus.NOT_FOUND);
+      throw new BadRequestResponse("StartedHunt with ID " + teamHunt.startedHuntId + " does not exist");
+    } else if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt has already ended");
+    }
     String id = uploadPhoto(ctx);
     addPhotoPathToTask(ctx, id);
     ctx.status(HttpStatus.CREATED);
