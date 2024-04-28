@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -609,7 +608,7 @@ class StartedHuntControllerSpec {
   }
 
     @Test
-    public void testAddPhoto_HuntHasAlreadyEnded() {
+    public void testAddPhotoHuntHasAlreadyEnded() {
       Document startedHunt = db.getCollection("startedHunts")
           .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
       startedHunt.put("status", false);
