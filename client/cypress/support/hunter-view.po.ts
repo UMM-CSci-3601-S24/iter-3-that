@@ -16,10 +16,10 @@ export class HunterViewPage {
   private readonly cancelCaptureImageButton = '.cancel-capture-button';
   private readonly snackBar = '.mat-mdc-snack-bar-label.mdc-snackbar__label';
   private readonly cancelOverlay = '.overlay';
-  // private readonly teamNameField = 'input[formControlName="teamName"]';
   private readonly teamNameField = '.test-team-name-input';
   private readonly teamMembersField = '.team-member-input';
   private readonly createTeamButton = '.submit-button';
+  private readonly cancelCreateTeamButton = '.cancel-button';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -228,5 +228,14 @@ export class HunterViewPage {
    */
   clickCreateTeamButton() {
     return cy.get(this.createTeamButton).click();
+  }
+
+  /**
+   * Click the cancel create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCancelCreateTeamButton() {
+    return cy.get(this.cancelCreateTeamButton).click();
   }
 }
