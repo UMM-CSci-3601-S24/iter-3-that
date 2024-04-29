@@ -8,9 +8,9 @@ import org.mongojack.JacksonMongoCollection;
 import java.util.ArrayList;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
+// import java.util.HashMap;
+// import java.util.Iterator;
+// import java.util.concurrent.TimeUnit;
 
 import com.mongodb.client.MongoDatabase;
 
@@ -19,7 +19,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
-import io.javalin.websocket.WsContext;
+// import io.javalin.websocket.WsContext;
 import umm3601.Controller;
 
 
@@ -29,16 +29,16 @@ import umm3601.Controller;
 @SuppressWarnings({ "MagicNumber" })
 public class TeamHuntController implements Controller {
   private static final String API_TEAMHUNTS_BY_INVITE_CODE = "api/teamHunt/{invitecode}";
-  private static final String TEAMHUNT_UPDATES_WEBSOCKET = "ws/teamHunt/{startedhuntid}";
+  // private static final String TEAMHUNT_UPDATES_WEBSOCKET = "ws/teamHunt/{startedhuntid}";
 
   static final String INVITE_CODE_KEY = "accessCode";
   static final String STARTED_HUNT_ID_KEY = "startedHuntId";
 
-  private final int secondToPing = 5;
+  // private final int secondToPing = 5;
 
   //the string value that is associated with the WsContexts is the started HuntId that all team hunts can be gotten from
   //put there for ease of access in functions
-  private HashMap<WsContext, String> connectedContextsDictionary = new HashMap<WsContext, String>();
+  // private HashMap<WsContext, String> connectedContextsDictionary = new HashMap<WsContext, String>();
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
   private final JacksonMongoCollection<TeamHunt> teamHuntCollection;
