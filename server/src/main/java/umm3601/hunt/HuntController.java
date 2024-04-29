@@ -271,6 +271,8 @@ public class HuntController implements Controller {
       }
     } catch (IllegalArgumentException e) {
       throw new BadRequestResponse("The requested hunt id wasn't a legal Mongo Object ID.");
+    } catch (NotFoundResponse e) {
+      throw e;
     } catch (Exception e) {
       e.printStackTrace(); // This will print the stack trace of the exception to the console
       throw new InternalServerErrorResponse("Error updating the hunt.");

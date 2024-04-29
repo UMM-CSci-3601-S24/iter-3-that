@@ -744,7 +744,7 @@ class HuntControllerSpec {
 
   @Test
   void updatedHuntWithANotFoundException() {
-    String testID = "507f1f77bcf86cd799439011"; // non-existent ID
+    String testID = "507f1f77bcf86cd799439011";
     when(ctx.pathParam("id")).thenReturn(testID);
 
     Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
