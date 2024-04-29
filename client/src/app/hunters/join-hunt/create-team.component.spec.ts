@@ -140,14 +140,17 @@ describe('CreateTeamComponent', () => {
     });
 
     it('should return the correct error message for members', () => {
-      createTeamComponent.teamForm.get('members').setErrors({ required: true });
-      expect(createTeamComponent.getErrorMessage('members')).toBe('At least one member is required');
+      const membersArray = createTeamComponent.teamForm.get('members') as FormArray;
+      const memberControl = membersArray.at(0); // Get the control for the first member
 
-      createTeamComponent.teamForm.get('members').setErrors({ minlength: true });
-      expect(createTeamComponent.getErrorMessage('members')).toBe('Team name must be at least 1 character long');
+      memberControl.setErrors({ required: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('Must enter a team member');
 
-      createTeamComponent.teamForm.get('members').setErrors({ maxlength: true });
-      expect(createTeamComponent.getErrorMessage('members')).toBe('Team name cannot be more than 50 characters long');
+      memberControl.setErrors({ minlength: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('Team member must be at least 1 character long');
+
+      memberControl.setErrors({ maxlength: true });
+      expect(createTeamComponent.getErrorMessage('members')).toBe('Team member cannot be more than 50 characters long');
     });
   });
 
