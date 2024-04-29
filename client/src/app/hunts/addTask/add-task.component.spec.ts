@@ -142,7 +142,9 @@ describe('AddTaskComponent#submitForm()', () => {
   beforeEach(() => {
     component.addTaskForm.controls.name.setValue('Take a picture of a dog');
     component.addTaskForm.controls.huntId.setValue('1');
-    component.completeHunt = input({ hunt: { _id: '1', hostId: '', name: '', description: '', est: 0, numberOfTasks: 0 }, tasks: [] });
+    TestBed.runInInjectionContext(() => {
+      component.completeHunt = input({ hunt: { _id: '1', hostId: '', name: '', description: '', est: 0, numberOfTasks: 0 }, tasks: [] });
+    });
   });
 
   it('should call addTask() and handle error response', () => {

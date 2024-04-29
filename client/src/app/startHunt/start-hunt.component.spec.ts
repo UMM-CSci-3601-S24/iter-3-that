@@ -109,7 +109,7 @@ describe('StartHuntComponent', () => {
     component.endHunt();
 
     expect(endStartedHuntSpy).toHaveBeenCalledWith(id);
-    expect(navigateSpy).toHaveBeenCalledWith(['/hosts']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/endedHunts/', 'fran_id']);
     expect(snackBarSpy).toHaveBeenCalledWith('Hunt ended successfully', 'Close', { duration: 2000 });
   });
 
@@ -152,7 +152,7 @@ describe('StartHuntComponent', () => {
     component.onEndHuntClick(event);
 
     expect(endStartedHuntSpy).toHaveBeenCalledWith(id);
-    expect(navigateSpy).toHaveBeenCalledWith(['/hosts']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/endedHunts/', 'fran_id']);
     expect(snackBarSpy).toHaveBeenCalledWith('Hunt ended successfully', 'Close', { duration: 2000 });
   });
 });
