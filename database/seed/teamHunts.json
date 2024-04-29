@@ -1,0 +1,69 @@
+[
+  {
+    "_id": {
+      "$oid": "588935f37587a2daea54de7c"
+    },
+    "startedHuntId": "588935f",
+    "teamName": "John Doe",
+    "members": [
+      "John Doe",
+      "Jane Doe"
+    ],
+    "tasks": [
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a McDonald's",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "588935f57656a3daea54de8c"
+        }
+      },
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a Yield sign",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "583935f57556a3daea54de8c"
+        }
+      },
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a cat",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "588935f56536a3daea54de8c"
+        }
+      },
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a football field",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "548935f57556a3daea54de8c"
+        }
+      },
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a red car",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "588933f57556a3daea54de8c"
+        }
+      },
+      {
+        "huntId": "588935f57547a2daea54de7c",
+        "name": "Take a picture of a slide",
+        "status": false,
+        "photo": "",
+        "_id": {
+          "$oid": "588535f57556a3daea54de8c"
+        }
+      }
+    ]
+  }
+]

@@ -7,14 +7,11 @@ import { Router, RouterLink } from '@angular/router';
 import { Hunt } from './hunt';
 import { CommonModule } from '@angular/common';
 import { HostService } from '../hosts/host.service';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog } from '@angular/material/dialog';
+import { EditHuntComponent } from './edit-hunt.component';
 
 @Component({
   selector: 'app-hunt-card',
@@ -63,7 +60,7 @@ export class HuntCardComponent {
 
   @Input() context: 'host-profile' | 'hunt-profile' = 'hunt-profile';
 
-  constructor(private hostService: HostService, private router: Router) {}
+  constructor(private hostService: HostService, private router: Router, private dialog: MatDialog) {}
 
   startHunt(id: string): void {
     const numTeams = this.NumberofTeamsForm.get('numTeam').value;
@@ -74,6 +71,20 @@ export class HuntCardComponent {
 
   estHours(minutes: number): number {
     return Math.floor(minutes / 60);
+  }
+
+  openEditDialog(): void {
+    const dialogRef = this.dialog.open(EditHuntComponent, {
+      width: '75%',
+      height: '46%',
+      data: { huntToEdit: this.hunt() }
+    });
+
+    dialogRef.afterClosed().subscribe(updatedHunt => {
+      if (updatedHunt) {
+        this.hunt = updatedHunt;
+      }
+    });
   }
 
   formControlHasError(controlName: string): boolean {

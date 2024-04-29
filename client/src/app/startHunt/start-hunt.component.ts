@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute, Router, ParamMap } from "@angular/router";
-import { Subject, map, switchMap, takeUntil } from "rxjs";
+import { Subject, interval, map, startWith, switchMap, takeUntil } from "rxjs";
 import { HostService } from "../hosts/host.service";
 import { StartedHunt } from "./startedHunt";
 import { MatCard, MatCardActions, MatCardContent } from "@angular/material/card";
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TeamHunt } from "../hunters/join-hunt/teamHunt";
 
 
 @Component({
@@ -22,10 +23,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 export class StartHuntComponent implements OnInit, OnDestroy {
   startedHunt: StartedHunt;
+  hunterTeams: TeamHunt[];
   huntBegun = false;
   error: { help: string, httpResponse: string, message: string };
 
   private ngUnsubscribe = new Subject<void>();
+  code: string;
 
   constructor(private snackBar: MatSnackBar, private route: ActivatedRoute, private hostService: HostService, private router: Router, public dialog: MatDialog) { }
 
@@ -52,6 +55,42 @@ export class StartHuntComponent implements OnInit, OnDestroy {
         };
       }
     });
+
+    this.route.paramMap.pipe(
+
+      map((paramMap: ParamMap) => paramMap.get('accessCode')),
+
+      switchMap((accessCode: string) => this.hostService.getTeamsByCode(this.code = accessCode)),
+
+      takeUntil(this.ngUnsubscribe)
+    ).subscribe({
+      next: hunters => {
+        this.hunterTeams = hunters;
+        console.log(this.hunterTeams);
+        console.log('Code: ' + this.code);
+        return ;
+      },
+      error: _err => {
+        this.error = {
+          help: 'There was a problem retrieving hunters – try again.',
+          httpResponse: _err.message,
+          message: _err.error?.title,
+        };
+      }
+    });
+
+    interval(2000) // 2000 ms = 2 seconds
+    .pipe(
+      startWith(0), // start immediately on load
+      switchMap(() => this.hostService.getTeamsByCode(this.code))
+    )
+    .subscribe(
+      hunters => {
+        this.hunterTeams = hunters;
+        console.log('refreshed hunterTeams');
+      },
+      error => console.error('Error fetching hunter teams', error)
+    );
   }
 
   beginHunt() {
@@ -61,7 +100,7 @@ export class StartHuntComponent implements OnInit, OnDestroy {
   onEndHuntClick(event: Event) {
     event.stopPropagation();
     if (window.confirm('Are you sure you want to end this hunt?')) {
-      this.endHunt()
+      this.endHunt();
     }
   }
 
@@ -88,4 +127,18 @@ export class StartHuntComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  returnPercent(teamInput: TeamHunt): number {
+    let numTrue = 0;
+    const progress = teamInput.tasks;
+     for(const val of progress)
+     {
+        if(val.status)
+        {
+          numTrue++;
+        }
+     }
+     return ((numTrue * 100.0)/progress.length);
+    }
+
 }

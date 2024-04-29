@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatOptionModule } from "@angular/material/core";
@@ -8,7 +8,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { HostService } from "src/app/hosts/host.service";
 
 @Component({
@@ -16,53 +16,44 @@ import { HostService } from "src/app/hosts/host.service";
   templateUrl: './create-team.component.html',
   styleUrls: ['./create-team.component.scss'],
   standalone: true,
-  imports: [CommonModule,RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
+  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class CreateTeamComponent {
-  members: { name: string }[] = [{ name: '' }];
+  //memberArray: { name: string }[] = [{ name: '' }];
 
   teamForm = new FormGroup({
-    name: new FormControl('', Validators.compose([
+    teamName: new FormControl('', Validators.compose([
       Validators.required,
       Validators.minLength(1),
       Validators.maxLength(50)
     ])),
 
-    member: new FormControl('', Validators.compose([
-      //Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(85)
-    ])),
+    members: new FormArray([
+      new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(85)
+      ]))
+    ]),
+
+    startedHuntId: new FormControl(''),
 
   });
 
   readonly createTeamValidationMessages = {
-    name: [
+    teamName: [
       { type: 'required', message: 'Team name is required' },
       { type: 'minlength', message: 'Team name must be at least 1 character long' },
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
     ],
-    member: [
+    members: [
       { type: 'required', message: 'At least one member is required' },
       { type: 'minlength', message: 'Team name must be at least 1 character long' },
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
     ],
   };
 
-  constructor(private hostService: HostService, private fb: FormBuilder, private router: Router, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) {
-  }
-
-  createTeam(): void {
-    if (this.teamForm.valid) {
-      const teamName = this.teamForm.get('name').value;
-      const memberNames = this.teamForm.get('member').value.split(',').map(name => name.trim());
-
-      this.hostService.createTeam(teamName, memberNames).subscribe(response => {
-        this.router.navigate(['/team', response._id]);
-      }, error => {
-        console.error('Error creating team:', error);
-      });
-    }
+  constructor(private hostService: HostService, private route: ActivatedRoute, private router: Router, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) {
   }
 
   formControlHasError(controlName: string): boolean {
@@ -80,37 +71,38 @@ export class CreateTeamComponent {
   }
 
   submitForm(): void {
-    if (this.teamForm.valid) {
-      const teamName = this.teamForm.get('name').value;
-      const memberNames = this.teamForm.get('member').value.split(',').map(name => name.trim());
-
-      this.hostService.createTeam(teamName, memberNames).subscribe({
-        next: (newTeam) => {
-          this.snackBar.open(
-            `Added team ${newTeam.teamName}`,
-            null,
-            { duration: 2000 }
-          );
-          this.router.navigate(['/team', newTeam._id]);
-        },
-        error: err => {
-          this.snackBar.open(
-            `Problem contacting the server – Error Code: ${err.status}\nMessage: ${err.message}`,
-            'OK',
-            { duration: 5000 }
-          );
-        },
-      });
-    }
+    const id = this.route.snapshot.paramMap.get('id');
+    this.teamForm.get('startedHuntId').setValue(id);
+    this.hostService.createTeam(this.teamForm.value).subscribe({
+      next: (newId) => {
+        this.snackBar.open('Team created successfully', 'Close', {
+          duration: 5000
+        });
+        this.router.navigate(['/team/', newId]);
+      },
+      error: (err) => {
+        console.error('Error creating team:', err);
+        this.snackBar.open('Error creating team', 'Close', {
+          duration: 5000
+        });
+      }
+    });
   }
 
   addMember() {
-    this.members.push({ name: '' });
-    this.cdr.detectChanges();
+    (this.teamForm.get('members') as FormArray).push(new FormControl('', Validators.compose([
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(85)
+    ])));
   }
 
   removeMember(index: number) {
-    this.members.splice(index, 1);
+    (this.teamForm.get('members') as FormArray).removeAt(index);
+  }
+
+  get members() {
+    return this.teamForm.get('members') as FormArray;
   }
 
 }

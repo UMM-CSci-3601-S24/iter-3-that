@@ -3,5 +3,5 @@ export interface Task {
   huntId: string;
   name: string;
   status: boolean;
-  photos: string[];
+  photo: string;
 }

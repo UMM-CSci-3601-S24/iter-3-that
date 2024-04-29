@@ -1,0 +1,47 @@
+
+<div class="flex-row">
+  <div class="flex-1">
+    <form [formGroup]="editHuntForm" (ngSubmit)="submitForm();">
+      <mat-card class="edit-hunt-card">
+        <mat-card-header>
+          <mat-card-title class="edit-hunt-title">Edit Hunt</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flex-col">
+            <mat-form-field class="name-box">
+              <mat-label>Hunt Name</mat-label>
+              <input matInput formControlName="name" required>
+              @if (formControlHasError('name')) {
+                <mat-error data-test="nameError">
+                  {{getErrorMessage('name')}}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="description-box">
+              <mat-label>Edit Description</mat-label>
+              <input matInput formControlName="description" required>
+              @if (formControlHasError('description')) {
+                <mat-error data-test="descriptionError">
+                  {{getErrorMessage('description')}}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="time-box">
+              <mat-label>Edit Estimated Time</mat-label>
+              <input matInput type="number"
+                formControlName="est" required>
+              @if (formControlHasError('est')) {
+                <mat-error data-test="estError">
+                  {{getErrorMessage('est')}}
+                </mat-error>
+              }
+            </mat-form-field>
+            <button (click)="reloadPage()" class="submit-button" mat-raised-button color="primary" type="submit">Complete Edit</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+</div>

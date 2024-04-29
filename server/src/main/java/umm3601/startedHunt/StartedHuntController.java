@@ -34,22 +34,23 @@ import java.util.Base64;
 public class StartedHuntController implements Controller {
 
   private static final String API_STARTED_HUNT = "/api/startedHunts/{accessCode}";
+  private static final String API_TEAM_HUNTS = "/api/teamHunts";
+  private static final String API_TEAM_HUNT = "/api/teamHunts/{id}";
   private static final String API_END_HUNT = "/api/endHunt/{id}";
   private static final String API_ENDED_HUNT = "/api/endedHunts/{id}";
   private static final String API_ENDED_HUNTS = "/api/hosts/{id}/endedHunts";
   private static final String API_DELETE_HUNT = "/api/endedHunts/{id}";
-  private static final String API_PHOTO_UPLOAD = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo";
-  private static final String API_PHOTO_REPLACE = "/api/startedHunt/{startedHuntId}/tasks/{taskId}/photo/{photoId}";
+  private static final String API_PHOTO_UPLOAD = "/api/teamHunt/{teamHuntId}/tasks/{taskId}/photo";
 
   private static final int ACCESS_CODE_LENGTH = 6;
   private static final int REASONABLE_TEAM_NAME_LENGTH = 50;
   private static final int REASONABLE_AMOUNT_OF_MEMBERS = 20;
 
   private final JacksonMongoCollection<StartedHunt> startedHuntCollection;
-  private final JacksonMongoCollection<TeamHunt> teamCollection;
+  private final JacksonMongoCollection<TeamHunt> teamHuntCollection;
 
   public StartedHuntController(MongoDatabase database) {
-    teamCollection = JacksonMongoCollection.builder().build(
+    teamHuntCollection = JacksonMongoCollection.builder().build(
         database,
         "teamHunts",
         TeamHunt.class,
@@ -74,14 +75,17 @@ public class StartedHuntController implements Controller {
 
     // Validate the access code
     if (accessCode.length() != ACCESS_CODE_LENGTH || !accessCode.matches("\\d+")) {
+      ctx.status(HttpStatus.BAD_REQUEST);
       throw new BadRequestResponse("The requested access code is not a valid access code.");
     }
 
     startedHunt = startedHuntCollection.find(eq("accessCode", accessCode)).first();
 
     if (startedHunt == null) {
+      ctx.status(HttpStatus.NOT_FOUND);
       throw new NotFoundResponse("The requested access code was not found.");
     } else if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
       throw new BadRequestResponse("The requested hunt is no longer joinable.");
     } else {
       ctx.json(startedHunt);
@@ -113,7 +117,6 @@ public class StartedHuntController implements Controller {
 
   public void deleteStartedHunt(Context ctx) {
     String id = ctx.pathParam("id");
-    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(id))).first();
     DeleteResult deleteResult = startedHuntCollection.deleteOne(eq("_id", new ObjectId(id)));
     if (deleteResult.getDeletedCount() != 1) {
       ctx.status(HttpStatus.NOT_FOUND);
@@ -124,10 +127,13 @@ public class StartedHuntController implements Controller {
     }
     ctx.status(HttpStatus.OK);
 
-    for (Task task : startedHunt.completeHunt.tasks) {
-      for (String photo : task.photos) {
-        deletePhoto(photo, ctx);
+    for (TeamHunt teamHunt : teamHuntCollection.find(eq("startedHuntId", id)).into(new ArrayList<>())) {
+      for (Task task : teamHunt.tasks) {
+        if (task.photo.length() > 0) {
+          deletePhoto(task.photo, ctx);
+        }
       }
+      deleteTeamHunt(teamHunt._id);
     }
   }
 
@@ -161,28 +167,46 @@ public class StartedHuntController implements Controller {
     startedHuntCollection.save(startedHunt);
     newTeamHunt.tasks = startedHunt.completeHunt.tasks;
 
-    teamCollection.insertOne(newTeamHunt);
+    teamHuntCollection.insertOne(newTeamHunt);
     ctx.json(Map.of("id", newTeamHunt._id));
     ctx.status(HttpStatus.CREATED);
   }
 
-  public TeamHunt getTeamHunt(Context ctx) {
+  public void getTeamHunt(Context ctx) {
     String id = ctx.pathParam("id");
     TeamHunt teamHunt;
 
     try {
-      teamHunt = teamCollection.find(eq("_id", new ObjectId(id))).first();
+      teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(id))).first();
     } catch (IllegalArgumentException e) {
-      throw new BadRequestResponse("The requested team id wasn't a legal Mongo Object ID.");
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The requested team id '" + id + "' wasn't a legal Mongo Object ID.");
     }
     if (teamHunt == null) {
-      throw new NotFoundResponse("The requested team hunt was not found");
-    } else {
-      return teamHunt;
+      ctx.status(HttpStatus.NOT_FOUND);
+      throw new NotFoundResponse("The requested team hunt with id '" + id + "' was not found");
+    }
+    ctx.json(teamHunt);
+    ctx.status(HttpStatus.OK);
+  }
+
+  public void deleteTeamHunt(String id) {
+    DeleteResult deleteResult = teamHuntCollection.deleteOne(eq("_id", new ObjectId(id)));
+    if (deleteResult.getDeletedCount() != 1) {
+      throw new NotFoundResponse(
+          "Was unable to delete team hunt with ID "
+              + id
+              + "; perhaps illegal ID or an ID for an item not in the system?");
     }
   }
 
   public void addPhoto(Context ctx) {
+    TeamHunt teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("teamHuntId")))).first();
+    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(teamHunt.startedHuntId))).first();
+    if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt has already ended");
+    }
     String id = uploadPhoto(ctx);
     addPhotoPathToTask(ctx, id);
     ctx.status(HttpStatus.CREATED);
@@ -222,32 +246,28 @@ public class StartedHuntController implements Controller {
 
   public void addPhotoPathToTask(Context ctx, String photoPath) {
     String taskId = ctx.pathParam("taskId");
-    String startedHuntId = ctx.pathParam("startedHuntId");
-    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(startedHuntId))).first();
-    if (startedHunt == null) {
+    String teamHuntId = ctx.pathParam("teamHuntId");
+    TeamHunt teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(teamHuntId))).first();
+    if (teamHunt == null) {
       ctx.status(HttpStatus.NOT_FOUND);
-      throw new BadRequestResponse("StartedHunt with ID " + startedHuntId + " does not exist");
+      throw new BadRequestResponse("StartedHunt with ID " + teamHuntId + " does not exist");
     }
 
-    Task task = startedHunt.completeHunt.tasks.stream().filter(t -> t._id.equals(taskId)).findFirst().orElse(null);
+    Task task = teamHunt.tasks.stream().filter(t -> t._id.equals(taskId)).findFirst().orElse(null);
 
     if (task == null) {
       ctx.status(HttpStatus.NOT_FOUND);
       throw new BadRequestResponse("Task with ID " + taskId + " does not exist");
     }
 
-    task.photos.add(photoPath);
-    startedHunt.completeHunt.tasks.set(startedHunt.completeHunt.tasks.indexOf(task), task);
-    startedHuntCollection.save(startedHunt);
-  }
+    if (task.photo.length() > 0) {
+      deletePhoto(task.photo, ctx);
+    }
 
-  public void replacePhoto(Context ctx) {
-    String startedHuntId = ctx.pathParam("startedHuntId");
-    String taskId = ctx.pathParam("taskId");
-    String photoId = ctx.pathParam("photoId");
-    deletePhoto(photoId, ctx);
-    removePhotoPathFromTask(ctx, taskId, startedHuntId, photoId);
-    addPhoto(ctx);
+    task.photo = photoPath.toString();
+    task.status = true;
+    teamHunt.tasks.set(teamHunt.tasks.indexOf(task), task);
+    teamHuntCollection.save(teamHunt);
   }
 
   public void deletePhoto(String id, Context ctx) {
@@ -267,30 +287,16 @@ public class StartedHuntController implements Controller {
     }
   }
 
-  public void removePhotoPathFromTask(Context ctx, String taskId, String startedHuntId, String photoId) {
-    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(startedHuntId))).first();
-    if (startedHunt == null) {
-      ctx.status(HttpStatus.NOT_FOUND);
-      throw new BadRequestResponse("StartedHunt with ID " + startedHuntId + " does not exist");
-    }
-
-    Task task = startedHunt.completeHunt.tasks.stream().filter(t -> t._id.equals(taskId)).findFirst().orElse(null);
-    if (task == null) {
-      ctx.status(HttpStatus.NOT_FOUND);
-      throw new BadRequestResponse("Task with ID " + taskId + " does not exist");
-    }
-
-    task.photos.remove(photoId);
-    startedHunt.completeHunt.tasks.set(startedHunt.completeHunt.tasks.indexOf(task), task);
-    startedHuntCollection.save(startedHunt);
-  }
-
   public void getEndedHunt(Context ctx) {
-    EndedHunt finishedHunt = new EndedHunt();
-    finishedHunt.startedHunt = getStartedHuntById(ctx);
-    finishedHunt.finishedTasks = getFinishedTasks(finishedHunt.startedHunt.completeHunt.tasks);
+    EndedHunt endedHunt = new EndedHunt();
+    endedHunt.startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("id")))).first();
+    endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", endedHunt.startedHunt._id))
+        .into(new ArrayList<>());
+    for (TeamHunt teamHunt : endedHunt.teamHunts) {
+      teamHunt.tasks = getTaskPhoto(teamHunt.tasks);
+    }
 
-    ctx.json(finishedHunt);
+    ctx.json(endedHunt);
     ctx.status(HttpStatus.OK);
   }
 
@@ -310,33 +316,26 @@ public class StartedHuntController implements Controller {
     }
   }
 
-  public List<FinishedTask> getFinishedTasks(List<Task> tasks) {
-    ArrayList<FinishedTask> finishedTasks = new ArrayList<>();
-    FinishedTask finishedTask;
+  public List<Task> getTaskPhoto(List<Task> tasks) {
     for (Task task : tasks) {
-      finishedTask = new FinishedTask();
-      finishedTask.taskId = task._id;
-      finishedTask.photos = getPhotosFromTask(task);
-      finishedTasks.add(finishedTask);
+      task.photo = getPhotoFromTask(task);
     }
-    return finishedTasks;
+    return tasks;
   }
 
-  public List<String> getPhotosFromTask(Task task) {
-    List<String> encodedPhotos = new ArrayList<>();
-    for (String photoPath : task.photos) {
-      File photo = new File("photos/" + photoPath);
-      if (photo.exists()) {
-        try {
-          byte[] bytes = Files.readAllBytes(Paths.get(photo.getPath()));
-          String encoded = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-          encodedPhotos.add(encoded);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+  public String getPhotoFromTask(Task task) {
+    String encodedPhoto = "";
+    File photo = new File("photos/" + task.photo);
+    if (photo.exists()) {
+      try {
+        byte[] bytes = Files.readAllBytes(Paths.get(photo.getPath()));
+        String encoded = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
+        encodedPhoto = encoded;
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
-    return encodedPhotos;
+    return encodedPhoto;
   }
 
   @Override
@@ -344,9 +343,10 @@ public class StartedHuntController implements Controller {
     server.get(API_STARTED_HUNT, this::getStartedHunt);
     server.put(API_END_HUNT, this::endStartedHunt);
     server.post(API_PHOTO_UPLOAD, this::addPhoto);
-    server.put(API_PHOTO_REPLACE, this::replacePhoto);
     server.get(API_ENDED_HUNT, this::getEndedHunt);
     server.get(API_ENDED_HUNTS, this::getEndedHunts);
     server.delete(API_DELETE_HUNT, this::deleteStartedHunt);
+    server.post(API_TEAM_HUNTS, this::makeTeamHunt);
+    server.get(API_TEAM_HUNT, this::getTeamHunt);
   }
 }

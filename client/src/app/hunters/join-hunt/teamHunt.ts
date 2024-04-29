@@ -1,8 +1,9 @@
-import { StartedHunt } from "src/app/startHunt/startedHunt";
+import { Task } from 'src/app/hunts/task';
 
 export interface TeamHunt {
   _id: string;
-  startedHunt: StartedHunt;
+  startedHuntId: string;
   teamName: string;
   members: string[];
+  tasks: Task[];
 }

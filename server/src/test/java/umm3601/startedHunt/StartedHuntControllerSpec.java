@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,9 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +62,7 @@ import io.javalin.validation.ValidationException;
 import umm3601.hunt.CompleteHunt;
 import umm3601.hunt.Hunt;
 import umm3601.hunt.Task;
+import static com.mongodb.client.model.Updates.set; // Import the necessary package
 
 @SuppressWarnings({ "MagicNumber" })
 class StartedHuntControllerSpec {
@@ -91,6 +97,9 @@ class StartedHuntControllerSpec {
 
   @Captor
   private ArgumentCaptor<EndedHunt> finishedHuntCaptor;
+
+  @Captor
+  private ArgumentCaptor<TeamHunt> teamHuntCaptor;
 
   @Captor
   private ArgumentCaptor<Map<String, String>> mapCaptor;
@@ -172,19 +181,19 @@ class StartedHuntControllerSpec {
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a cat")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", ""));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a dog")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", ""));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a park")
             .append("status", true)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", ""));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -192,7 +201,7 @@ class StartedHuntControllerSpec {
         .append("huntId", "someId")
         .append("name", "Best Task")
         .append("status", false)
-        .append("photos", new ArrayList<String>());
+        .append("photo", "");
 
     taskDocuments.insertMany(testTasks);
     taskDocuments.insertOne(task);
@@ -255,7 +264,7 @@ class StartedHuntControllerSpec {
         .append("startedHuntId", startedHuntId.toHexString())
         .append("teamName", "Team 1")
         .append("members", Arrays.asList("fry", "bender", "leela"))
-        .append("tasks", testTasks.subList(0, 2));
+        .append("tasks", testTasks.subList(0, 3));
 
     teamHuntsDocuments.insertMany(teamHunts);
     teamHuntsDocuments.insertOne(teamHunt);
@@ -379,19 +388,19 @@ class StartedHuntControllerSpec {
     UploadedFile uploadedFile = mock(UploadedFile.class);
     InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-    Document startedHuntDocument = db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+    Document teamHuntDocument = db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString()))).first();
     Document taskDocument = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHuntDocument.get("completeHunt", Document.class).get("tasks", List.class).add(taskDocument);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())),
-        startedHuntDocument);
+    teamHuntDocument.get("tasks", List.class).add(taskDocument);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())),
+        teamHuntDocument);
 
     when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
     when(uploadedFile.content()).thenReturn(inputStream);
     when(uploadedFile.filename()).thenReturn("test.jpg");
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhoto(ctx);
 
@@ -399,7 +408,6 @@ class StartedHuntControllerSpec {
     when(ctx.pathParam("accessCode")).thenReturn("123456");
 
     assertEquals(1, db.getCollection("startedHunts").countDocuments(eq("_id", new ObjectId(testID))));
-    StartedHunt startedHuntToDelete = startedHuntController.getStartedHunt(ctx);
 
     when(ctx.pathParam("id")).thenReturn(testID);
 
@@ -409,13 +417,6 @@ class StartedHuntControllerSpec {
 
     assertEquals(0, db.getCollection("startedHunts").countDocuments(eq("_id", new ObjectId(testID))));
 
-    // Verify that deletePhoto is called
-
-    for (Task task : startedHuntToDelete.completeHunt.tasks) {
-      for (String photo : task.photos) {
-        verify(spyStartedHuntController).deletePhoto(photo, ctx);
-      }
-    }
   }
 
   @Test
@@ -531,22 +532,25 @@ class StartedHuntControllerSpec {
   @Test
   void testAddPhotoPathToTask() throws IOException {
     String photoPath = "test.jpg";
-    Document startedHunt = db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+    Document teamHunt = db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString()))).first();
     Document task = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(task);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+    teamHunt.get("tasks", List.class).add(task);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())), teamHunt);
 
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhotoPathToTask(ctx, photoPath);
 
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
+    when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+    Document updatedTask = (Document) db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
+        .first().get("tasks", List.class).get(3);
     assertNotNull(updatedTask);
-    assertEquals(1, updatedTask.get("photos", List.class).size());
+    assertNotEquals(null, updatedTask.get("photo", String.class));
+    assertTrue(updatedTask.get("status", Boolean.class));
   }
 
   @Test
@@ -555,7 +559,7 @@ class StartedHuntControllerSpec {
     String photoPath = "photoPath";
 
     when(ctx.pathParam("id")).thenReturn(id);
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     assertThrows(BadRequestResponse.class, () -> startedHuntController.addPhotoPathToTask(ctx, photoPath));
     verify(ctx).status(HttpStatus.NOT_FOUND);
@@ -567,7 +571,7 @@ class StartedHuntControllerSpec {
     String photoPath = "photoPath";
 
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(id);
+    when(ctx.pathParam("teamHuntId")).thenReturn(id);
 
     assertThrows(BadRequestResponse.class, () -> startedHuntController.addPhotoPathToTask(ctx, photoPath));
     verify(ctx).status(HttpStatus.NOT_FOUND);
@@ -579,159 +583,89 @@ class StartedHuntControllerSpec {
     UploadedFile uploadedFile = mock(UploadedFile.class);
     InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-    Document startedHunt = db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+    Document teamHunt = db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString()))).first();
     Document task = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(task);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+    teamHunt.get("tasks", List.class).add(task);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())), teamHunt);
 
     when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
     when(uploadedFile.content()).thenReturn(inputStream);
     when(uploadedFile.filename()).thenReturn("test.jpg");
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhoto(ctx);
 
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
-    String id = updatedTask.get("photos", List.class).get(0).toString();
+    Document updatedTask = (Document) db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
+        .first().get("tasks", List.class).get(3);
+    String id = updatedTask.get("photo", String.class);
 
     verify(ctx).status(HttpStatus.OK);
     startedHuntController.deletePhoto(id, ctx);
   }
 
+    @Test
+    public void testAddPhotoHuntHasAlreadyEnded() {
+      Document startedHunt = db.getCollection("startedHunts")
+          .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+      startedHunt.put("status", false);
+      db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+
+      when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+
+      assertThrows(BadRequestResponse.class, () -> {
+        startedHuntController.addPhoto(ctx);
+      });
+    }
+
   @SuppressWarnings("unchecked")
   @Test
-  void testGetPhotosFromTask() throws IOException {
+  void testGetPhotoFromTask() throws IOException {
     // Create a Task with the paths of the temporary files
     UploadedFile uploadedFile = mock(UploadedFile.class);
     InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-    Document startedHunt = db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
+    Document teamHunt = db.getCollection("teamHunts").find(eq("_id", new ObjectId(teamHuntId.toHexString())))
         .first();
     Document testTask = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(testTask);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+    teamHunt.get("tasks", List.class).add(testTask);
+    db.getCollection("teamHunts").replaceOne(eq("_id", new ObjectId(teamHuntId.toHexString())), teamHunt);
 
     when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
     when(uploadedFile.content()).thenReturn(inputStream);
     when(uploadedFile.filename()).thenReturn("test.jpg");
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
+    when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
 
     startedHuntController.addPhoto(ctx);
 
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
+    Document updatedTask = (Document) db.getCollection("teamHunts")
+        .find(eq("_id", new ObjectId(teamHuntId.toHexString())))
+        .first().get("tasks", List.class).get(3);
     Task task = new Task();
-    task.photos = updatedTask.get("photos", List.class);
+    task.photo = updatedTask.get("photo", String.class);
     task.huntId = updatedTask.getString("huntId");
     task.name = updatedTask.getString("name");
     task.status = updatedTask.getBoolean("status");
     task._id = updatedTask.getObjectId("_id").toHexString();
 
-    File addedFile = new File("photos/" + task.photos.get(0));
+    File addedFile = new File("photos/" + task.photo);
 
     // Call the method under test
-    List<String> encodedPhotos = startedHuntController.getPhotosFromTask(task);
+    String encodedPhoto = startedHuntController.getPhotoFromTask(task);
 
-    // Check that the returned list has the correct size
-    assertEquals(1, encodedPhotos.size());
+    assertNotEquals(null, encodedPhoto);
 
     // Check that the returned list contains the correct encoded photos
     byte[] bytes1 = Files.readAllBytes(addedFile.toPath());
     String expectedEncoded1 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes1);
-    assertEquals(expectedEncoded1, encodedPhotos.get(0));
+    assertEquals(expectedEncoded1, encodedPhoto);
 
-    startedHuntController.deletePhoto(task.photos.get(0), ctx);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  void testRemovePhotoPathFromTask() {
-    String photoPath = "test.jpg";
-    Document startedHunt = db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first();
-    Document task = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(task);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
-
-    when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
-
-    startedHuntController.addPhotoPathToTask(ctx, photoPath);
-
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
-    assertEquals(1, updatedTask.get("photos", List.class).size());
-
-    startedHuntController.removePhotoPathFromTask(ctx, taskId.toHexString(), startedHuntId.toHexString(), photoPath);
-
-    updatedTask = (Document) db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
-    assertEquals(0, updatedTask.get("photos", List.class).size());
-  }
-
-  @Test
-  void testRemovePhotoPathFromTaskBadTask() {
-    String testId = "588935f56536a3daea54de8c";
-    String photoPath = "photoPath";
-
-    assertThrows(BadRequestResponse.class,
-        () -> startedHuntController.removePhotoPathFromTask(ctx, testId, startedHuntId.toHexString(), photoPath));
-    verify(ctx).status(HttpStatus.NOT_FOUND);
-  }
-
-  @Test
-  void testRemovePhotoPathFromTaskBadStartedHuntId() {
-    String badStartedHuntId = "588935f56536a3daea54de8c";
-    String photoPath = "photoPath";
-
-    assertThrows(BadRequestResponse.class,
-        () -> startedHuntController.removePhotoPathFromTask(ctx, taskId.toHexString(), badStartedHuntId, photoPath));
-    verify(ctx).status(HttpStatus.NOT_FOUND);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  void testReplacePhoto() {
-    UploadedFile uploadedFile = mock(UploadedFile.class);
-    InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-
-    Document startedHunt = db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first();
-    Document task = db.getCollection("tasks").find(eq("_id", new ObjectId(taskId.toHexString()))).first();
-    startedHunt.get("completeHunt", Document.class).get("tasks", List.class).add(task);
-    db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
-
-    when(ctx.uploadedFile("photo")).thenReturn(uploadedFile);
-    when(uploadedFile.content()).thenReturn(inputStream);
-    when(uploadedFile.filename()).thenReturn("test1.jpg");
-    when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.pathParam("taskId")).thenReturn(taskId.toHexString());
-    when(ctx.pathParam("startedHuntId")).thenReturn(startedHuntId.toHexString());
-
-    startedHuntController.addPhoto(ctx);
-    Document updatedTask = (Document) db.getCollection("startedHunts")
-        .find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
-    String photoId = updatedTask.get("photos", List.class).get(0).toString();
-    when(ctx.pathParam("photoId")).thenReturn(photoId);
-    startedHuntController.replacePhoto(ctx);
-
-    updatedTask = (Document) db.getCollection("startedHunts").find(eq("_id", new ObjectId(startedHuntId.toHexString())))
-        .first().get("completeHunt", Document.class).get("tasks", List.class).get(3);
-    assertFalse(updatedTask.get("photos", List.class).get(0).toString().equals(photoId));
-    photoId = updatedTask.get("photos", List.class).get(0).toString();
-
-    assertNotNull(updatedTask);
-    startedHuntController.deletePhoto(photoId, ctx);
+    startedHuntController.deletePhoto(task.photo, ctx);
   }
 
   @Test
@@ -762,31 +696,27 @@ class StartedHuntControllerSpec {
     assertThrows(NotFoundResponse.class, () -> startedHuntController.getStartedHuntById(ctx));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  void testGetFinishedTasks() {
-    ArrayList<Document> taskDocuments = db.getCollection("tasks").find(eq("huntId", huntId.toHexString()))
-        .into(new ArrayList<>());
-    ArrayList<Task> tasks = new ArrayList<>();
+  public void testGetTaskPhoto() {
+    Task task1 = new Task();
+    Task task2 = new Task();
+    List<Task> tasks = Arrays.asList(task1, task2);
+    StartedHuntController controller = Mockito.spy(new StartedHuntController(db));
+    doReturn("photo1").when(controller).getPhotoFromTask(tasks.get(0));
+    doReturn("photo2").when(controller).getPhotoFromTask(tasks.get(1));
 
-    for (Document taskDocument : taskDocuments) {
-      Task task = new Task();
-      task._id = taskDocument.getObjectId("_id").toHexString();
-      task.huntId = taskDocument.getString("huntId");
-      task.name = taskDocument.getString("name");
-      task.status = taskDocument.getBoolean("status");
-      task.photos = taskDocument.get("photos", List.class);
-      tasks.add(task);
-    }
+    // Act
+    List<Task> result = controller.getTaskPhoto(tasks);
 
-    List<FinishedTask> finishedTasks = startedHuntController.getFinishedTasks(tasks);
-
-    assertEquals(3, finishedTasks.size());
+    // Assert
+    assertEquals("photo1", result.get(0).photo);
+    assertEquals("photo2", result.get(1).photo);
   }
 
   @Test
   void testGetEndedHunt() {
-    ArrayList<Document> taskDocuments = db.getCollection("tasks").find(eq("huntId", huntId.toHexString()))
+    ArrayList<Document> teamHuntsDocuments = db.getCollection("teamHunts")
+        .find(eq("startedHuntId", startedHuntId.toHexString()))
         .into(new ArrayList<>());
 
     when(ctx.pathParam("id")).thenReturn(startedHuntId.toHexString());
@@ -796,11 +726,11 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.OK);
     verify(ctx).json(finishedHuntCaptor.capture());
 
-    EndedHunt finishedHunt = finishedHuntCaptor.getValue();
-    assertNotNull(finishedHunt.startedHunt);
-    assertEquals(taskDocuments.get(0).get("_id").toString(), finishedHunt.finishedTasks.get(0).taskId);
-    assertEquals(taskDocuments.get(1).get("_id").toString(), finishedHunt.finishedTasks.get(1).taskId);
-    assertEquals(taskDocuments.get(2).get("_id").toString(), finishedHunt.finishedTasks.get(2).taskId);
+    EndedHunt endedHunt = finishedHuntCaptor.getValue();
+    assertNotNull(endedHunt.teamHunts);
+    assertEquals(teamHuntsDocuments.get(0).get("_id").toString(), endedHunt.teamHunts.get(0)._id);
+    assertEquals(teamHuntsDocuments.get(1).get("_id").toString(), endedHunt.teamHunts.get(1)._id);
+    assertEquals(teamHuntsDocuments.get(2).get("_id").toString(), endedHunt.teamHunts.get(2)._id);
   }
 
   @SuppressWarnings("unchecked")
@@ -825,7 +755,7 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.CREATED);
 
     Document addedTeamHunt = db.getCollection("teamHunts")
-      .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
+        .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
 
     assertNotEquals("", addedTeamHunt.get("_id"));
     assertEquals("New Hunt", addedTeamHunt.get("teamName"));
@@ -834,7 +764,7 @@ class StartedHuntControllerSpec {
     assertEquals(3, ((List<Document>) addedTeamHunt.get("tasks")).size());
 
     Document updatedStartedHunt = db.getCollection("startedHunts")
-      .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
+        .find(eq("_id", new ObjectId(startedHuntIdHex))).first();
 
     assertEquals(1, updatedStartedHunt.get("teamsLeft"));
   }
@@ -854,6 +784,46 @@ class StartedHuntControllerSpec {
         .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
 
     assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidNullStartedHuntId() {
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": null,
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy",
+          "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender"],
+          "tasks": []
+        }
+        """;
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+  }
+
+  @Test
+  void addTeamHuntWithInvalidLengthStartedHuntId() {
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy",
+          "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender", "leela", "Nick", "Daisy", "fry", "bender"],
+          "tasks": []
+        }
+        """;
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(ValidationException.class, () -> {
       startedHuntController.makeTeamHunt(ctx);
     });
   }
@@ -940,32 +910,78 @@ class StartedHuntControllerSpec {
   }
 
   @Test
+  void testMakeTeamHuntHuntEnded() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    ObjectId id = new ObjectId(startedHuntIdHex);
+    db.getCollection("startedHunts").updateOne(eq("_id", id), set("status", false));
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+
+    verify(ctx).status(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void testMakeTeamHuntHuntFull() {
+    String startedHuntIdHex = startedHuntId.toHexString();
+    ObjectId id = new ObjectId(startedHuntIdHex);
+    db.getCollection("startedHunts").updateOne(eq("_id", id), set("teamsLeft", 0));
+    String testNewStartedHunt = """
+        {
+          "startedHuntId": "%s",
+          "teamName": "New Hunt",
+          "members": ["fry", "bender", "leela"],
+          "tasks": []
+        }
+        """.formatted(startedHuntIdHex);
+
+    when(ctx.bodyValidator(TeamHunt.class))
+        .then(value -> new BodyValidator<TeamHunt>(testNewStartedHunt, TeamHunt.class, javalinJackson));
+
+    assertThrows(BadRequestResponse.class, () -> {
+      startedHuntController.makeTeamHunt(ctx);
+    });
+
+    verify(ctx).status(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
   void getTeamHuntById() throws IOException {
     String id = teamHuntId.toHexString();
     when(ctx.pathParam("id")).thenReturn(id);
 
-    TeamHunt teamHunt = startedHuntController.getTeamHunt(ctx);
+    startedHuntController.getTeamHunt(ctx);
 
-    assertEquals(startedHuntId.toHexString(), teamHunt.startedHuntId);
-    assertEquals(teamHuntId.toHexString(), teamHunt._id);
-    assertEquals(2, teamHunt.tasks.size());
-    assertEquals(3, teamHunt.members.size());
-    assertEquals("Team 1", teamHunt.teamName);
+    verify(ctx).json(teamHuntCaptor.capture());
+    verify(ctx).status(HttpStatus.OK);
   }
 
   @Test
-  void getHuntWithBadId() throws IOException {
+  void getTeamHuntWithBadId() throws IOException {
     when(ctx.pathParam("id")).thenReturn("bad");
 
     Throwable exception = assertThrows(BadRequestResponse.class, () -> {
       startedHuntController.getTeamHunt(ctx);
     });
 
-    assertEquals("The requested team id wasn't a legal Mongo Object ID.", exception.getMessage());
+    ctx.status(HttpStatus.BAD_REQUEST);
+    assertEquals("The requested team id 'bad' wasn't a legal Mongo Object ID.", exception.getMessage());
   }
 
   @Test
-  void getHuntWithNonexistentId() throws IOException {
+  void getTeamHuntWithNonexistentId() throws IOException {
     String id = "588935f5c668650dc77df581";
     when(ctx.pathParam("id")).thenReturn(id);
 
@@ -973,7 +989,53 @@ class StartedHuntControllerSpec {
       startedHuntController.getTeamHunt(ctx);
     });
 
-    assertEquals("The requested team hunt was not found", exception.getMessage());
+    ctx.status(HttpStatus.NOT_FOUND);
+    assertEquals("The requested team hunt with id '588935f5c668650dc77df581' was not found", exception.getMessage());
   }
 
+  @Test
+  void deleteFoundTeamHunt() throws IOException {
+    String id = teamHuntId.toHexString();
+
+    startedHuntController.deleteTeamHunt(id);
+
+    assertEquals(0, db.getCollection("teamHunts").countDocuments(eq("_id", new ObjectId(id))));
+  }
+
+  @Test
+  public void testDeleteTeamHuntNotFound() {
+    String id = "6629834cfe108543ff502ca3";
+
+    Throwable exception = assertThrows(NotFoundResponse.class, () -> {
+      startedHuntController.deleteTeamHunt(id);
+    });
+
+    assertTrue(exception.getMessage().contains("Was unable to delete team hunt with ID 6629834cfe108543ff502ca3"));
+  }
+
+  @Test
+  public void testCreateDirectoryIfNotExists() throws IOException {
+
+    File directory = new File("photos");
+
+    // Delete the directory even if it's not empty
+    Files.walk(directory.toPath())
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
+
+    Path directoryPath = Paths.get("photos");
+
+    assertFalse(Files.exists(directoryPath));
+
+    startedHuntController = new StartedHuntController(db);
+
+    assertTrue(Files.exists(directoryPath));
+
+    // Delete the directory even if it's not empty
+    Files.walk(directory.toPath())
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
+  }
 }

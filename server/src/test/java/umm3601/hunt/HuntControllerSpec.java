@@ -41,6 +41,7 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.json.JavalinJackson;
 import io.javalin.validation.BodyValidator;
@@ -156,25 +157,25 @@ class HuntControllerSpec {
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a cat")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a dog")
             .append("status", false)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", huntId.toHexString())
             .append("name", "Take a picture of a park")
             .append("status", true)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
     testTasks.add(
         new Document()
             .append("huntId", "differentId")
             .append("name", "Take a picture of a moose")
             .append("status", true)
-            .append("photos", new ArrayList<String>()));
+            .append("photo", null));
 
     taskId = new ObjectId();
     Document task = new Document()
@@ -182,7 +183,7 @@ class HuntControllerSpec {
         .append("huntId", "someId")
         .append("name", "Best Task")
         .append("status", false)
-        .append("photos", new ArrayList<String>());
+        .append("photo", null);
 
     taskDocuments.insertMany(testTasks);
     taskDocuments.insertOne(task);
@@ -500,7 +501,7 @@ class HuntControllerSpec {
     assertEquals("New Task", addedTask.get("name"));
     assertEquals("bestHuntId", addedTask.get("huntId"));
     assertEquals(false, addedTask.get("status"));
-    assertEquals(new ArrayList<String>(), addedTask.get("photos"));
+    assertEquals("", addedTask.get("photo"));
   }
 
   @Test
@@ -732,4 +733,41 @@ class HuntControllerSpec {
     Document startedHunt = db.getCollection("startedHunts").find(eq("hunt._id", new ObjectId(testID))).first();
     assertNull(startedHunt);
   }
+
+  @Test
+  void updateHuntWithInvalidId() {
+    String id = "invalid id";
+    when(ctx.pathParam("id")).thenReturn(id);
+    HuntController huntControl = new HuntController(db);
+    assertThrows(BadRequestResponse.class, () -> huntControl.updateHunt(ctx));
+  }
+
+  @Test
+  void updatedHuntWithANotFoundException() {
+    String testID = "507f1f77bcf86cd799439011"; // non-existent ID
+    when(ctx.pathParam("id")).thenReturn(testID);
+
+    Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
+    assertNull(hunt); // ensure the hunt does not exist
+
+    Exception exception = assertThrows(InternalServerErrorResponse.class, () -> {
+      huntController.updateHunt(ctx);
+    });
+
+    assertEquals("Error updating the hunt.", exception.getMessage());
+
+  }
+
+  @Test
+void startHuntThrowsBadRequestWhenTeamsLeftIsNotInteger() throws IOException {
+  String testID = huntId.toHexString();
+  when(ctx.pathParam("id")).thenReturn(testID);
+
+  Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
+  assertNotNull(hunt);
+
+  when(ctx.pathParam("teamsLeft")).thenReturn("notAnInteger");
+
+  assertThrows(BadRequestResponse.class, () -> huntController.startHunt(ctx));
+}
 }

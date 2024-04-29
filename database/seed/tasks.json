@@ -6,7 +6,7 @@
     "huntId": "588935f57546a2daea54de7c",
     "name": "Take a picture of a bird",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -15,7 +15,7 @@
     "huntId": "588935f57546a2daea54de7c",
     "name": "Take a picture of a dog",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -24,7 +24,7 @@
     "huntId": "588935f57546a2daea54de7c",
     "name": "Take a picture of a Stop sign",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -33,7 +33,7 @@
     "huntId": "588935f57546a2daea54de7c",
     "name": "Take a picture of a restaurant",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -42,7 +42,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a cat",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -51,7 +51,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a red car",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -60,7 +60,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a slide",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -69,7 +69,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a Yield sign",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -78,7 +78,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a football field",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -87,7 +87,7 @@
     "huntId": "588935f57547a2daea54de7c",
     "name": "Take a picture of a McDonald's",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -96,7 +96,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a dog",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -105,7 +105,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a cat",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -114,7 +114,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a Stop sign",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -123,7 +123,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a newspaper",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -132,7 +132,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a big rock",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -141,7 +141,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a clock",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -150,7 +150,7 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a firetruck",
     "status": false,
-    "photos": []
+    "photo": ""
   },
   {
     "_id": {
@@ -159,6 +159,6 @@
     "huntId": "588945f57546a2daea54de7c",
     "name": "Take a picture of a blue house",
     "status": false,
-    "photos": []
+    "photo": ""
   }
 ]

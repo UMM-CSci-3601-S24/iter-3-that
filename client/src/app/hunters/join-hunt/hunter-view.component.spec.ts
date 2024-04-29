@@ -1,11 +1,13 @@
-import { of, Subject, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TestBed, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HunterViewComponent } from './hunter-view.component';
 import { HostService } from 'src/app/hosts/host.service';
-import { StartedHunt } from 'src/app/startHunt/startedHunt'
 import { Task } from 'src/app/hunts/task';
+import { WebcamImage } from 'ngx-webcam';
+import { TeamHunt } from './teamHunt';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('HunterViewComponent', () => {
   let component: HunterViewComponent;
@@ -15,12 +17,11 @@ describe('HunterViewComponent', () => {
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    mockHostService = jasmine.createSpyObj('HostService', ['getStartedHunt', 'submitPhoto', 'replacePhoto']);
+    mockHostService = jasmine.createSpyObj('HostService', ['submitPhoto', 'getTeamHunt']);
     mockRoute = {
       paramMap: new Subject<ParamMap>()
     };
     mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
-
     await TestBed.configureTestingModule({
       imports: [HunterViewComponent],
       providers: [
@@ -34,61 +35,43 @@ describe('HunterViewComponent', () => {
     fixture = TestBed.createComponent(HunterViewComponent);
     component = fixture.componentInstance;
 
-    const initialStartedHunt: StartedHunt = {
+    const initialTeamHunt: TeamHunt = {
       _id: '',
-      completeHunt: {
-        hunt: {
-          _id: '',
-          hostId: '',
-          name: '',
-          description: '',
-          est: 0,
-          numberOfTasks: 0
-        },
-        tasks: []
-      },
-      accessCode: ''
+      startedHuntId: '',
+      teamName: '',
+      tasks: [],
+      members: []
     };
-    component.startedHunt = initialStartedHunt;
+    component.teamHunt = initialTeamHunt;
 
     fixture.detectChanges();
   });
 
-  it('should navigate to the right hunt page by access code',() => {
-    const startedHunt: StartedHunt = {
-      _id: '',
-      completeHunt: {
-        hunt: {
+  it('should retrieve the team hunt by id', () => {
+    const teamHunt = {
+      _id: '123456',
+      startedHuntId: '',
+      teamName: 'Team 1',
+      tasks: [
+        {
           _id: '1',
-          hostId: '1',
-          name: 'Hunt 1',
-          description: 'Hunt 1 Description',
-          est: 10,
-          numberOfTasks: 1
-        },
-        tasks: [
-          {
-            _id: '1',
-            huntId: '1',
-            name: 'Task 1',
-            status: true,
-            photos: []
-          }
-        ]
-      },
-      accessCode: '123456'
+          huntId: '1',
+          name: 'Task 1',
+          status: true,
+          photo: ''
+        }
+      ],
+      members: ['member1', 'member2'],
     };
-    mockHostService.getStartedHunt.and.returnValue(of(startedHunt));
-    // Emit a paramMap event to trigger the hunt retrieval
+    mockHostService.getTeamHunt.and.returnValue(of(teamHunt));
     mockRoute.paramMap.next({ get: () => '123456', has: () => true, getAll: () => [], keys: [] });
     component.ngOnInit();
-    expect(component.startedHunt).toEqual(startedHunt);
-
+    expect(component.teamHunt).toEqual(teamHunt);
   });
 
-  it('should handle error when getting hunt by access code', () => {
+  it('should handle error when getting team hunt by id', () => {
     const error = { message: 'Error', error: { title: 'Error Title' } };
-    mockHostService.getStartedHunt.and.returnValue(throwError(error));
+    mockHostService.getTeamHunt.and.returnValue(throwError(error));
     // Emit a paramMap event to trigger the hunt retrieval
     mockRoute.paramMap.next({ get: () => '1', has: () => true, getAll: () => [], keys: [] });
     component.ngOnInit();
@@ -99,160 +82,225 @@ describe('HunterViewComponent', () => {
     });
   });
 
-  it('should handle file selected event', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-    const event = {
-      target: {
-        files: [
-          new File([''], 'photo.jpg', { type: 'image/jpeg' })
-        ]
-      }
-    };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
-    reader.onload = null;
-    spyOn(window, 'FileReader').and.returnValue(reader);
+  it('should start capture', () => {
+    const taskId = '123';
 
-    mockHostService.submitPhoto.and.returnValue(of(undefined));
+    component.startCapture(taskId);
 
-    component.onFileSelected(event, task);
-
-    expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
-
-    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
-
-    expect(component.imageUrls[task._id]).toBe('data:image/jpeg;base64,');
+    expect(component['currentTaskId']).toBe(taskId);
+    expect(component['status']).toBe('Camera is getting accessed');
+    expect(component['btnLabel']).toBe('Capture image');
+    expect(component['showWebcam']).toBe(true);
   });
 
-  it('should not replace image if user choose cancel', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-    const event = {
-      target: {
-        files: [
-          {
-            type: 'image/png',
-            result: 'data:image/png;base64,'
-          }
-        ]
-      }
-    };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL', 'onload']);
-    spyOn(window, 'FileReader').and.returnValue(reader);
+  it('should handle snapshot when task has no photos', () => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
+    const event: WebcamImage = { imageAsDataUrl: 'data:image/jpeg;base64,' } as WebcamImage;
+    spyOn(component, 'dataURItoBlob' as keyof HunterViewComponent).and.returnValue(new Blob());
+    spyOn(component, 'submitPhoto');
 
-    component.imageUrls[task._id] = 'data:image/png;base64,';
-    spyOn(window, 'confirm').and.returnValue(false);
+    component.snapshot(event, task);
 
-    component.onFileSelected(event, task);
-
-    expect(reader.readAsDataURL).not.toHaveBeenCalled();
+    expect(component.imageUrls[task._id]).toBe(event.imageAsDataUrl);
+    expect(component.submitPhoto).toHaveBeenCalled();
   });
 
-  it('should replace image if user choose ok', () => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-    const event = {
-      target: {
-        files: [
-          new File([''], 'photo.jpg', { type: 'image/jpeg' })
-        ]
-      }
-    };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
-    reader.onload = null;
-    spyOn(window, 'FileReader').and.returnValue(reader);
+  it('should convert data URI to Blob', () => {
+    const dataURI = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA';
+    const blob = component['dataURItoBlob'](dataURI);
 
-    component.imageUrls[task._id] = 'data:image/png;base64,';
-    spyOn(window, 'confirm').and.returnValue(true);
-
-    mockHostService.submitPhoto.and.returnValue(of(undefined));
-
-    component.onFileSelected(event, task);
-
-    expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
-
-    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
-
-    expect(component.imageUrls[task._id]).toBe('data:image/jpeg;base64,');
+    expect(blob).toBeTruthy();
+    expect(blob.type).toBe('image/jpeg');
   });
 
-  it('should handle error when submitting photo', fakeAsync(() => {
-    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-    const event = {
-      target: {
-        files: [
-          new File([''], 'photo.jpg', { type: 'image/jpeg' })
-        ]
+  it('should capture image', () => {
+    const nextSpy = spyOn(component['trigger'], 'next');
+
+    component['showWebcam'] = true;
+    component['status'] = 'active';
+    component['currentTaskId'] = '123';
+
+    component.captureImage();
+
+    expect(component['showWebcam']).toBe(false);
+    expect(component['status']).toBeNull();
+    expect(component['currentTaskId']).toBeNull();
+    expect(nextSpy).toHaveBeenCalled();
+  });
+
+  it('should cancel capture', () => {
+    component['showWebcam'] = true;
+    component['status'] = 'active';
+    component['currentTaskId'] = '123';
+
+    component.cancelCapture();
+
+    expect(component['showWebcam']).toBe(false);
+    expect(component['status']).toBeNull();
+    expect(component['currentTaskId']).toBeNull();
+  });
+
+  it('should submitted photo successfully', () => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
+    const photoId = 'photoId';
+    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+    mockHostService.submitPhoto.and.returnValue(of(photoId));
+
+    component.submitPhoto(file, task, '1');
+
+    expect(task.photo).toEqual(photoId);
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Photo uploaded successfully', 'Close', { duration: 3000 });
+  });
+
+  it('should handle error when fail to submit photo', () => {
+    const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
+    const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+    const errorResponse = new HttpErrorResponse({ error: { title: 'Error message' } });
+    mockHostService.submitPhoto.and.returnValue(throwError(errorResponse));
+
+    component.submitPhoto(file, task, '1');
+
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo: Error message', 'Close', { duration: 3000 });
+  });
+
+  it('should set stream to true when camera is available and authorized', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve({} as MediaStream));
+
+    component.checkPermission();
+
+    setTimeout(() => {
+      expect(component['stream']).toBeTruthy();
+      done();
+    }, 0);
+  });
+
+  it('should set stream to null and log error when camera is not available or not authorized', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject(new Error('Not authorized')));
+    spyOn(console, 'error');
+
+    component.checkPermission();
+
+    setTimeout(() => {
+      expect(component['stream']).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(new Error('Not authorized'));
+      done();
+    }, 0);
+  });
+
+  it('should get the trigger observable', () => {
+    expect(component.$trigger).toBeInstanceOf(Observable);
+  });
+
+  it('should open image in a new tab if image exists', () => {
+    const spy = spyOn(window, 'open').and.callFake(() => window);
+    const taskId = 'testTaskId';
+    component.imageUrls[taskId] = 'data:image/jpeg;base64,';
+
+    component.openImage(taskId);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should not open image in a new tab if image does not exist', () => {
+    const spy = spyOn(window, 'open').and.callFake(() => window);
+    const taskId = 'testTaskId';
+
+    component.openImage(taskId);
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('should stop all tracks if stream exists', () => {
+    const track = jasmine.createSpyObj('track', ['stop']);
+    component.stream = { getTracks: () => [track] } as MediaStream;
+
+    component.switchCamera();
+
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it('should switch between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
       }
-    };
-    const reader = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
-    reader.onload = null;
-    spyOn(window, 'FileReader').and.returnValue(reader);
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
 
-    mockHostService.submitPhoto.and.returnValue(throwError(() => new Error('Error')));
+    component.switchCamera();
 
-    component.onFileSelected(event, task);
+    setTimeout(() => {
+      expect(component.currentDeviceIndex).toBe(1);
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ video: { deviceId: '2' } });
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
 
-    expect(reader.readAsDataURL).toHaveBeenCalledWith(event.target.files[0]);
+  it('should set stream when getUserMedia resolves', (done) => {
+    const mockStream = {} as MediaStream;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve(mockStream));
 
-    reader.onload({ target: { result: 'data:image/jpeg;base64,' } } as ProgressEvent<FileReader>);
+    component.switchCamera();
 
-    tick();
+    setTimeout(() => {
+      expect(component.stream).toBe(mockStream);
+      done();
+    }, 0);
+  });
 
-    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', {
-      duration: 3000
-    });
-  }));
+  it('should set stream to null when getUserMedia rejects', (done) => {
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
 
-  describe('submitPhoto and replacePhoto', () => {
-    let task: Task;
-    let file: File;
-    let startedHuntId: string;
+    component.switchCamera();
 
-    beforeEach(() => {
-      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId']};
-      file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-      startedHuntId = '';
-    });
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
+  });
 
-    it('should call replacePhoto when task has photos', () => {
-      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: ['photoId']};
-      spyOn(component, 'replacePhoto');
-      component.onFileSelected({ target: { files: [file] } }, task);
-      expect(component.replacePhoto).toHaveBeenCalledWith(file, task, startedHuntId);
-    });
+  it('should handle getUserMedia error when switching between multiple video devices', (done) => {
+    component.videoDevices = [{
+      deviceId: '1',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }, {
+      deviceId: '2',
+      groupId: '',
+      kind: 'audioinput',
+      label: '',
+      toJSON: function () {
+        throw new Error('Function not implemented.');
+      }
+    }];
+    component.currentDeviceIndex = 0;
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.reject('error'));
 
-    it('should call submitPhoto when task does not have photos', () => {
-      task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photos: []};
-      spyOn(component, 'submitPhoto');
-      component.onFileSelected({ target: { files: [file] } }, task);
-      expect(component.submitPhoto).toHaveBeenCalledWith(file, task, startedHuntId);
-    });
+    component.switchCamera();
 
-    it('should display success message and update task when photo is uploaded successfully', () => {
-      const newPhotoId = 'newPhotoId';
-      mockHostService.submitPhoto.and.returnValue(of(newPhotoId));
-      component.submitPhoto(file, task, startedHuntId);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Photo uploaded successfully', 'Close', { duration: 3000 });
-      expect(task.status).toBeTrue();
-      expect(task.photos).toContain(newPhotoId);
-    });
-
-    it('should display error message when photo upload fails', () => {
-      mockHostService.submitPhoto.and.returnValue(throwError('Error message'));
-      component.submitPhoto(file, task, startedHuntId);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', { duration: 3000 });
-    });
-
-    it('should display success message when photo is replaced successfully', () => {
-      mockHostService.replacePhoto.and.returnValue(of('newPhotoId'));
-      component.replacePhoto(file, task, startedHuntId);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Photo replaced successfully', 'Close', { duration: 3000 });
-      expect(task.photos[0]).toEqual('newPhotoId');
-    });
-
-    it('should display error message when photo replacement fails', () => {
-      mockHostService.replacePhoto.and.returnValue(throwError('Error message'));
-      component.replacePhoto(file, task, startedHuntId);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Error replacing photo. Please try again', 'Close', { duration: 3000 });
-    });
+    setTimeout(() => {
+      expect(component.stream).toBeNull();
+      done();
+    }, 0);
   });
 });
 
