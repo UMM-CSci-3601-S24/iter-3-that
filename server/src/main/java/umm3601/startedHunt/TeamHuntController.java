@@ -89,22 +89,22 @@ private TeamHunt[] getTeamHuntsByStartedHuntId(String startedHuntId) {
   return (teamHuntsArray);
 }
 
-
-private void updateTeamHuntsViaWebsocket(String startedHuntId) {
-  Iterator<WsContext> iterator = connectedContextsDictionary.keySet().iterator(); //  connectedContexts.iterator();
-  while (iterator.hasNext()) {
-    WsContext ws = iterator.next();
-    if (ws.session.isOpen()) {
-      String associatedStartedHuntID = connectedContextsDictionary.get(ws);
-      if (associatedStartedHuntID.equals(startedHuntId)) {
-        TeamHunt[] teamHuntsArray = getTeamHuntsByStartedHuntId(startedHuntId);
-        ws.send(teamHuntsArray);
-      } else {
-        iterator.remove();
-      }
-    }
-  }
-}
+//could not get websockets to work in deployment
+// private void updateTeamHuntsViaWebsocket(String startedHuntId) {
+//   Iterator<WsContext> iterator = connectedContextsDictionary.keySet().iterator(); //  connectedContexts.iterator();
+//   while (iterator.hasNext()) {
+//     WsContext ws = iterator.next();
+//     if (ws.session.isOpen()) {
+//       String associatedStartedHuntID = connectedContextsDictionary.get(ws);
+//       if (associatedStartedHuntID.equals(startedHuntId)) {
+//         TeamHunt[] teamHuntsArray = getTeamHuntsByStartedHuntId(startedHuntId);
+//         ws.send(teamHuntsArray);
+//       } else {
+//         iterator.remove();
+//       }
+//     }
+//   }
+// }
 
 @Override
 public void addRoutes(Javalin server) {
@@ -112,13 +112,13 @@ public void addRoutes(Javalin server) {
   server.get(API_TEAMHUNTS_BY_INVITE_CODE, this::getTeamHuntsByInviteCode);
 
   //get live updates of teamhunts and task progress
-  server.ws(TEAMHUNT_UPDATES_WEBSOCKET, ws -> {
-    ws.onConnect(ctx -> {
-      String startedHuntId = ctx.pathParam("startedhuntid");
-      connectedContextsDictionary.put(ctx, startedHuntId);
-      ctx.enableAutomaticPings(secondToPing, TimeUnit.SECONDS);
-    });
-  });
+  // server.ws(TEAMHUNT_UPDATES_WEBSOCKET, ws -> {
+  //   ws.onConnect(ctx -> {
+  //     String startedHuntId = ctx.pathParam("startedhuntid");
+  //     connectedContextsDictionary.put(ctx, startedHuntId);
+  //     ctx.enableAutomaticPings(secondToPing, TimeUnit.SECONDS);
+  //   });
+  // });
 }
 
 
