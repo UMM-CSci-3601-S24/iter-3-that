@@ -47,9 +47,9 @@ export class CreateTeamComponent {
       { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
     ],
     members: [
-      { type: 'required', message: 'At least one member is required' },
-      { type: 'minlength', message: 'Team name must be at least 1 character long' },
-      { type: 'maxlength', message: 'Team name cannot be more than 50 characters long' }
+      { type: 'required', message: 'Must enter a team member' },
+      { type: 'minlength', message: 'Team member must be at least 1 character long' },
+      { type: 'maxlength', message: 'Team member cannot be more than 50 characters long' }
     ],
   };
 
@@ -62,9 +62,20 @@ export class CreateTeamComponent {
   }
 
   getErrorMessage(name: keyof typeof this.createTeamValidationMessages): string {
-    for(const {type, message} of this.createTeamValidationMessages[name]) {
-      if (this.teamForm.get(name).hasError(type)) {
-        return message;
+    if (name === 'members') {
+      const membersArray = this.teamForm.get('members') as FormArray;
+      for (let i = 0; i < membersArray.length; i++) {
+        for(const {type, message} of this.createTeamValidationMessages[name]) {
+          if (membersArray.at(i).hasError(type)) {
+            return message;
+          }
+        }
+      }
+    } else {
+      for(const {type, message} of this.createTeamValidationMessages[name]) {
+        if (this.teamForm.get(name).hasError(type)) {
+          return message;
+        }
       }
     }
     return 'Unknown error';
