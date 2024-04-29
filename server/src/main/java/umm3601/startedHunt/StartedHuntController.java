@@ -186,6 +186,10 @@ public class StartedHuntController implements Controller {
       ctx.status(HttpStatus.NOT_FOUND);
       throw new NotFoundResponse("The requested team hunt with id '" + id + "' was not found");
     }
+
+    for (Task task : teamHunt.tasks) {
+      task.photo = getPhotoFromTask(task);
+    }
     ctx.json(teamHunt);
     ctx.status(HttpStatus.OK);
   }
