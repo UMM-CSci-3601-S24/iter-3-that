@@ -607,6 +607,20 @@ class StartedHuntControllerSpec {
     startedHuntController.deletePhoto(id, ctx);
   }
 
+    @Test
+    public void testAddPhotoHuntHasAlreadyEnded() {
+      Document startedHunt = db.getCollection("startedHunts")
+          .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+      startedHunt.put("status", false);
+      db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+
+      when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+
+      assertThrows(BadRequestResponse.class, () -> {
+        startedHuntController.addPhoto(ctx);
+      });
+    }
+
   @SuppressWarnings("unchecked")
   @Test
   void testGetPhotoFromTask() throws IOException {

@@ -201,6 +201,12 @@ public class StartedHuntController implements Controller {
   }
 
   public void addPhoto(Context ctx) {
+    TeamHunt teamHunt = teamHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("teamHuntId")))).first();
+    StartedHunt startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(teamHunt.startedHuntId))).first();
+    if (!startedHunt.status) {
+      ctx.status(HttpStatus.BAD_REQUEST);
+      throw new BadRequestResponse("The hunt has already ended");
+    }
     String id = uploadPhoto(ctx);
     addPhotoPathToTask(ctx, id);
     ctx.status(HttpStatus.CREATED);
@@ -285,7 +291,7 @@ public class StartedHuntController implements Controller {
     EndedHunt endedHunt = new EndedHunt();
     endedHunt.startedHunt = startedHuntCollection.find(eq("_id", new ObjectId(ctx.pathParam("id")))).first();
     endedHunt.teamHunts = teamHuntCollection.find(eq("startedHuntId", endedHunt.startedHunt._id))
-      .into(new ArrayList<>());
+        .into(new ArrayList<>());
     for (TeamHunt teamHunt : endedHunt.teamHunts) {
       teamHunt.tasks = getTaskPhoto(teamHunt.tasks);
     }

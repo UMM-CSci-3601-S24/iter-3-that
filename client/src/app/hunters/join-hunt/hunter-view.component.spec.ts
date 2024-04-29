@@ -7,6 +7,7 @@ import { HostService } from 'src/app/hosts/host.service';
 import { Task } from 'src/app/hunts/task';
 import { WebcamImage } from 'ngx-webcam';
 import { TeamHunt } from './teamHunt';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('HunterViewComponent', () => {
   let component: HunterViewComponent;
@@ -154,11 +155,12 @@ describe('HunterViewComponent', () => {
   it('should handle error when fail to submit photo', () => {
     const task: Task = { _id: '1', huntId: '1', name: 'Task 1', status: true, photo: '' };
     const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-    mockHostService.submitPhoto.and.returnValue(throwError('Error message'));
+    const errorResponse = new HttpErrorResponse({ error: { title: 'Error message' } });
+    mockHostService.submitPhoto.and.returnValue(throwError(errorResponse));
 
     component.submitPhoto(file, task, '1');
 
-    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo. Please try again', 'Close', { duration: 3000 });
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error uploading photo: Error message', 'Close', { duration: 3000 });
   });
 
   it('should set stream to true when camera is available and authorized', (done) => {
