@@ -56,7 +56,8 @@ describe('Hunter View', () => {
     })
 
     page.getTeamNameField().type('Team 1');
-    page.getTeamMembersField().type('John Doe, Jane Doe');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
     page.getHunterViewTitle().contains('You are in');
   });
@@ -85,6 +86,10 @@ describe('Hunter View', () => {
       cy.wait(1000);
       page.clickJoinHuntButton();
     })
+
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
     // navigate to the hunter view page with access code.
 
@@ -116,6 +121,10 @@ describe('Hunter View', () => {
       page.clickJoinHuntButton();
     })
 
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
+
 //     // navigate to the hunter view page with access code.
 
     page.getHuntTaskList().should('exist');
@@ -145,6 +154,10 @@ describe('Hunter View', () => {
       cy.wait(1000);
       page.clickJoinHuntButton();
     })
+
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
 //     // navigate to the hunter view page with access code.
 
@@ -176,6 +189,10 @@ describe('Hunter View', () => {
       page.clickJoinHuntButton();
     })
 
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
+
   // navigate to the hunter view page with access code.
 
     page.getTakePictureButton().should('exist');
@@ -206,6 +223,10 @@ describe('Hunter View', () => {
       page.clickJoinHuntButton();
     })
 
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
+
     // navigate to the hunter view page with access code.
 
     page.getTakePictureButton().first().click();
@@ -235,6 +256,10 @@ describe('Hunter View', () => {
       cy.wait(1000);
       page.clickJoinHuntButton();
     });
+
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
     // navigate to the hunter view page with access code.
 
@@ -268,6 +293,10 @@ describe('Hunter View', () => {
       page.clickJoinHuntButton();
     });
 
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
+
     // navigate to the hunter view page with access code.
 
     page.getTakePictureButton().first().click();
@@ -300,6 +329,10 @@ describe('Hunter View', () => {
       cy.wait(1000);
       page.clickJoinHuntButton();
     });
+
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
     // navigate to the hunter view page with access code.
 
@@ -337,6 +370,10 @@ describe('Hunter View', () => {
       cy.wait(1000);
       page.clickJoinHuntButton();
     });
+
+    page.getTeamNameField().type('Team 1');
+    page.getTeamMembersField().type('John', {force: true});
+    page.clickCreateTeamButton();
 
     // navigate to the hunter view page with access code.
 
