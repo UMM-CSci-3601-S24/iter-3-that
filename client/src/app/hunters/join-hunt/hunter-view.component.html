@@ -13,7 +13,7 @@
   <div class="flex-row" *ngFor="let task of teamHunt.tasks">
 
     <div class="image-upload">
-      <img [src]="imageUrls[task._id] || 'assets/icons8-upload-picture-64.png'"
+      <img [src]="(task.photo && task.photo.length > 50 ? task.photo : imageUrls[task._id]) || 'assets/icons8-upload-picture-64.png'"
            alt="Upload Picture"
            title="Upload Picture"
            height="300px"
