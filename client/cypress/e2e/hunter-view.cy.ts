@@ -378,7 +378,7 @@ describe('Hunter View', () => {
     // navigate to the hunter view page with access code.
 
     page.getTakePictureButton().first().click();
-    page.getCancelOverlay().click({force: true});
+    page.getCancelOverlay().click( { force: true });
   });
 
 });
