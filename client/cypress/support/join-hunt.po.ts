@@ -11,6 +11,13 @@ export class JoinHuntPage {
   private readonly profileButtonSelector = '[data-test=viewProfileButton]';
   private readonly beginHuntButton = '.begin-hunt';
   private readonly huntAccessCode = '.access-code-number';
+  private readonly teamNameField = '.test-team-name-input';
+  private readonly teamMembersField = '.team-member-input';
+  private readonly createTeamButton = '.submit-button';
+  private readonly cancelCreateTeamButton = '.cancel-button';
+  private readonly createTeamTitle = '.add-team-title';
+  private readonly addingMembersButton = '.add-member';
+  private readonly removeMembersButton = '.remove-member';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -128,5 +135,86 @@ export class JoinHuntPage {
    */
   getAccessCode() {
     return cy.get(this.huntAccessCode).invoke('text').as('accessCode');
+  }
+
+   /**
+   * Get the team field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+   getTeamNameField() {
+    return cy.get(this.teamNameField);
+  }
+
+  /**
+   * Get the team members field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getTeamMembersField() {
+    return cy.get(this.teamMembersField);
+  }
+
+  /**
+   * Click the create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCreateTeamButton() {
+    return cy.get(this.createTeamButton).click();
+  }
+
+  /**
+   * Click the cancel create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCancelCreateTeamButton() {
+    return cy.get(this.cancelCreateTeamButton).click();
+  }
+
+  /**
+   * Get the create team title DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCreateTeamTitle() {
+    return cy.get(this.createTeamTitle);
+  }
+
+  /**
+   * Get the create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCreateTeamButton() {
+    return cy.get(this.createTeamButton);
+  }
+
+  /**
+   * Get the add member button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getAddingMembersButton() {
+    return cy.get(this.addingMembersButton);
+  }
+
+  /**
+   * Get the remove member button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getRemoveMembersButton() {
+    return cy.get(this.removeMembersButton);
+  }
+
+  /**
+   * Get the cancel create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelCreateTeamButton() {
+    return cy.get(this.cancelCreateTeamButton);
   }
 }
