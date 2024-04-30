@@ -17,21 +17,25 @@
     font-size: 3em;
     margin-bottom: 20px;
     color: black;
+    line-height: 1;
     @media (prefers-color-scheme: dark) {
       color: black;
     }
 }
 
-.link-button {
+.hunter-button {
     width: 100%;
     text-align: center;
     font-size: 3em;
     margin-top: 20px;
     margin-bottom: 20px;
     padding: 50px;
+    border: 2px solid #01b5ec;
+    box-shadow: 0 0 5px 0 #1128f8;
+    transition: box-shadow 0.3s;
   }
 
-  .link-button:hover {
+  .hunter-button:hover {
     background-color: rgb(190, 231, 255);
     color: #fff;
   }
@@ -51,4 +55,26 @@
     @media (prefers-color-scheme: dark) {
       color: black;
     }
+}
+
+.vertical-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.host-button {
+  width: 100%;
+  text-align: center;
+  font-size: 3em;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 50px;
+  border: 2px solid #01b5ec;
+  box-shadow: 0 0 5px 0 #1128f8;
+  transition: box-shadow 0.3s;
+}
+
+.host-button:hover {
+  background-color: rgb(190, 231, 255);
+  color: #fff;
 }

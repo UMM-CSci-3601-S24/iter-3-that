@@ -550,6 +550,7 @@ class StartedHuntControllerSpec {
         .first().get("tasks", List.class).get(3);
     assertNotNull(updatedTask);
     assertNotEquals(null, updatedTask.get("photo", String.class));
+    assertTrue(updatedTask.get("status", Boolean.class));
   }
 
   @Test
@@ -605,6 +606,20 @@ class StartedHuntControllerSpec {
     verify(ctx).status(HttpStatus.OK);
     startedHuntController.deletePhoto(id, ctx);
   }
+
+    @Test
+    public void testAddPhotoHuntHasAlreadyEnded() {
+      Document startedHunt = db.getCollection("startedHunts")
+          .find(eq("_id", new ObjectId(startedHuntId.toHexString()))).first();
+      startedHunt.put("status", false);
+      db.getCollection("startedHunts").replaceOne(eq("_id", new ObjectId(startedHuntId.toHexString())), startedHunt);
+
+      when(ctx.pathParam("teamHuntId")).thenReturn(teamHuntId.toHexString());
+
+      assertThrows(BadRequestResponse.class, () -> {
+        startedHuntController.addPhoto(ctx);
+      });
+    }
 
   @SuppressWarnings("unchecked")
   @Test
