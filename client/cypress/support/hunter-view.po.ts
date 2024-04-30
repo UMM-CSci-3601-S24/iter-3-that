@@ -4,15 +4,22 @@ export class HunterViewPage {
   private readonly huntNofTasks = '.hunt-Nof-tasks';
   private readonly huntTimer = '.hunt-timer';
   private readonly huntTaskList = '.task-list';
-  private readonly hunterUploadImage = '.image-upload';
   private readonly HunterButton = '[name="hunter-button"]';
   private readonly HostButton = '[name="host-button"]';
   private readonly hostCardSelector = '.hunt-cards-container app-hunt-card';
   private readonly profileButtonSelector = '[data-test=viewProfileButton]';
   private readonly beginHuntButton = '.begin-hunt';
   private readonly huntAccessCode = '.access-code-number';
-  private readonly UploadImageButton = '.image-upload input[type="file"]';
+  private readonly takePictureButton = '.take-picture';
   private readonly joinHuntButtonSelector = '[name="join-button"]';
+  private readonly captureImageButton = '.capture-image-button';
+  private readonly cancelCaptureImageButton = '.cancel-capture-button';
+  private readonly snackBar = '.mat-mdc-snack-bar-label.mdc-snackbar__label';
+  private readonly cancelOverlay = '.overlay';
+  private readonly teamNameField = '.test-team-name-input';
+  private readonly teamMembersField = '.team-member-input';
+  private readonly createTeamButton = '.submit-button';
+  private readonly cancelCreateTeamButton = '.cancel-button';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -114,21 +121,12 @@ export class HunterViewPage {
   }
 
   /**
-   * Get the upload image button and the image input field.
+   * Get the take picture button.
    *
-   * @return the value of the element with the class `.image-upload`
+   * @returns the value of the element.
    */
-  getHunterUploadImage() {
-    return cy.get(this.hunterUploadImage);
-  }
-
-  /**
-   * Clicks the "upload image" button in the hunter view table.
-   *
-   * @return the value of the element with the class `.image-upload input[type="file"]`
-   */
-  clickUploadImage() {
-    return cy.get(this.UploadImageButton).first().click({force: true});
+  getTakePictureButton() {
+    return cy.get(this.takePictureButton);
   }
 
   /**
@@ -148,5 +146,96 @@ export class HunterViewPage {
    */
   clickJoinHuntButton() {
     return cy.get(this.joinHuntButtonSelector).click();
+  }
+
+  /**
+   * Get the capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCaptureImageButton() {
+    return cy.get(this.captureImageButton);
+  }
+
+  /**
+   * Click the capture image button DOM element.
+   *
+   * @return the value of the element with the class.
+   */
+  clickCaptureImageButton() {
+    return cy.get(this.captureImageButton).click();
+  }
+
+  /**
+   * Get the cancel capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelCaptureButton() {
+    return cy.get(this.cancelCaptureImageButton);
+  }
+
+  /**
+   * Click the cancel capture image button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCancelCaptureButton() {
+    return cy.get(this.cancelCaptureImageButton).click();
+  }
+
+  /**
+   * Get the snack bar DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getSnackBar() {
+    cy.wait(500);
+    return cy.get(this.snackBar);
+  }
+
+  /**
+   * Get the cancel overlay DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelOverlay() {
+    return cy.get(this.cancelOverlay);
+  }
+
+  /**
+   * Get the team field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getTeamNameField() {
+    return cy.get(this.teamNameField);
+  }
+
+  /**
+   * Get the team members field DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getTeamMembersField() {
+    return cy.get(this.teamMembersField);
+  }
+
+  /**
+   * Click the create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCreateTeamButton() {
+    return cy.get(this.createTeamButton).click();
+  }
+
+  /**
+   * Click the cancel create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  clickCancelCreateTeamButton() {
+    return cy.get(this.cancelCreateTeamButton).click();
   }
 }
