@@ -6,15 +6,29 @@
           <mat-card-title class="hunt-name">{{ this.endedHunt.startedHunt.completeHunt.hunt.name }}</mat-card-title>
           <mat-card-subtitle class="end-date">Ended on: {{ this.endedHunt.startedHunt.endDate | date: 'medium' }}</mat-card-subtitle>
         </mat-card>
+        <div class="team-members-container">
+          @for (teamHunt of endedHunt.teamHunts; track teamHunt._id) {
+            <mat-card class="team-members-card">
+              <mat-card-title>{{ teamHunt.teamName }} Members</mat-card-title>
+              <mat-card-content>
+                <ul>
+                  @for (member of teamHunt.members; track member) {
+                    <li>{{ member }}</li>
+                  }
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
         <mat-card-title class="tasks-title">Tasks and Photos</mat-card-title>
         <div class="task-photos-container">
           @for (task of this.endedHunt.startedHunt.completeHunt.tasks; track task._id) {
             <mat-card-title class="task-list-name"> {{ task.name }} </mat-card-title>
-            <div class="finishedTask-photos">
+            <div class="finishedTask-photos photo-grid">
               @for (teamHunt of endedHunt.teamHunts; track teamHunt._id) {
                 @for (teamTask of teamHunt.tasks; track teamTask._id) {
                   @if (teamTask._id === task._id) {
-                    <figure>
+                    <figure class="photo-figure">
                       <img src="{{ teamTask.photo }}" alt="Task Photo" class="task-photo">
                       <figcaption>{{ teamHunt.teamName }}</figcaption>
                     </figure>
