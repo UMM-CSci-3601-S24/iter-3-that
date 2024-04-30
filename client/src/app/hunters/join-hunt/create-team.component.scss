@@ -146,6 +146,12 @@
   }
 }
 
+.member-input-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 ::ng-deep .submit-button:disabled {
   color: gray !important;
   @media (prefers-color-scheme: dark) {
