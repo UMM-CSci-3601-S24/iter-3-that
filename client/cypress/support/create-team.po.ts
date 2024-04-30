@@ -21,7 +21,8 @@ export class CreateTeamPage {
   private readonly createTeamButton = '.submit-button';
   private readonly cancelCreateTeamButton = '.cancel-button';
   private readonly createTeamTitle = '.add-team-title';
-  private readonly addingMembersButton = '.add-team-title';
+  private readonly addingMembersButton = '.add-member';
+  private readonly removeMembersButton = '.remove-member';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -266,5 +267,14 @@ export class CreateTeamPage {
    */
   getAddingMembersButton() {
     return cy.get(this.addingMembersButton);
+  }
+
+  /**
+   * Get the remove member button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getRemoveMembersButton() {
+    return cy.get(this.removeMembersButton);
   }
 }
