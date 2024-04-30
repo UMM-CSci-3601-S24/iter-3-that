@@ -5,6 +5,7 @@ export class JoinHuntPage {
   private readonly accessCodeInputField = '.input-container';
   private readonly appPageTitle = '.app-title';
   private readonly HomeButton = '[name="home-button"]';
+  private readonly huntTitle = '.hunt-title';
   private readonly HunterButton = '[name="hunter-button"]';
   private readonly HostButton = '[name="host-button"]';
   private readonly hostCardSelector = '.hunt-cards-container app-hunt-card';
@@ -216,5 +217,14 @@ export class JoinHuntPage {
    */
   getCancelCreateTeamButton() {
     return cy.get(this.cancelCreateTeamButton);
+  }
+
+  /**
+   * Get the title of the hunter view page.
+   *
+   * @return the value of the element with the ID `.hunt-title`
+   */
+  getHunterViewTitle() {
+    return cy.get(this.huntTitle);
   }
 }
