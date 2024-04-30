@@ -14,7 +14,10 @@
               @for (teamHunt of endedHunt.teamHunts; track teamHunt._id) {
                 @for (teamTask of teamHunt.tasks; track teamTask._id) {
                   @if (teamTask._id === task._id) {
-                    <img src="{{ teamTask.photo }}" alt="Task Photo" class="task-photo">
+                    <figure>
+                      <img src="{{ teamTask.photo }}" alt="Task Photo" class="task-photo">
+                      <figcaption>{{ teamHunt.teamName }}</figcaption>
+                    </figure>
                   }
                 }
               }
