@@ -53,7 +53,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
@@ -85,7 +85,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
@@ -119,7 +119,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
@@ -153,7 +153,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
@@ -187,7 +187,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
@@ -221,7 +221,7 @@ describe('Hunter View', () => {
     }).then(() => {
       cy.wait(1000);
       page.clickJoinHuntButton();
-    })
+    });
 
     page.getTeamNameField().type('Team 1');
     page.getTeamMembersField().type('John', {force: true});
