@@ -277,4 +277,13 @@ export class CreateTeamPage {
   getRemoveMembersButton() {
     return cy.get(this.removeMembersButton);
   }
+
+  /**
+   * Get the cancel create team button DOM element.
+   *
+   * @returns the value of the element with the class.
+   */
+  getCancelCreateTeamButton() {
+    return cy.get(this.cancelCreateTeamButton);
+  }
 }

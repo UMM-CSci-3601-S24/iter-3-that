@@ -195,4 +195,30 @@ describe('Hunter View', () => {
     page.getRemoveMembersButton().should('exist');
 
   });
+
+  it('should display the cancel create team button', () => {
+    page.getHostButton().click();
+    page.getHuntCards().first().then(() => {
+      page.clickViewProfile(page.getHuntCards().first());
+      cy.url().should('match', /\/hunts\/[0-9a-fA-F]{24}$/);
+    });
+
+    cy.get('mat-form-field [formcontrolname=numTeam]').type('2', {force: true});
+    page.clickBeginHunt();
+    cy.wait(2000);
+    page.getAccessCode();
+
+    cy.get('@accessCode').then((accessCode) => {
+      cy.visit(`/hunters/`);
+      for (let i = 0; i < accessCode.length; i++) {
+        page.getAccessCodeInput(i + 1).type(accessCode.toString().charAt(i));
+      }
+    }).then(() => {
+      cy.wait(1000);
+      page.clickJoinHuntButton();
+    });
+
+    page.getCancelCreateTeamButton().should('exist');
+
+  });
 });
