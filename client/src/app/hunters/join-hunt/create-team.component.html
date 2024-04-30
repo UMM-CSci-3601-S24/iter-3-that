@@ -9,7 +9,7 @@
           <div class="flex-col">
             <mat-form-field>
               <mat-label>Team Name</mat-label>
-              <input matInput formControlName="teamName" required>
+              <input class="test-team-name-input" matInput formControlName="teamName" required>
               @if (formControlHasError('teamName')) {
                 <mat-error data-test="nameError">
                   {{getErrorMessage('teamName')}}
@@ -19,9 +19,9 @@
 
             <div formArrayName="members">
               <div *ngFor="let memberCtrl of members.controls; let i = index">
-                <mat-form-field>
+                <mat-form-field data-test="member">
                   <mat-label>Team Member</mat-label>
-                  <input matInput [formControlName]="i" required>
+                    <input class="team-member-input" matInput [formControlName]="i" required>
                   @if (formControlHasError('members')) {
                     <mat-error data-test="memberError">
                       {{getErrorMessage('members')}}
@@ -35,7 +35,7 @@
           </div>
         </mat-card-content>
         <mat-card-actions align="end">
-          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelCreateTeamButton">CANCEL</button>
+          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelCreateTeamButton" class="cancle-button">CANCEL</button>
           <button mat-button type="button" color="primary" [disabled]="!teamForm.valid" type="submit" data-test="confirmCreateTeamButton" class="submit-button">CREATE TEAM</button>
         </mat-card-actions>
       </mat-card>
