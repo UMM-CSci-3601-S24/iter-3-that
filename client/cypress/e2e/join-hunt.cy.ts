@@ -111,8 +111,13 @@ describe('Join Hunt', () => {
     page.getJoinHuntButton().should('not.have.class', 'mat-mdc-button-disabled');
     page.getJoinHuntButton().click();
 
-    
-    // This will check if the JoinHuntButton is enabled if valid access code (6 digit) is entered.
-    cy.url().should('match', /\/hunter-view\/\d+$/)
+    page.getTeamNameField().type('Team That will win');
+    page.getAddingMembersButton().click();
+    page.getTeamMembersField().first().type('John', {force: true});
+    page.getTeamMembersField().last().type('Joe', {force: true});
+
+    page.getCancelCreateTeamButton().click();
+
+    page.getJoinHuntTitle().contains('Type Invite Code');
   });
  });

@@ -23,6 +23,7 @@ export class CreateTeamPage {
   private readonly createTeamTitle = '.add-team-title';
   private readonly addingMembersButton = '.add-member';
   private readonly removeMembersButton = '.remove-member';
+  private readonly joinHuntPageTitle = '.title';
 
   navigateTo() {
     return cy.visit(this.baseUrl);
@@ -285,5 +286,14 @@ export class CreateTeamPage {
    */
   getCancelCreateTeamButton() {
     return cy.get(this.cancelCreateTeamButton);
+  }
+
+  /**
+   * Gets the title of the app when visiting the `/join-hunt` page.
+   *
+   * @returns the value of the element with the ID `.join-hunt-title`
+   */
+  getJoinHuntTitle() {
+    return cy.get(this.joinHuntPageTitle);
   }
 }

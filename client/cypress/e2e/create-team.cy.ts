@@ -312,6 +312,6 @@ describe('Hunter View', () => {
 
     page.getCancelCreateTeamButton().click();
 
-    cy.url().should('match', /\/hunters\/\d+$/)
+    page.getJoinHuntTitle().contains('Type Invite Code');
   });
 });
