@@ -104,10 +104,17 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 2px 0 rgb(0, 112, 250);
-  background-color: #ff8484;
+  background-color: #badffd2d;
   color: #b30000 !important;
   @media (prefers-color-scheme: dark) {
     color: #b30000 !important;
+  }
+}
+
+::ng-deep .cancel-button:hover {
+  background-color: #ff8181 !important;
+  @media (prefers-color-scheme: dark) {
+    background-color: #ff8181 !important;
   }
 }
 
