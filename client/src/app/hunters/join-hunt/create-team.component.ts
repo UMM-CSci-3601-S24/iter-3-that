@@ -93,7 +93,7 @@ export class CreateTeamComponent {
       },
       error: (err) => {
         console.error('Error creating team:', err);
-        this.snackBar.open('Error creating team', 'Close', {
+        this.snackBar.open('Error creating team: ' + err.error.title, 'Close', {
           duration: 5000
         });
       }
