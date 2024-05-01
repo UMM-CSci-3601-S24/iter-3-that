@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { CreateTeamComponent } from './create-team.component';
 import { HostService } from 'src/app/hosts/host.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('CreateTeamComponent', () => {
   let createTeamComponent: CreateTeamComponent;
@@ -155,14 +156,14 @@ describe('CreateTeamComponent', () => {
   });
 
   it('should log an error if creating a team fails', () => {
-    const error = new Error('Error creating team');
-    mockHostService.createTeam.and.returnValue(throwError(error));
+    const errorResponse = new HttpErrorResponse({ error: { title: 'Error creating team' } });
+    mockHostService.createTeam.and.returnValue(throwError(errorResponse));
     spyOn(console, 'error');
 
     createTeamComponent.submitForm();
 
-    expect(console.error).toHaveBeenCalledWith('Error creating team:', error);
-    expect(mockSnackBar.open).toHaveBeenCalledWith('Error creating team', 'Close', { duration: 5000 });
+    expect(console.error).toHaveBeenCalledWith('Error creating team:', errorResponse);
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Error creating team: Error creating team', 'Close', { duration: 5000 });
   });
 
   it('should add a member control to the members form array', () => {
