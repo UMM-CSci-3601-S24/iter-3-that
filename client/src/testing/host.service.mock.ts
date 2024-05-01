@@ -6,6 +6,7 @@ import { HostService } from '../app/hosts/host.service';
 import { CompleteHunt } from 'src/app/hunts/completeHunt';
 import { StartedHunt } from 'src/app/startHunt/startedHunt';
 import { EndedHunt } from 'src/app/endedHunts/endedHunt';
+import { TeamHunt } from 'src/app/hunters/join-hunt/teamHunt';
 
 @Injectable({
   providedIn: AppComponent,
@@ -248,6 +249,133 @@ export class MockHostService extends HostService {
       },
     },
   ];
+
+  static testTeamHunts: TeamHunt[] = [
+    {
+      _id: 'ann_id',
+      startedHuntId: 'ann_id',
+      teamName: 'Team A',
+      members: [],
+      tasks: [
+        {
+          _id: '588935f57546a2daea54de8c',
+          huntId: 'ann_id',
+          name: 'Take a picture of a bird',
+          status: false,
+          photo: '',
+        },
+        {
+          _id: '588935f57546a2daea54de9c',
+          huntId: 'ann_id',
+          name: 'Take a picture of a dog',
+          status: false,
+          photo: '',
+        },
+        {
+          _id: '588935f57546a3daea54de8c',
+          huntId: 'ann_id',
+          name: 'Take a picture of a Stop sign',
+          status: false,
+          photo: '',
+        },
+      ],
+    },
+    {
+      _id: 'fran_id',
+      startedHuntId: 'fran_id',
+      teamName: 'Team B',
+      members: [],
+      tasks: [
+        {
+          _id: '588935f57556a2daea54de8c',
+          huntId: 'fran_id',
+          name: 'Take a picture of a restaurant',
+          status: true,
+          photo: '',
+        },
+        {
+          _id: '588935f56536a3daea54de8c',
+          huntId: 'fran_id',
+          name: 'Take a picture of a cat',
+          status: false,
+          photo: '',
+        },
+      ],
+    },
+    {
+      _id: 'jan_id',
+      startedHuntId: 'jan_id',
+      teamName: 'Team C',
+      members: [],
+      tasks: [
+        {
+          _id: '588933f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a red car',
+          status: true,
+          photo: '',
+        },
+        {
+          _id: '588535f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a slide',
+          status: false,
+          photo: '',
+        },
+        {
+          _id: '583935f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a Yield sign',
+          status: false,
+          photo: '',
+        },
+        {
+          _id: '548935f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a football field',
+          status: false,
+          photo: '',
+        },
+      ],
+    },
+    {
+      _id: 'jan_id',
+      startedHuntId: 'jan_id',
+      teamName: 'Team D',
+      members: [],
+      tasks: [
+        {
+          _id: '588933f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a red car',
+          status: true,
+          photo: '',
+        },
+        {
+          _id: '588535f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a slide',
+          status: true,
+          photo: '',
+        },
+        {
+          _id: '583935f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a Yield sign',
+          status: true,
+          photo: '',
+        },
+        {
+          _id: '548935f57556a3daea54de8c',
+          huntId: 'jan_id',
+          name: 'Take a picture of a football field',
+          status: false,
+          photo: '',
+        },
+      ],
+    },
+  ];
+
 
   static testEndedHunts: EndedHunt[] = [
     {
