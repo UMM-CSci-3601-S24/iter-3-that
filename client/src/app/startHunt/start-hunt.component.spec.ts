@@ -12,6 +12,7 @@ import { HuntCardComponent } from "../hunts/hunt-card.component";
 import { StartedHunt } from "./startedHunt";
 import { of, throwError } from "rxjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { TeamHunt } from "../hunters/join-hunt/teamHunt";
 
 describe('StartHuntComponent', () => {
   let component: StartHuntComponent;
@@ -62,6 +63,20 @@ describe('StartHuntComponent', () => {
     expectedStartedHunt = MockHostService.testStartedHunts[1];
     activatedRoute.setParamMap({ accessCode: expectedStartedHunt.accessCode });
     expect(component.startedHunt).toEqual(expectedStartedHunt);
+  });
+
+  it('should calculate tasks progress accurately', () => {
+    let expectedTeamHunt: TeamHunt = MockHostService.testTeamHunts[0];
+    expect(component.returnPercent(expectedTeamHunt)).toEqual(0);
+
+    expectedTeamHunt = MockHostService.testTeamHunts[1];
+    expect(component.returnPercent(expectedTeamHunt)).toEqual(50);
+
+    expectedTeamHunt = MockHostService.testTeamHunts[2];
+    expect(component.returnPercent(expectedTeamHunt)).toEqual(25);
+
+    expectedTeamHunt = MockHostService.testTeamHunts[3];
+    expect(component.returnPercent(expectedTeamHunt)).toEqual(75);
   });
 
   it('should have `null` for the started hunt for a bad accessCode', () => {
