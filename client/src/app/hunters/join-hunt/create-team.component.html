@@ -28,14 +28,14 @@
                     </mat-error>
                   }
                 </mat-form-field>
-                <button mat-button type="button" (click)="removeMember(i)">Remove Member</button>
+                <button mat-button type="button" (click)="removeMember(i)" class="remove-member-button">Remove Member</button>
+                <button mat-button type="button" (click)="addMember()">Add Member</button>
               </div>
             </div>
-            <button mat-button type="button" (click)="addMember()">Add Member</button>
           </div>
         </mat-card-content>
         <mat-card-actions align="end">
-          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelCreateTeamButton" class="cancle-button">CANCEL</button>
+          <button mat-button type="button" color="warn" [routerLink]="['/hunters']" data-test="cancelCreateTeamButton" class="cancel-button">CANCEL</button>
           <button mat-button type="button" color="primary" [disabled]="!teamForm.valid" type="submit" data-test="confirmCreateTeamButton" class="submit-button">CREATE TEAM</button>
         </mat-card-actions>
       </mat-card>

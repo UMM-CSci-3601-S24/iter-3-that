@@ -27,7 +27,7 @@
             <div class="finishedTask-photos photo-grid">
               @for (teamHunt of endedHunt.teamHunts; track teamHunt._id) {
                 @for (teamTask of teamHunt.tasks; track teamTask._id) {
-                  @if (teamTask._id === task._id) {
+                  @if (teamTask._id === task._id && teamTask.photo.length > 0) {
                     <figure class="photo-figure">
                       <img src="{{ teamTask.photo }}" alt="Task Photo" class="task-photo">
                       <figcaption>{{ teamHunt.teamName }}</figcaption>

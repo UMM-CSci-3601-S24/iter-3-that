@@ -2,6 +2,7 @@
   font-size: 1.5rem;
   padding-bottom: 10px;
   padding: 5px;
+  margin-bottom: 10px;
 }
 
 .add-team-card {
@@ -67,10 +68,88 @@
 }
 
 ::ng-deep .submit-button {
+  align-items: center;
+  position: relative;
+  // min-width:280px;
+  width: 15%;
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 2px 0 rgb(0, 112, 250);
+  background-color: #badffd2d;
   color: #0056b3 !important;
   @media (prefers-color-scheme: dark) {
     color: #0056b3 !important;
   }
+}
+
+::ng-deep .submit-button:hover {
+  background-color: #84e6ff !important;
+  @media (prefers-color-scheme: dark) {
+    background-color: #84e6ff !important;
+  }
+}
+
+::ng-deep .cancel-button {
+  align-items: center;
+  position: relative;
+  // min-width:280px;
+  width: 15%;
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 2px 0 rgb(0, 112, 250);
+  background-color: #badffd2d;
+  color: #b30000 !important;
+  @media (prefers-color-scheme: dark) {
+    color: #b30000 !important;
+  }
+}
+
+::ng-deep .cancel-button:hover {
+  background-color: #f78a8a !important;
+  @media (prefers-color-scheme: dark) {
+    background-color: #f78a8a !important;
+  }
+}
+
+::ng-deep .remove-member-button {
+  align-items: center;
+  position: relative;
+  min-width:280px;
+  width: 15%;
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 8px;
+  margin-left: 1%;
+  box-shadow: 0 0 2px 0 rgb(0, 112, 250);
+  background-color: #badffd2d;
+  color: #b30000 !important;
+  @media (prefers-color-scheme: dark) {
+    color: #b30000 !important;
+  }
+}
+
+::ng-deep .remove-member-button:hover {
+  background-color: #f78a8a !important;
+  @media (prefers-color-scheme: dark) {
+    background-color: #f78a8a !important;
+  }
+}
+
+.member-input-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 ::ng-deep .submit-button:disabled {
