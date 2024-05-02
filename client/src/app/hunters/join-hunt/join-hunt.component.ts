@@ -74,6 +74,7 @@ export class JoinHuntComponent {
         case 6: this.input5.nativeElement.focus(); break;
       }
     }
+    this.checkAccessCode();
   }
 
   /**
