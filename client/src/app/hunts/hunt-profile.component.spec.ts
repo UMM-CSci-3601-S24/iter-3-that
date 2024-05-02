@@ -18,14 +18,13 @@ import { CompleteHunt } from './completeHunt';
 import { HttpClientModule } from '@angular/common/http';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-
 describe('HuntProfileComponent', () => {
   let component: HuntProfileComponent;
   let fixture: ComponentFixture<HuntProfileComponent>;
   const mockHostService = new MockHostService();
   const chrisId = 'chris_id';
   const activatedRoute: ActivatedRouteStub = new ActivatedRouteStub({
-    id : chrisId
+    id: chrisId,
   });
 
   beforeEach(waitForAsync(() => {
@@ -40,14 +39,13 @@ describe('HuntProfileComponent', () => {
         HttpClientTestingModule,
         MatFormFieldModule,
         MatInputModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
       ],
       providers: [
         { provide: HostService, useValue: mockHostService },
-        { provide: ActivatedRoute, useValue: activatedRoute }
-      ]
-    })
-      .compileComponents();
+        { provide: ActivatedRoute, useValue: activatedRoute },
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -84,10 +82,13 @@ describe('HuntProfileComponent', () => {
   it('should set error data on observable error', () => {
     activatedRoute.setParamMap({ id: chrisId });
 
-    const mockError = { message: 'Test Error', error: { title: 'Error Title' } };
-    const getHuntSpy = spyOn(mockHostService, 'getHuntById')
-      .and
-      .returnValue(throwError(() => mockError));
+    const mockError = {
+      message: 'Test Error',
+      error: { title: 'Error Title' },
+    };
+    const getHuntSpy = spyOn(mockHostService, 'getHuntById').and.returnValue(
+      throwError(() => mockError)
+    );
 
     component.ngOnInit();
 
@@ -117,11 +118,11 @@ describe('DeleteHunt() and StartHunt()', () => {
         MatInputModule,
         BrowserAnimationsModule,
         RouterTestingModule.withRoutes([
-          { path: 'hunts/1', component: HuntProfileComponent }
+          { path: 'hunts/1', component: HuntProfileComponent },
         ]),
-        HttpClientTestingModule
+        HttpClientTestingModule,
       ],
-      providers: [HostService]
+      providers: [HostService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HuntProfileComponent);
@@ -138,7 +139,9 @@ describe('DeleteHunt() and StartHunt()', () => {
 
   it('should delete a hunt and navigate to /hosts', () => {
     const navigateSpy = spyOn(router, 'navigate');
-    const deleteHuntSpy = spyOn(hostService, 'deleteHunt').and.returnValue(of(null));
+    const deleteHuntSpy = spyOn(hostService, 'deleteHunt').and.returnValue(
+      of(null)
+    );
 
     component.deleteHunt('testId');
 
@@ -178,15 +181,16 @@ describe('DeleteHunt() and StartHunt()', () => {
 
   it('should delete a task and remove it from the tasks array', () => {
     const taskId = '123';
-    const deleteTaskSpy = spyOn(hostService, 'deleteTask').and.returnValue(of(null));
+    const deleteTaskSpy = spyOn(hostService, 'deleteTask').and.returnValue(
+      of(null)
+    );
     component.completeHunt = MockHostService.testCompleteHunts[0];
 
     component.deleteTask(taskId);
 
     expect(deleteTaskSpy).toHaveBeenCalledWith(taskId);
-    expect(component.completeHunt.tasks).not.toContain(jasmine.objectContaining({ _id: taskId }));
+    expect(component.completeHunt.tasks).not.toContain(
+      jasmine.objectContaining({ _id: taskId })
+    );
   });
-
 });
-
-
