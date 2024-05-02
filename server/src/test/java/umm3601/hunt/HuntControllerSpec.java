@@ -198,7 +198,7 @@ class HuntControllerSpec {
     verify(mockServer, Mockito.atLeast(1)).get(any(), any());
   }
 
-    @Test
+  @Test
   void getHuntsByHostId() throws IOException {
 
     when(ctx.pathParam("id")).thenReturn("frysId");
@@ -759,15 +759,35 @@ class HuntControllerSpec {
   }
 
   @Test
-void startHuntThrowsBadRequestWhenTeamsLeftIsNotInteger() throws IOException {
-  String testID = huntId.toHexString();
-  when(ctx.pathParam("id")).thenReturn(testID);
+  void startHuntThrowsBadRequestWhenTeamsLeftIsNotInteger() throws IOException {
+    String testID = huntId.toHexString();
+    when(ctx.pathParam("id")).thenReturn(testID);
 
-  Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
-  assertNotNull(hunt);
+    Document hunt = db.getCollection("hunts").find(eq("_id", new ObjectId(testID))).first();
+    assertNotNull(hunt);
 
-  when(ctx.pathParam("teamsLeft")).thenReturn("notAnInteger");
+    when(ctx.pathParam("teamsLeft")).thenReturn("notAnInteger");
 
-  assertThrows(BadRequestResponse.class, () -> huntController.startHunt(ctx));
-}
+    assertThrows(BadRequestResponse.class, () -> huntController.startHunt(ctx));
+  }
+
+  @Test
+  public void testUpdateHunt() {
+    // Arrange
+    Hunt updatedHunt = new Hunt();
+    updatedHunt.name = "Updated Name";
+    updatedHunt.description = "Updated Description";
+    updatedHunt.est = 47;
+    when(ctx.pathParam("id")).thenReturn(huntId.toHexString());
+    when(ctx.bodyAsClass(Hunt.class)).thenReturn(updatedHunt);
+
+    huntController.updateHunt(ctx);
+
+    verify(ctx).status(HttpStatus.OK);
+
+    Document updatedHuntDoc = db.getCollection("hunts").find(eq("_id", huntId)).first();
+    assertEquals(updatedHunt.name, updatedHuntDoc.get("name"));
+    assertEquals(updatedHunt.description, updatedHuntDoc.get("description"));
+    assertEquals(updatedHunt.est, updatedHuntDoc.get("est"));
+  }
 }
