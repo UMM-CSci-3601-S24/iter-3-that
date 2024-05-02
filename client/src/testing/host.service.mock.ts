@@ -380,8 +380,12 @@ export class MockHostService extends HostService {
   static testEndedHunts: EndedHunt[] = [
     {
       startedHunt: MockHostService.testStartedHunts[0],
-      teamHunts: [],
+      teamHunts: MockHostService.testTeamHunts,
     },
+    {
+      startedHunt: MockHostService.testStartedHunts[1],
+      teamHunts: MockHostService.testTeamHunts,
+    }
   ];
 
   constructor() {
@@ -419,6 +423,10 @@ export class MockHostService extends HostService {
   getEndedHuntById(id: string): Observable<EndedHunt> {
     if (id === MockHostService.testEndedHunts[0].startedHunt._id) {
       return of(MockHostService.testEndedHunts[0]);
+    } else if (id === MockHostService.testEndedHunts[1].startedHunt._id) {
+      return of(MockHostService.testEndedHunts[1]);
+    } else {
+      return of(null);
     }
   }
 }
