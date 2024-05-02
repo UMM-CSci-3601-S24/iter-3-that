@@ -268,7 +268,7 @@ public class StartedHuntController implements Controller {
       deletePhoto(task.photo, ctx);
     }
 
-    task.photo = photoPath.toString();
+    task.photo = photoPath;
     task.status = true;
     teamHunt.tasks.set(teamHunt.tasks.indexOf(task), task);
     teamHuntCollection.save(teamHunt);
