@@ -1,7 +1,5 @@
 # To-Do List <!-- omit in toc -->
 
-- [Known Issues:](#known-issues)
-
 ## Known Issues:
 * When a hunter types an invite code into the “Type Invite Code” box and deletes the code, the application still allows the hunter to join the hunt associated with the invite code they deleted.
 * The front-end appearance for hunters isn’t as polished as we wanted it to be. Specifically on the page hunters use to submit photos, the font style and text colors are different from other pages.
