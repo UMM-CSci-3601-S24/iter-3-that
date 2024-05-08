@@ -14,3 +14,11 @@ After joining the hunt, each team can complete tasks by capturing pictures of sp
 * **Services Used:** MongoDB and Digital Ocean
 * **Frameworks:** Angular 17 and Javalin
 * **Testing software:** Karma, Cypress, and GitHub Actions
+
+## [Technical Document](DEPLOYMENT.md)
+
+A docunment decribing the technical apsects of the project.
+
+## Contributers 
+
+All who contributed to this project can be seen [here](../../graphs/contributors).
