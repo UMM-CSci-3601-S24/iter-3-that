@@ -6,7 +6,6 @@
 - [Deployment](#deployment)
 - [Resources](#resources)
 - [Changing the name](#changing-the-name)
-- [Documentation](#documentation)
 - [Contributors](#contributors)
 
 This is your starter code for Iteration 1.
@@ -76,10 +75,6 @@ The project by default has the name "CSCI 3601 Iteration Template". There are a 
   - The `title` element
 
 You can go ahead and remove this section of the README once you have changed the name.
-
-## Documentation
-
-
 
 ## Contributors
 
