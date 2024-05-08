@@ -3,6 +3,9 @@
 ## What is Scav-a-Snap?
 Scav-a-Snap is a photo scavenger hunt app for anyone looking for an exciting team-building experience. It provides all ages with enjoyable lasting memories. 
 
+## Using Scav-a-Snap
+
+
 ## Project Description:
 * **Languages used:** Typescript, Java, HTML and SCSS
 * **Services Used:** MongoDB and Digital Ocean
