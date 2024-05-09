@@ -1,6 +1,6 @@
 # Scav-a-Snap
 
-![Scav-A-Snap Poster](Poster.HEIC)
+![Scav-A-Snap Poster](Poster.jpg)
 
 ## What is Scav-a-Snap?
 Scav-a-Snap is a photo scavenger hunt app for anyone looking for an exciting team-building experience. It provides all ages with enjoyable lasting memories. 
